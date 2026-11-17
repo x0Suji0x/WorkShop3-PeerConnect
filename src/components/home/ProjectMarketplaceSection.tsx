@@ -18,7 +18,7 @@ export function ProjectMarketplaceSection() {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [appliedProjects, setAppliedProjects] = useState<Record<string, boolean>>({})
   const sectionRef = useRef<HTMLElement>(null)
-  const gridRef = useRef<HTMLDivElement>(null)
+  const rosterRef = useRef<HTMLDivElement>(null)
 
   const handleApply = (id: string) => {
     setAppliedProjects((prev) => ({
@@ -95,20 +95,20 @@ export function ProjectMarketplaceSection() {
   })
 
   useEffect(() => {
-    if (!gridRef.current) return
+    if (!rosterRef.current) return
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       ScrollTrigger.refresh()
       return
     }
 
-    const cards = gridRef.current.querySelectorAll('.project-card')
-    if (cards.length === 0) return
+    const rows = rosterRef.current.querySelectorAll('.opportunity-row')
+    if (rows.length === 0) return
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        cards,
-        { opacity: 0.3, y: 15 },
+        rows,
+        { opacity: 0.25, y: 16 },
         {
           opacity: 1,
           y: 0,
@@ -117,7 +117,7 @@ export function ProjectMarketplaceSection() {
           ease: 'power2.out',
           clearProps: 'opacity,transform',
           scrollTrigger: {
-            trigger: gridRef.current,
+            trigger: rosterRef.current,
             start: 'top 95%',
             once: true,
           },
@@ -134,50 +134,53 @@ export function ProjectMarketplaceSection() {
     <section
       id="projects"
       ref={sectionRef}
-      className="py-16 sm:py-20 lg:py-24 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
+      className="py-18 sm:py-24 lg:py-28 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+        {/* ============================================================== */}
+        {/* SECTION HEADER: BOLD EDITORIAL HEADLINE & METRICS             */}
+        {/* ============================================================== */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-10 border-b border-[#E7E8E1]">
           <div className="max-w-2xl space-y-3">
             {/* Small Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E3F4EB] border border-[#08C58A]/30 text-[#123D30] text-xs font-semibold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E3F4EB] border border-[#08C58A]/30 text-[#123D30] text-xs font-bold tracking-wider uppercase">
               <span className="w-2 h-2 rounded-full bg-[#08C58A] animate-pulse" />
-              <span>REAL WORK. REAL OPPORTUNITIES.</span>
+              <span>MARKETPLACE OPPORTUNITY BOARD</span>
             </div>
 
             {/* Headline */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-[#171916] leading-tight tracking-tight">
-              Find a project worth{' '}
+            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#171916] leading-[1.08] tracking-tight">
+              Real projects.{' '}
               <span className="text-[#08C58A] relative inline-block">
-                building.
+                Ambitious briefs.
                 <span
                   aria-hidden="true"
-                  className="absolute left-0 -bottom-1 w-full h-2 bg-[#E3F4EB] -rotate-1 -z-10 rounded-sm"
+                  className="absolute left-0 -bottom-1 w-full h-2.5 bg-[#E3F4EB] -rotate-1 -z-10 rounded-sm"
                 />
               </span>
             </h2>
 
             {/* Supporting Text */}
-            <p className="text-base sm:text-lg text-[#777A72] leading-relaxed">
-              Explore meaningful projects from startups, local businesses and creators looking for student talent.
+            <p className="text-base sm:text-lg text-[#777A72] leading-relaxed pt-1">
+              Explore scoped briefs from startups, local businesses, and creator studios looking to
+              collaborate with student talent.
             </p>
           </div>
 
           {/* Directory Count Indicator */}
-          <div className="self-start lg:self-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#E7E8E1] text-xs font-medium text-[#171916] shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#08C58A]" />
-              <span>
-                Showing <strong className="text-[#171916] font-bold">{filteredProjects.length}</strong> of{' '}
-                {mockProjects.length} opportunities
-              </span>
-            </div>
+          <div className="self-start lg:self-auto flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E7E8E1] text-xs font-semibold text-[#171916]">
+            <span className="w-2 h-2 rounded-full bg-[#08C58A]" />
+            <span>
+              Showing <strong className="text-[#171916] font-bold">{filteredProjects.length}</strong> of{' '}
+              {mockProjects.length} opportunities
+            </span>
           </div>
         </div>
 
-        {/* Discovery Controls: Filters & Search */}
-        <div className="mb-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        {/* ============================================================== */}
+        {/* INTEGRATED OPPORTUNITY TOOLBAR: FILTERS & SEARCH               */}
+        {/* ============================================================== */}
+        <div className="py-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-[#E7E8E1]/80 mb-8">
           {/* Category Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {categoryOptions.map((tab) => {
@@ -189,8 +192,8 @@ export function ProjectMarketplaceSection() {
                   onClick={() => setActiveCategory(tab.id)}
                   className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
                     isSelected
-                      ? 'bg-[#171916] text-white shadow-xs border border-[#171916]'
-                      : 'bg-white hover:bg-[#F2F1EA] text-[#777A72] hover:text-[#171916] border border-[#E7E8E1]'
+                      ? 'bg-[#171916] text-white shadow-xs'
+                      : 'bg-white hover:bg-[#EAE8DF] text-[#777A72] hover:text-[#171916] border border-[#E7E8E1]'
                   }`}
                 >
                   {tab.label}
@@ -200,21 +203,21 @@ export function ProjectMarketplaceSection() {
           </div>
 
           {/* Connected Search Field */}
-          <div className="relative w-full sm:w-72 shrink-0">
+          <div className="relative w-full sm:w-80 shrink-0">
             <Search className="w-4 h-4 text-[#777A72] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search projects or skills..."
+              placeholder="Search projects, client, tech stack..."
               aria-label="Search projects or skills"
-              className="w-full pl-9 pr-9 py-2 text-xs sm:text-sm bg-white border border-[#E7E8E1] rounded-full text-[#171916] placeholder:text-[#777A72] focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:border-[#08C58A] transition-all shadow-2xs"
+              className="w-full pl-9 pr-9 py-2.5 text-xs sm:text-sm bg-white border border-[#E7E8E1] rounded-full text-[#171916] placeholder:text-[#777A72] focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:border-[#08C58A] transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-[#777A72] hover:text-[#171916] cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-0.5 text-[#777A72] hover:text-[#171916] cursor-pointer"
                 title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
@@ -223,11 +226,13 @@ export function ProjectMarketplaceSection() {
           </div>
         </div>
 
-        {/* Projects Grid */}
+        {/* ============================================================== */}
+        {/* EDITORIAL OPPORTUNITY BOARD (Horizontal Rows / Panels)         */}
+        {/* ============================================================== */}
         {filteredProjects.length === 0 ? (
-          <div className="p-12 text-center bg-white rounded-2xl border border-[#E7E8E1] space-y-3">
-            <p className="text-base font-bold text-[#171916]">No matching project scopes found</p>
-            <p className="text-xs sm:text-sm text-[#777A72]">
+          <div className="p-16 text-center bg-white rounded-3xl border border-[#E7E8E1] space-y-3">
+            <p className="text-lg font-bold text-[#171916]">No matching project scopes found</p>
+            <p className="text-sm text-[#777A72]">
               Try adjusting your category filter or search keywords.
             </p>
             <button
@@ -236,158 +241,145 @@ export function ProjectMarketplaceSection() {
                 setActiveCategory('all')
                 setSearchQuery('')
               }}
-              className="px-4 py-2 rounded-full text-xs font-semibold bg-[#171916] text-white hover:bg-[#252823] transition-colors cursor-pointer"
+              className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#171916] text-white hover:bg-[#242723] transition-colors cursor-pointer"
             >
               Reset Filters
             </button>
           </div>
         ) : (
-          <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div ref={rosterRef} className="space-y-4">
             {filteredProjects.map((project) => {
               const isApplied = appliedProjects[project.id]
-              const isFeatured = project.badge === 'Featured'
-              // Normalize badge label: replace any "Verified Client" with "Active Brief"
               const displayBadge =
                 project.badge === 'Verified Client' ? 'Active Brief' : project.badge
 
               return (
                 <div
                   key={project.id}
-                  tabIndex={0}
-                  className={`project-card group bg-white rounded-2xl p-6 sm:p-7 border transition-all duration-200 flex flex-col justify-between space-y-5 shadow-[0_4px_20px_rgba(23,25,22,0.04)] hover:shadow-[0_16px_36px_rgba(23,25,22,0.08)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:ring-offset-2 ${
-                    isFeatured
-                      ? 'border-[#08C58A]/40 ring-1 ring-[#08C58A]/20'
-                      : 'border-[#E7E8E1] hover:border-[#08C58A]/50'
-                  }`}
+                  className="opportunity-row group bg-white rounded-2xl p-6 sm:p-7 border border-[#E7E8E1] hover:border-[#08C58A]/60 shadow-[0_4px_20px_rgba(23,25,22,0.03)] hover:shadow-[0_12px_32px_rgba(23,25,22,0.08)] hover:-translate-y-0.5 transition-all duration-200"
                 >
-                  <div className="space-y-4">
-                    {/* Header Row: Status Badge & Prominent Compensation */}
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          {displayBadge && (
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                                displayBadge === 'Featured'
-                                  ? 'bg-[#E3F4EB] text-[#123D30] border-[#08C58A]/30'
-                                  : displayBadge === 'High Urgency'
-                                  ? 'bg-orange-50 text-orange-800 border-orange-200'
-                                  : 'bg-[#F7F6F0] text-[#171916] border-[#E7E8E1]'
-                              }`}
-                            >
-                              {displayBadge}
-                            </span>
-                          )}
-                          <span className="text-[11px] text-[#777A72]">
-                            {project.postedTimeAgo}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    {/* LEFT / META COLUMN (lg:col-span-8) */}
+                    <div className="lg:col-span-8 space-y-3.5">
+                      {/* Top Meta Line: Badge + Client + Time */}
+                      <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                        {displayBadge && (
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                              displayBadge === 'Featured'
+                                ? 'bg-[#E3F4EB] text-[#123D30] border-[#08C58A]/30'
+                                : displayBadge === 'High Urgency'
+                                ? 'bg-orange-50 text-orange-800 border-orange-200'
+                                : 'bg-[#F7F6F0] text-[#171916] border-[#E7E8E1]'
+                            }`}
+                          >
+                            {displayBadge}
                           </span>
-                        </div>
+                        )}
 
-                        {/* Project Title */}
-                        <h3 className="text-lg sm:text-xl font-bold text-[#171916] group-hover:text-[#08C58A] transition-colors leading-snug pt-1">
-                          {project.title}
-                        </h3>
-
-                        {/* Client / Organization Label */}
-                        <div className="flex items-center gap-1.5 text-xs text-[#777A72]">
+                        <div className="flex items-center gap-1.5 text-[#777A72]">
                           <Building2 className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
-                          <span className="font-semibold text-[#171916]">
+                          <span className="font-bold text-[#171916]">
                             {project.clientName}
                           </span>
                           <span>•</span>
                           <span>{project.clientType}</span>
                         </div>
+
+                        <span className="text-[11px] text-[#777A72] font-mono">
+                          {project.postedTimeAgo}
+                        </span>
                       </div>
 
-                      {/* Prominent Compensation Callout */}
-                      <div className="p-3 rounded-xl bg-[#F7F6F0] border border-[#E7E8E1] text-right shrink-0">
-                        <span className="text-xl sm:text-2xl font-extrabold text-[#171916] block leading-none font-mono">
+                      {/* Prominent Project Title */}
+                      <h3 className="text-xl sm:text-2xl font-black text-[#171916] group-hover:text-[#08C58A] transition-colors leading-snug">
+                        {project.title}
+                      </h3>
+
+                      {/* Project Scope Description */}
+                      <p className="text-xs sm:text-sm text-[#777A72] leading-relaxed max-w-3xl">
+                        {project.description}
+                      </p>
+
+                      {/* Inset Strip: Duration, Effort, Pitches & Skills */}
+                      <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pt-1 text-xs">
+                        <div className="flex items-center gap-1 text-[#777A72]">
+                          <Clock className="w-3.5 h-3.5 text-[#08C58A]" />
+                          <span>
+                            Duration: <strong className="text-[#171916] font-semibold">{project.duration}</strong>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-[#777A72]">
+                          <Briefcase className="w-3.5 h-3.5 text-[#08C58A]" />
+                          <span>
+                            Effort: <strong className="text-[#171916] font-semibold">{project.hoursPerWeek}</strong>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 text-[#777A72]">
+                          <Users className="w-3.5 h-3.5 text-[#08C58A]" />
+                          <span>
+                            <strong className="text-[#171916] font-semibold">{project.applicantsCount}</strong> Pitches
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-[#777A72]">
+                            Tech:
+                          </span>
+                          {project.skillsRequired.map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F7F6F0] text-[#171916] border border-[#E7E8E1]"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RIGHT / COMPENSATION & ACTION COLUMN (lg:col-span-4) */}
+                    <div className="lg:col-span-4 flex lg:flex-col items-center lg:items-end justify-between gap-4 pt-4 lg:pt-0 border-t lg:border-t-0 border-[#E7E8E1]">
+                      {/* Budget Display */}
+                      <div className="text-left lg:text-right space-y-0.5">
+                        <span className="text-2xl sm:text-3xl font-black text-[#171916] font-mono leading-none block">
                           ${project.budget.toLocaleString()}
                         </span>
-                        <span className="text-[10px] font-semibold text-[#123D30] bg-[#E3F4EB] px-2 py-0.5 rounded-md inline-block mt-1">
+                        <span className="text-[11px] font-semibold text-[#123D30] bg-[#E3F4EB] px-2.5 py-0.5 rounded-full inline-block">
                           Project Budget
                         </span>
                       </div>
-                    </div>
 
-                    {/* Short Project Description */}
-                    <p className="text-xs sm:text-sm text-[#777A72] leading-relaxed line-clamp-3">
-                      {project.description}
-                    </p>
+                      {/* Apply Action Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleApply(project.id)}
+                        className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer ${
+                          isApplied
+                            ? 'bg-[#123D30] text-white shadow-xs'
+                            : 'bg-[#171916] hover:bg-[#08C58A] text-white hover:text-[#0A261D] shadow-[0_2px_12px_rgba(23,25,22,0.1)] hover:shadow-[0_4px_18px_rgba(8,197,138,0.3)]'
+                        }`}
+                      >
+                        {isApplied ? (
+                          <>
+                            <Check className="w-4 h-4 stroke-[2.5]" />
+                            <span>Application Sent</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Apply with Profile</span>
+                            <ArrowUpRight className="w-4 h-4 ml-0.5" />
+                          </>
+                        )}
+                      </button>
 
-                    {/* Scope & Commitment Strip */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 rounded-xl bg-[#F7F6F0] border border-[#E7E8E1] text-xs text-[#777A72]">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
-                        <span>
-                          Duration: <strong className="text-[#171916] font-semibold">{project.duration}</strong>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Briefcase className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
-                        <span>
-                          Effort: <strong className="text-[#171916] font-semibold">{project.hoursPerWeek}</strong>
-                        </span>
-                      </div>
-                      <div className="col-span-2 sm:col-span-1 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
-                        <span>
-                          <strong className="text-[#171916] font-semibold">{project.applicantsCount}</strong> Pitches
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Required Skills Chips */}
-                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-[#777A72] mr-1">
-                        Required:
+                      <span className="hidden lg:flex items-center gap-1 text-[11px] text-[#777A72]">
+                        <Sparkles className="w-3 h-3 text-[#08C58A]" />
+                        <span>Demo Brief • Direct Collaboration</span>
                       </span>
-                      {project.skillsRequired.map((skill, sIdx) => {
-                        const isPrimary = sIdx === 0
-                        return (
-                          <span
-                            key={skill}
-                            className={`px-2.5 py-0.5 rounded-md text-[11px] font-medium ${
-                              isPrimary
-                                ? 'bg-[#E3F4EB] text-[#123D30] border border-[#08C58A]/30'
-                                : 'bg-[#F7F6F0] text-[#171916] border border-[#E7E8E1]'
-                            }`}
-                          >
-                            {skill}
-                          </span>
-                        )
-                      })}
                     </div>
-                  </div>
-
-                  {/* Card Footer: Model Note & Apply Action */}
-                  <div className="pt-4 border-t border-[#E7E8E1] flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-1.5 text-xs text-[#777A72]">
-                      <Sparkles className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
-                      <span>Demo Brief • Direct Collaboration</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleApply(project.id)}
-                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                        isApplied
-                          ? 'bg-[#123D30] text-white border border-[#123D30] shadow-2xs'
-                          : 'bg-white hover:bg-[#08C58A] text-[#171916] hover:text-[#0A261D] border border-[#E7E8E1] hover:border-[#08C58A] shadow-2xs'
-                      }`}
-                    >
-                      {isApplied ? (
-                        <>
-                          <Check className="w-3 h-3 stroke-[2.5]" />
-                          <span>Applied</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Apply with Profile</span>
-                          <ArrowUpRight className="w-3 h-3 ml-0.5" />
-                        </>
-                      )}
-                    </button>
                   </div>
                 </div>
               )
