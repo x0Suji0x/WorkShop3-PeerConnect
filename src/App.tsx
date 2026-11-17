@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider'
+import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
 import { AppShell } from './components/layout/AppShell'
 import { routes, communityRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
@@ -22,8 +23,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <SmoothScrollProvider>
-        <AppShell>
-          <Routes>
+        <StudentProfileProvider>
+          <AppShell>
+            <Routes>
             <Route path={routes.home} element={<HomePage />} />
             <Route path={routes.dashboard} element={<StudentDashboardPage />} />
             <Route path={routes.profiles} element={<ModulePlaceholderPage eyebrow="Talent" title="Student profiles" description="Discover the students, skills, and portfolios shaping the next generation of work." owner="the shared profile directory" />} />
@@ -47,8 +49,9 @@ export default function App() {
             <Route path={communityRoutes.teamDetail} element={<TeamDetailPage />} />
 
             <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </AppShell>
+            </Routes>
+          </AppShell>
+        </StudentProfileProvider>
       </SmoothScrollProvider>
     </BrowserRouter>
   )
