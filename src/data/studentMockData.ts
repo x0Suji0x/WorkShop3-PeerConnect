@@ -1,0 +1,150 @@
+import type { Student } from '../types'
+
+export const demoStudent: Student = {
+  id: 'sofia-rodriguez',
+  name: 'Sofia Rodriguez',
+  headline: 'Design Engineer & Frontend Architect',
+  university: 'National Institute of Design',
+  college: 'National Institute of Design, Bengaluru',
+  degree: 'Bachelor of Design',
+  fieldOfStudy: 'Interaction Design',
+  graduationYear: '2027',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+  coverImageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1800&q=80',
+  hourlyRate: 650,
+  projectsCompleted: 12,
+  activeProjects: 2,
+  applicationsSent: 8,
+  profileViews: 248,
+  rating: 5,
+  reviewsCount: 8,
+  availability: 'Available now',
+  availabilityPreferences: {
+    paidProjects: true,
+    collaborators: true,
+    internships: true,
+    events: false,
+  },
+  skills: [
+    { name: 'Figma', category: 'design' },
+    { name: 'React', category: 'dev' },
+    { name: 'Tailwind CSS', category: 'dev' },
+    { name: 'Design Systems', category: 'design' },
+    { name: 'Framer', category: 'design' },
+  ],
+  interests: ['Inclusive design', 'Creative technology', 'Campus communities'],
+  featuredWork: 'Interactive 3D Web Experience & Design System',
+  bio: 'Design student blending visual craft with front-end implementation precision.',
+  about: 'I am a design engineer who enjoys translating thoughtful product ideas into clear, useful interfaces. I work at the intersection of interaction design and front-end development, with a particular interest in systems that make ambitious student teams easier to build.',
+  profileCompletion: 78,
+  experiences: [
+    {
+      id: 'exp-1',
+      organization: 'Mosaic Studio',
+      role: 'Product Design Intern',
+      type: 'internship',
+      startDate: 'May 2026',
+      endDate: 'Aug 2026',
+      description: 'Designed onboarding and reporting flows for a creator analytics platform, collaborating with engineers from prototype to release.',
+    },
+    {
+      id: 'exp-2',
+      organization: 'NID Design Collective',
+      role: 'Design Lead',
+      type: 'club',
+      startDate: 'Aug 2025',
+      description: 'Lead a 14-person visual design team producing the annual student showcase and peer-learning workshops.',
+    },
+    {
+      id: 'exp-3',
+      organization: 'Open Design Bengaluru',
+      role: 'Community Workshop Volunteer',
+      type: 'volunteering',
+      startDate: 'Jan 2026',
+      description: 'Facilitated portfolio review sessions for first-year students and documented accessible workshop materials.',
+    },
+  ],
+  education: [
+    {
+      id: 'edu-1',
+      institution: 'National Institute of Design, Bengaluru',
+      degree: 'Bachelor of Design',
+      fieldOfStudy: 'Interaction Design',
+      graduationYear: '2027',
+    },
+  ],
+  portfolioProjects: [
+    {
+      id: 'portfolio-1',
+      name: 'Peer Studio',
+      description: 'A collaborative critique space for student designers, with project boards and structured feedback prompts.',
+      skills: ['Figma', 'React', 'Design systems'],
+      url: 'https://example.com/peer-studio',
+    },
+    {
+      id: 'portfolio-2',
+      name: 'Transit Stories',
+      description: 'An interactive visual essay mapping everyday accessibility observations across Bengaluru transit routes.',
+      skills: ['Research', 'Prototyping', 'Framer'],
+    },
+  ],
+  certifications: [
+    { id: 'cert-1', name: 'Google UX Design Certificate', issuer: 'Google', issuedOn: '2025' },
+    { id: 'cert-2', name: 'Figma Design Systems', issuer: 'Figma', issuedOn: '2026' },
+  ],
+  socialLinks: {
+    github: 'https://github.com/',
+    linkedin: 'https://linkedin.com/',
+    behance: 'https://behance.net/',
+    portfolio: 'https://example.com/',
+  },
+  verifications: [
+    {
+      id: 'verification-college',
+      type: 'college_identity',
+      status: 'pending',
+      label: 'College identity',
+      description: 'Demo state — college ID review has not been connected to a verification service.',
+    },
+    {
+      id: 'verification-phone',
+      type: 'phone_number',
+      status: 'unverified',
+      label: 'Phone number',
+      description: 'Demo state — no phone verification data is available.',
+    },
+    {
+      id: 'verification-experience',
+      type: 'experience',
+      status: 'unverified',
+      label: 'Experience',
+      description: 'Demo state — experience references have not been reviewed.',
+    },
+    {
+      id: 'verification-skills',
+      type: 'skills',
+      status: 'unverified',
+      label: 'Skills',
+      description: 'Demo state — skill evidence has not been assessed.',
+    },
+    {
+      id: 'verification-portfolio',
+      type: 'portfolio_ownership',
+      status: 'pending',
+      label: 'Portfolio ownership',
+      description: 'Demo state — portfolio-link ownership awaiting review.',
+    },
+  ],
+  isPlusMember: false,
+}
+
+export const dashboardNotifications = [
+  { id: 'n1', title: 'Your profile appeared in 18 searches this week', time: '2 hours ago', kind: 'insight' },
+  { id: 'n2', title: 'New opportunity matches your React and Figma skills', time: 'Yesterday', kind: 'opportunity' },
+  { id: 'n3', title: 'Complete your verification details to strengthen your profile', time: '2 days ago', kind: 'verification' },
+]
+
+export const recommendedProjects = [
+  { id: 'p2', title: 'Interactive 3D Web Landing Experience', organization: 'Creative Hardware Co.', budget: '₹2.6L', skills: ['React', 'Figma', 'GSAP'] },
+  { id: 'p4', title: 'Community Event Registration Experience', organization: 'Campus Arts Council', budget: '₹85K', skills: ['Design systems', 'Tailwind CSS'] },
+]
