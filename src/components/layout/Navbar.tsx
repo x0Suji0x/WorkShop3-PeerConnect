@@ -33,10 +33,12 @@ export function Navbar() {
         </Link>
 
         {isHome ? (
-          <nav className="hidden items-center gap-8 text-sm font-medium text-[#171916] md:flex">
+          <nav className="hidden items-center gap-7 text-sm font-medium text-[#171916] md:flex">
             <button type="button" onClick={() => homeNav('#talent')} className="flex items-center gap-1 py-1 transition-colors hover:text-[#08C58A]"><span>Explore</span><ChevronDown className="h-3.5 w-3.5 text-[#525A55]" /></button>
             <button type="button" onClick={() => homeNav('#talent')} className="py-1 transition-colors hover:text-[#08C58A]">Talent</button>
             <button type="button" onClick={() => homeNav('#projects')} className="py-1 transition-colors hover:text-[#08C58A]">Projects</button>
+            <Link to={communityRoutes.communities} className="py-1 transition-colors hover:text-[#08C58A]">Communities</Link>
+            <Link to={communityRoutes.teamFinder} className="py-1 transition-colors hover:text-[#08C58A]">Team Finder</Link>
             <button type="button" onClick={() => homeNav('#how-it-works')} className="py-1 transition-colors hover:text-[#08C58A]">About</button>
           </nav>
         ) : (
@@ -50,7 +52,7 @@ export function Navbar() {
         </div>
         <div className="flex items-center gap-2 lg:hidden"><Link to={routes.dashboard} onClick={closeMenu} className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]">Dashboard</Link><button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="rounded-xl p-2 text-[#171916] transition-colors hover:bg-black/5" aria-label="Toggle navigation menu" aria-expanded={mobileMenuOpen}>{mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}</button></div>
       </div>
-      {mobileMenuOpen && <div className="border-b border-[#E7E8E1] bg-[#FAF8F5]/98 px-4 pb-6 pt-3 shadow-lg backdrop-blur-lg lg:hidden"><nav className="flex flex-col gap-1 text-base font-semibold text-[#171916]">{isHome ? <><button type="button" onClick={() => homeNav('#talent')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">Explore talent</button><button type="button" onClick={() => homeNav('#projects')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">Projects</button><button type="button" onClick={() => homeNav('#how-it-works')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">How it works</button></> : appLinks.map((link) => <NavLink key={link.to} to={link.to} onClick={closeMenu} className={({ isActive }) => `rounded-xl px-3 py-2.5 ${isActive ? 'bg-[#E3F4EB] text-[#123D30]' : 'hover:bg-white'}`}>{link.label}</NavLink>)}</nav><div className="mt-3 border-t border-[#E7E8E1] pt-3"><Link to={isHome ? routes.dashboard : routes.home} onClick={closeMenu} className="block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]">{isHome ? 'Open dashboard' : 'Back to home'}</Link></div></div>}
+      {mobileMenuOpen && <div className="border-b border-[#E7E8E1] bg-[#FAF8F5]/98 px-4 pb-6 pt-3 shadow-lg backdrop-blur-lg lg:hidden"><nav className="flex flex-col gap-1 text-base font-semibold text-[#171916]">{isHome ? <><button type="button" onClick={() => homeNav('#talent')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">Explore talent</button><button type="button" onClick={() => homeNav('#projects')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">Projects</button><Link to={communityRoutes.communities} onClick={closeMenu} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">Communities</Link><Link to={communityRoutes.teamFinder} onClick={closeMenu} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">Team Finder</Link><button type="button" onClick={() => homeNav('#how-it-works')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">How it works</button></> : appLinks.map((link) => <NavLink key={link.to} to={link.to} onClick={closeMenu} className={({ isActive }) => `rounded-xl px-3 py-2.5 ${isActive ? 'bg-[#E3F4EB] text-[#123D30]' : 'hover:bg-white'}`}>{link.label}</NavLink>)}</nav><div className="mt-3 border-t border-[#E7E8E1] pt-3"><Link to={isHome ? routes.dashboard : routes.home} onClick={closeMenu} className="block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]">{isHome ? 'Open dashboard' : 'Back to home'}</Link></div></div>}
     </header>
   )
 }
