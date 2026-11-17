@@ -44,9 +44,12 @@ body {
 .hero-card-student,
 .hero-card-project,
 .hero-card-match,
+.hero-student-card,
+.hero-project-card,
 .hero-story-card,
 .hero-skill-chip,
 .hero-match-badge,
+.connection-path-scene,
 .connection-path-story {
   opacity: 1;
   visibility: visible;
