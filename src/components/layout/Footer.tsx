@@ -111,9 +111,9 @@ export function Footer() {
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
                 <a
-                  href="https://github.com/kritagyagour19/PeerConnect_workshop3"
+                  href="https://github.com/x0Suji0x/WorkShop3-PeerConnect"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 font-medium text-[#171916] hover:text-[#08C58A] transition-colors"
                 >
                   <span>GitHub Repository</span>
