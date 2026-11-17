@@ -1,87 +1,94 @@
 @import "tailwindcss";
-@import "lenis/dist/lenis.css";
 
-/* Reset and cohesive warm off-white design system */
+/* =========================================================================
+   EDITORIAL CAMPUS NETWORK — COLOR TOKENS & SYSTEM
+   ========================================================================= */
 :root {
-  --bg-warm: #F7F6F0;
-  --bg-white: #FFFFFF;
-  --text-dark: #171916;
-  --text-muted: #777A72;
-  --accent-green: #08C58A;
-  --forest-dark: #123D30;
-  --mint-soft: #E3F4EB;
-  --border-subtle: #E7E8E1;
+  --bg-midnight: #090A0F;
+  --bg-surface: #10131B;
+  --bg-surface-elevated: #171C28;
+  --text-primary: #F4F3EE;
+  --text-muted: #8E95A5;
+  --accent-lime: #D4FF00;
+  --accent-violet: #6366F1;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-lime: rgba(212, 255, 0, 0.3);
 }
 
+/* =========================================================================
+   GUIDED NATIVE SCROLL SNAPPING ARCHITECTURE
+   ========================================================================= */
 html {
-  scroll-behavior: auto;
-  background-color: #F7F6F0;
-  color: #171916;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  background-color: #090A0F;
+  color: #F4F3EE;
+}
+
+/* On tablet & mobile, use proximity snap so taller content can be read comfortably */
+@media (max-width: 1024px) {
+  html {
+    scroll-snap-type: y proximity;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F7F6F0;
-  color: #171916;
+  background-color: #090A0F;
+  color: #F4F3EE;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Use overflow-x: clip instead of hidden to avoid breaking window scroll / ScrollTrigger calculations */
   overflow-x: clip;
 }
 
-/* Ensure content items are visible by default so animation failures never produce blank sections */
-.student-card,
-.project-card,
-.step-card,
-.cta-reveal,
-.hero-reveal,
-.hero-text-reveal,
-.hero-sub-reveal,
-.hero-word,
-.hero-hub,
-.hero-chip,
-.connection-path,
-.connection-path-animated,
-.connection-path-student,
-.connection-path-project,
-.hero-card-student,
-.hero-card-project,
-.hero-card-match,
-.hero-student-card,
-.hero-project-card,
-.hero-story-card,
-.hero-skill-chip,
-.hero-match-badge,
-.connection-path-scene,
-.connection-path-story {
+/* Scroll snap utility for sections */
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Ensure reveal elements are always visible by default */
+.editorial-reveal,
+.cta-reveal {
   opacity: 1;
   visibility: visible;
 }
 
-/* Subtle pattern utilities */
-.bg-grid-pattern {
-  background-size: 32px 32px;
-  background-image: radial-gradient(circle, rgba(23, 25, 22, 0.05) 1px, transparent 1px);
+/* Editorial dot-grid & architectural line patterns */
+.bg-grid-editorial {
+  background-size: 40px 40px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
 }
 
-.bg-grid-pattern-dark {
-  background-size: 32px 32px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+.bg-line-grid {
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
-/* Custom scrollbar */
+/* Custom editorial scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F7F6F0;
+  background: #090A0F;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D8D6CE;
+  background: #252B3B;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B5B2A8;
+  background: #D4FF00;
 }

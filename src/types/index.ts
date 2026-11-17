@@ -23,12 +23,12 @@ export interface ProjectOpportunity {
   clientLocation: string
   clientLogo?: string
   budget: number
-  budgetType: 'Fixed Escrow' | 'Milestone Escrow' | 'Hourly'
+  budgetType: 'Fixed Scope' | 'Milestone Scope' | 'Fixed Escrow' | 'Milestone Escrow' | 'Hourly'
   duration: string
   hoursPerWeek: string
   description: string
   skillsRequired: string[]
-  badge?: 'High Urgency' | 'Featured' | 'New' | 'Verified Client'
+  badge?: 'High Urgency' | 'Featured' | 'New' | 'Verified Client' | 'Active Scope'
   applicantsCount: number
   postedTimeAgo: string
 }

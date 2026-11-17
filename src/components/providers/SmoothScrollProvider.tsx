@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import Lenis from 'lenis'
-import { gsap, ScrollTrigger } from '../../lib/gsap'
+import { ScrollTrigger } from '../../lib/gsap'
 import { SmoothScrollContext } from './SmoothScrollContext'
 
 export interface SmoothScrollProviderProps {
@@ -8,60 +7,47 @@ export interface SmoothScrollProviderProps {
 }
 
 /**
- * Initializes and manages Lenis smooth scrolling instance
- * with GSAP ScrollTrigger synchronization.
+ * Manages smooth scroll coordination while enabling native CSS scroll snapping.
+ * Ensures zero scroll hijacking, allows native trackpad/touch/mousewheel snap,
+ * and synchronizes GSAP ScrollTrigger transitions.
  */
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
-  const lenisRef = useRef<Lenis | null>(null)
+  const lenisRef = useRef<any | null>(null)
 
   useEffect(() => {
-    // Respect reduced motion
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-
-    if (prefersReducedMotion) {
-      ScrollTrigger.refresh()
-      return
+    // Provide a lightweight mock/wrapper interface for lenisRef so legacy consumers don't break
+    lenisRef.current = {
+      scrollTo: (target: string | number | HTMLElement) => {
+        if (typeof target === 'string') {
+          const el = document.querySelector(target)
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            return
+          }
+        } else if (target instanceof HTMLElement) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          return
+        }
+        window.scrollTo({
+          top: typeof target === 'number' ? target : 0,
+          behavior: 'smooth',
+        })
+      },
     }
 
-    const lenisInstance = new Lenis({
-      duration: 1.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    })
-
-    lenisRef.current = lenisInstance
-
-    // Sync Lenis scroll progress with ScrollTrigger
-    lenisInstance.on('scroll', ScrollTrigger.update)
-
-    // Pipe GSAP ticker updates into Lenis requestAnimationFrame
-    const tickerUpdate = (time: number) => {
-      lenisInstance.raf(time * 1000)
-    }
-
-    gsap.ticker.add(tickerUpdate)
-    gsap.ticker.lagSmoothing(0)
-
-    // Ensure ScrollTrigger measures the document correctly once Lenis attaches
-    const refreshTimer = setTimeout(() => {
+    // Refresh ScrollTrigger so triggers align with viewport
+    const timer = setTimeout(() => {
       ScrollTrigger.refresh()
-    }, 100)
+    }, 150)
 
-    const handleLoad = () => {
+    const handleResize = () => {
       ScrollTrigger.refresh()
     }
-    window.addEventListener('load', handleLoad)
+    window.addEventListener('resize', handleResize)
 
     return () => {
-      clearTimeout(refreshTimer)
-      window.removeEventListener('load', handleLoad)
-      gsap.ticker.remove(tickerUpdate)
-      lenisInstance.destroy()
+      clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
       lenisRef.current = null
     }
   }, [])

@@ -137,7 +137,7 @@ export const mockProjects: ProjectOpportunity[] = [
     clientType: 'B2B Logistics Concept',
     clientLocation: 'Remote Scope',
     budget: 4500,
-    budgetType: 'Milestone Escrow',
+    budgetType: 'Milestone Scope',
     duration: '4 Weeks',
     hoursPerWeek: '15-20 hrs/wk',
     description:
@@ -154,7 +154,7 @@ export const mockProjects: ProjectOpportunity[] = [
     clientType: 'Product Launch Concept',
     clientLocation: 'Remote Scope',
     budget: 3200,
-    budgetType: 'Fixed Escrow',
+    budgetType: 'Fixed Scope',
     duration: '2 Weeks',
     hoursPerWeek: '10-15 hrs/wk',
     description:
@@ -171,13 +171,13 @@ export const mockProjects: ProjectOpportunity[] = [
     clientType: 'Mobile App Prototype',
     clientLocation: 'Remote Scope',
     budget: 5800,
-    budgetType: 'Milestone Escrow',
+    budgetType: 'Milestone Scope',
     duration: '6 Weeks',
     hoursPerWeek: '15-20 hrs/wk',
     description:
       'Sample project scope: Implement core MVP mobile flows including daily streak tracking, notifications, and Supabase authentication.',
     skillsRequired: ['React Native', 'Expo', 'TypeScript', 'Supabase'],
-    badge: 'Verified Client',
+    badge: 'Active Scope',
     applicantsCount: 5,
     postedTimeAgo: 'Recent Scope',
   },
@@ -188,7 +188,7 @@ export const mockProjects: ProjectOpportunity[] = [
     clientType: 'API & Microservice Scope',
     clientLocation: 'Remote Scope',
     budget: 4200,
-    budgetType: 'Milestone Escrow',
+    budgetType: 'Milestone Scope',
     duration: '3 Weeks',
     hoursPerWeek: '15 hrs/wk',
     description:
