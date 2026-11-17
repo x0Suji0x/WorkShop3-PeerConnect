@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { CheckCircle, ArrowRight, FolderGit2, Check } from 'lucide-react'
+import { ArrowRight, FolderGit2, Check } from 'lucide-react'
 import { mockStudents } from '../../data/mockData'
 import { gsap, ScrollTrigger } from '../../lib/gsap'
+import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 import type { SkillCategory } from '../../types'
 
 export function StudentDiscoverySection() {
@@ -9,6 +10,7 @@ export function StudentDiscoverySection() {
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const cardsContainerRef = useRef<HTMLDivElement>(null)
+  const { scrollTo } = useSmoothScroll()
 
   const filteredStudents = mockStudents.filter((student) => {
     if (activeCategory === 'all') return true
@@ -83,7 +85,7 @@ export function StudentDiscoverySection() {
     <section
       id="talent"
       ref={sectionRef}
-      className="py-14 sm:py-20 lg:py-24 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors"
+      className="py-16 sm:py-20 lg:py-24 bg-white text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -115,11 +117,11 @@ export function StudentDiscoverySection() {
 
           {/* Directory Count Indicator */}
           <div className="self-start lg:self-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#E7E8E1] text-xs font-medium text-[#171916] shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F7F6F0] border border-[#E7E8E1] text-xs font-medium text-[#171916] shadow-2xs">
               <span className="w-1.5 h-1.5 rounded-full bg-[#08C58A]" />
               <span>
                 Showing <strong className="text-[#171916] font-bold">{filteredStudents.length}</strong> of{' '}
-                {mockStudents.length} builders
+                {mockStudents.length} student builders
               </span>
             </div>
           </div>
@@ -137,7 +139,7 @@ export function StudentDiscoverySection() {
                 className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer shrink-0 ${
                   isSelected
                     ? 'bg-[#171916] text-white shadow-xs border border-[#171916]'
-                    : 'bg-white hover:bg-[#F2F1EA] text-[#777A72] hover:text-[#171916] border border-[#E7E8E1]'
+                    : 'bg-[#F7F6F0] hover:bg-[#EAE8DF] text-[#777A72] hover:text-[#171916] border border-[#E7E8E1]'
                 }`}
               >
                 {tab.label}
@@ -159,7 +161,7 @@ export function StudentDiscoverySection() {
               <div
                 key={student.id}
                 tabIndex={0}
-                className={`student-card group bg-white rounded-2xl p-6 border transition-all duration-200 flex flex-col justify-between shadow-[0_4px_20px_rgba(23,25,22,0.04)] hover:shadow-[0_12px_32px_rgba(23,25,22,0.08)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:ring-offset-2 ${
+                className={`student-card group bg-[#F7F6F0]/60 hover:bg-white rounded-2xl p-6 border transition-all duration-200 flex flex-col justify-between shadow-[0_4px_20px_rgba(23,25,22,0.03)] hover:shadow-[0_16px_36px_rgba(23,25,22,0.08)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:ring-offset-2 ${
                   isFeatured
                     ? 'border-[#08C58A]/40 ring-1 ring-[#08C58A]/20'
                     : 'border-[#E7E8E1] hover:border-[#08C58A]/50'
@@ -190,12 +192,6 @@ export function StudentDiscoverySection() {
                           <h3 className="font-bold text-[#171916] text-base group-hover:text-[#08C58A] transition-colors leading-snug">
                             {student.name}
                           </h3>
-                          <span
-                            className="text-[#08C58A]"
-                            title="Verified Demo Profile"
-                          >
-                            <CheckCircle className="w-3.5 h-3.5 fill-[#08C58A]/15 text-[#08C58A]" />
-                          </span>
                         </div>
                         <p className="text-xs text-[#777A72] font-medium leading-tight">
                           {student.university}
@@ -204,7 +200,7 @@ export function StudentDiscoverySection() {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-base font-extrabold text-[#171916] block leading-none">
+                      <span className="text-base font-extrabold text-[#171916] block leading-none font-mono">
                         ${student.hourlyRate}
                       </span>
                       <span className="text-[10px] text-[#777A72] font-normal block pt-0.5">
@@ -218,7 +214,6 @@ export function StudentDiscoverySection() {
                     <h4 className="text-sm font-semibold text-[#171916] leading-snug">
                       {student.headline}
                     </h4>
-                    {/* Short Professional Introduction */}
                     {student.bio && (
                       <p className="text-xs text-[#777A72] line-clamp-2 leading-relaxed pt-1">
                         {student.bio}
@@ -227,7 +222,7 @@ export function StudentDiscoverySection() {
                   </div>
 
                   {/* Featured Portfolio Preview Box */}
-                  <div className="p-3.5 rounded-xl bg-[#F7F6F0] border border-[#E7E8E1] space-y-1">
+                  <div className="p-3.5 rounded-xl bg-white border border-[#E7E8E1] space-y-1 shadow-2xs">
                     <div className="flex items-center justify-between text-[11px] font-semibold text-[#777A72]">
                       <span className="flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
                         <FolderGit2 className="w-3.5 h-3.5 text-[#08C58A]" />
@@ -252,7 +247,7 @@ export function StudentDiscoverySection() {
                           className={`px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-colors ${
                             isPrimarySkill
                               ? 'bg-[#E3F4EB] text-[#123D30] border border-[#08C58A]/30'
-                              : 'bg-[#F7F6F0] text-[#171916] border border-[#E7E8E1]'
+                              : 'bg-white text-[#171916] border border-[#E7E8E1]'
                           }`}
                         >
                           {skill.name}
@@ -291,7 +286,7 @@ export function StudentDiscoverySection() {
                     {isRequested ? (
                       <>
                         <Check className="w-3 h-3 stroke-[2.5]" />
-                        <span>Requested</span>
+                        <span>Connected</span>
                       </>
                     ) : (
                       <>
@@ -310,13 +305,14 @@ export function StudentDiscoverySection() {
         <div className="mt-12 text-center">
           <p className="text-xs sm:text-sm text-[#777A72]">
             Looking for specific deliverables or have a scoped project?{' '}
-            <a
-              href="#projects"
-              className="text-[#08C58A] font-semibold hover:underline inline-flex items-center gap-1"
+            <button
+              type="button"
+              onClick={() => scrollTo('#projects')}
+              className="text-[#08C58A] font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
-              Explore sample project opportunities
+              <span>Explore project opportunities</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </a>
+            </button>
           </p>
         </div>
       </div>

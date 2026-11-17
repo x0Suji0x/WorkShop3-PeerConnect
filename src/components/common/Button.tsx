@@ -15,19 +15,19 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+    'inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#08C58A]/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
 
   const variantStyles = {
     primary:
-      'bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-semibold shadow-sm hover:shadow active:scale-[0.98]',
+      'bg-[#08C58A] hover:bg-[#07B27C] text-[#0A261D] font-semibold shadow-[0_2px_12px_rgba(8,197,138,0.22)] hover:shadow-[0_4px_18px_rgba(8,197,138,0.32)] active:scale-[0.98]',
     dark:
-      'bg-stone-900 hover:bg-stone-800 text-white font-medium shadow-sm hover:shadow active:scale-[0.98]',
+      'bg-[#171916] hover:bg-[#242723] text-white font-medium shadow-2xs hover:shadow-xs active:scale-[0.98]',
     secondary:
-      'bg-white hover:bg-stone-50 text-stone-900 border border-stone-200 shadow-2xs hover:border-stone-300 active:scale-[0.98]',
+      'bg-white hover:bg-[#F2F1EA] text-[#171916] border border-[#E7E8E1] hover:border-[#D1D2C9] shadow-2xs active:scale-[0.98]',
     ghost:
-      'bg-transparent hover:bg-stone-200/50 text-stone-700 hover:text-stone-950',
+      'bg-transparent hover:bg-[#171916]/5 text-[#777A72] hover:text-[#171916]',
     outline:
-      'bg-transparent border border-stone-300 hover:border-stone-400 text-stone-800 hover:bg-stone-100/50',
+      'bg-transparent border border-[#E7E8E1] hover:border-[#08C58A] text-[#171916] hover:bg-[#E3F4EB]/30',
   }
 
   const sizeStyles = {

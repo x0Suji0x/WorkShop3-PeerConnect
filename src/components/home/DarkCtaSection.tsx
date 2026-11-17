@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { ArrowRight, Sparkles, FolderGit2, Clock, Check } from 'lucide-react'
+import { ArrowRight, Sparkles, FolderGit2, Check, Briefcase } from 'lucide-react'
 import { gsap, ScrollTrigger } from '../../lib/gsap'
 import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 
@@ -48,16 +48,16 @@ export function DarkCtaSection() {
     <section
       id="cta"
       ref={sectionRef}
-      className="relative py-20 sm:py-28 lg:py-32 bg-[#0A1A14] text-white overflow-hidden"
+      className="relative py-20 sm:py-28 lg:py-32 bg-[#0A120E] text-white overflow-hidden"
     >
       {/* Deep Forest-Green Ambient Glow & Texture */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] sm:w-[800px] h-[360px] bg-[#08C58A]/18 rounded-full blur-[130px] -z-0"
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] sm:w-[850px] h-[380px] bg-[#08C58A]/18 rounded-full blur-[140px] -z-0"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-grid-pattern-dark opacity-30 -z-0"
+        className="pointer-events-none absolute inset-0 bg-grid-pattern-dark opacity-25 -z-0"
       />
 
       <div
@@ -108,48 +108,48 @@ export function DarkCtaSection() {
           </button>
         </div>
 
-        {/* Decorative UI Snippets Inspired by Student Profiles & Project Cards */}
+        {/* Two Perspective Information Cards */}
         <div className="cta-reveal pt-10 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto text-left">
-          {/* Student Profile Snippet */}
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-2 hover:border-[#08C58A]/40 transition-colors">
+          {/* Card 1: For Students */}
+          <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-2 hover:border-[#08C58A]/40 transition-colors">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[#08C58A] flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
                 <FolderGit2 className="w-3.5 h-3.5" />
                 For Student Builders
               </span>
               <span className="text-[10px] text-white/60 bg-white/10 px-2 py-0.5 rounded-full">
-                Portfolio-first
+                Portfolio-First
               </span>
             </div>
-            <p className="text-xs font-bold text-white">
-              Showcase verified code repositories and design work
+            <p className="text-sm font-bold text-white">
+              Showcase real code repositories and design work
             </p>
-            <p className="text-[11px] text-[#A3B8B0] leading-relaxed">
-              Connect with real project owners, build a verified track record, and earn milestone compensation.
+            <p className="text-xs text-[#A3B8B0] leading-relaxed">
+              Connect with project owners, build a verified track record, and collaborate on real products.
             </p>
           </div>
 
-          {/* Project Opportunity Snippet */}
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-2 hover:border-[#08C58A]/40 transition-colors">
+          {/* Card 2: For Project Owners */}
+          <div className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-2 hover:border-[#08C58A]/40 transition-colors">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[#08C58A] flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
-                <Clock className="w-3.5 h-3.5" />
+                <Briefcase className="w-3.5 h-3.5" />
                 For Project Owners
               </span>
               <span className="text-[10px] text-white/60 bg-white/10 px-2 py-0.5 rounded-full">
                 Milestone Scopes
               </span>
             </div>
-            <p className="text-xs font-bold text-white">
+            <p className="text-sm font-bold text-white">
               Find motivated student builders for your next build
             </p>
-            <p className="text-[11px] text-[#A3B8B0] leading-relaxed">
-              Define clear deliverables, collaborate with emerging developers, and pay safely on delivery.
+            <p className="text-xs text-[#A3B8B0] leading-relaxed">
+              Define clear deliverables, collaborate with emerging developers, and ship projects faster.
             </p>
           </div>
         </div>
 
-        {/* Clean Assurance Row */}
+        {/* Trust Points */}
         <div className="cta-reveal flex flex-wrap items-center justify-center gap-6 text-xs text-[#A3B8B0] pt-2">
           <span className="flex items-center gap-1.5">
             <Check className="w-3.5 h-3.5 text-[#08C58A]" />
@@ -157,7 +157,7 @@ export function DarkCtaSection() {
           </span>
           <span className="flex items-center gap-1.5">
             <Check className="w-3.5 h-3.5 text-[#08C58A]" />
-            Structured milestone escrow
+            Clear milestone scopes
           </span>
           <span className="flex items-center gap-1.5">
             <Check className="w-3.5 h-3.5 text-[#08C58A]" />

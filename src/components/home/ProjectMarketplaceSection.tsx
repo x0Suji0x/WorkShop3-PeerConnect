@@ -4,11 +4,11 @@ import {
   Briefcase,
   Users,
   Building2,
-  CheckCircle2,
   ArrowUpRight,
   Check,
   Search,
   X,
+  Sparkles,
 } from 'lucide-react'
 import { mockProjects } from '../../data/mockData'
 import { gsap, ScrollTrigger } from '../../lib/gsap'
@@ -134,7 +134,7 @@ export function ProjectMarketplaceSection() {
     <section
       id="projects"
       ref={sectionRef}
-      className="py-14 sm:py-20 lg:py-24 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors"
+      className="py-16 sm:py-20 lg:py-24 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -160,8 +160,7 @@ export function ProjectMarketplaceSection() {
 
             {/* Supporting Text */}
             <p className="text-base sm:text-lg text-[#777A72] leading-relaxed">
-              Explore meaningful projects from startups, local businesses and ambitious creators
-              looking for student talent.
+              Explore meaningful projects from startups, local businesses and creators looking for student talent.
             </p>
           </div>
 
@@ -171,7 +170,7 @@ export function ProjectMarketplaceSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#08C58A]" />
               <span>
                 Showing <strong className="text-[#171916] font-bold">{filteredProjects.length}</strong> of{' '}
-                {mockProjects.length} sample opportunities
+                {mockProjects.length} opportunities
               </span>
             </div>
           </div>
@@ -247,12 +246,15 @@ export function ProjectMarketplaceSection() {
             {filteredProjects.map((project) => {
               const isApplied = appliedProjects[project.id]
               const isFeatured = project.badge === 'Featured'
+              // Normalize badge label: replace any "Verified Client" with "Active Brief"
+              const displayBadge =
+                project.badge === 'Verified Client' ? 'Active Brief' : project.badge
 
               return (
                 <div
                   key={project.id}
                   tabIndex={0}
-                  className={`project-card group bg-white rounded-2xl p-6 sm:p-7 border transition-all duration-200 flex flex-col justify-between space-y-5 shadow-[0_4px_20px_rgba(23,25,22,0.04)] hover:shadow-[0_12px_32px_rgba(23,25,22,0.08)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:ring-offset-2 ${
+                  className={`project-card group bg-white rounded-2xl p-6 sm:p-7 border transition-all duration-200 flex flex-col justify-between space-y-5 shadow-[0_4px_20px_rgba(23,25,22,0.04)] hover:shadow-[0_16px_36px_rgba(23,25,22,0.08)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#08C58A]/50 focus:ring-offset-2 ${
                     isFeatured
                       ? 'border-[#08C58A]/40 ring-1 ring-[#08C58A]/20'
                       : 'border-[#E7E8E1] hover:border-[#08C58A]/50'
@@ -263,17 +265,17 @@ export function ProjectMarketplaceSection() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          {project.badge && (
+                          {displayBadge && (
                             <span
                               className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
-                                project.badge === 'Featured'
+                                displayBadge === 'Featured'
                                   ? 'bg-[#E3F4EB] text-[#123D30] border-[#08C58A]/30'
-                                  : project.badge === 'High Urgency'
+                                  : displayBadge === 'High Urgency'
                                   ? 'bg-orange-50 text-orange-800 border-orange-200'
                                   : 'bg-[#F7F6F0] text-[#171916] border-[#E7E8E1]'
                               }`}
                             >
-                              {project.badge}
+                              {displayBadge}
                             </span>
                           )}
                           <span className="text-[11px] text-[#777A72]">
@@ -299,11 +301,11 @@ export function ProjectMarketplaceSection() {
 
                       {/* Prominent Compensation Callout */}
                       <div className="p-3 rounded-xl bg-[#F7F6F0] border border-[#E7E8E1] text-right shrink-0">
-                        <span className="text-xl sm:text-2xl font-extrabold text-[#171916] block leading-none">
+                        <span className="text-xl sm:text-2xl font-extrabold text-[#171916] block leading-none font-mono">
                           ${project.budget.toLocaleString()}
                         </span>
                         <span className="text-[10px] font-semibold text-[#123D30] bg-[#E3F4EB] px-2 py-0.5 rounded-md inline-block mt-1">
-                          {project.budgetType}
+                          Project Budget
                         </span>
                       </div>
                     </div>
@@ -313,7 +315,7 @@ export function ProjectMarketplaceSection() {
                       {project.description}
                     </p>
 
-                    {/* Compact Scope & Commitment Inset Strip */}
+                    {/* Scope & Commitment Strip */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 rounded-xl bg-[#F7F6F0] border border-[#E7E8E1] text-xs text-[#777A72]">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
@@ -338,7 +340,7 @@ export function ProjectMarketplaceSection() {
                     {/* Required Skills Chips */}
                     <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-[#777A72] mr-1">
-                        Stack:
+                        Required:
                       </span>
                       {project.skillsRequired.map((skill, sIdx) => {
                         const isPrimary = sIdx === 0
@@ -360,9 +362,9 @@ export function ProjectMarketplaceSection() {
 
                   {/* Card Footer: Model Note & Apply Action */}
                   <div className="pt-4 border-t border-[#E7E8E1] flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-1.5 text-xs text-[#123D30] font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
-                      <span>Sample Brief • Milestone Allocation</span>
+                    <div className="flex items-center gap-1.5 text-xs text-[#777A72]">
+                      <Sparkles className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
+                      <span>Demo Brief • Direct Collaboration</span>
                     </div>
 
                     <button
@@ -377,7 +379,7 @@ export function ProjectMarketplaceSection() {
                       {isApplied ? (
                         <>
                           <Check className="w-3 h-3 stroke-[2.5]" />
-                          <span>Application Sent</span>
+                          <span>Applied</span>
                         </>
                       ) : (
                         <>

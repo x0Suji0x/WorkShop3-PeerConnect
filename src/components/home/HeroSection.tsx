@@ -114,7 +114,7 @@ export function HeroSection() {
             scrollTrigger: {
               trigger: heroRef.current,
               start: 'top 80px',
-              end: '+=2000', // ~2.2 viewport heights for responsive storytelling
+              end: '+=850', // Calibrated ~1 viewport height to prevent scroll trapping
               pin: true,
               pinSpacing: true,
               anticipatePin: 1,
@@ -287,7 +287,7 @@ export function HeroSection() {
             scrollTrigger: {
               trigger: heroRef.current,
               start: 'top 80px',
-              end: '+=1100',
+              end: '+=500',
               pin: true,
               pinSpacing: true,
               anticipatePin: 1,
