@@ -1,4 +1,5 @@
 import { HeroSection } from '../../components/home/HeroSection'
+import { PeerConnectIntroSection } from '../../components/home/PeerConnectIntroSection'
 import { StudentDiscoverySection } from '../../components/home/StudentDiscoverySection'
 import { ProjectMarketplaceSection } from '../../components/home/ProjectMarketplaceSection'
 import { HowItWorksSection } from '../../components/home/HowItWorksSection'
@@ -10,16 +11,19 @@ export function HomePage() {
       {/* 1. Hero with confident typography, floating cards & subtle geometric elements */}
       <HeroSection />
 
-      {/* 2. Student Discovery Section with curated profile cards & filters */}
+      {/* 2. Short product introduction after the hero scroll story */}
+      <PeerConnectIntroSection />
+
+      {/* 3. Student Discovery Section with curated profile cards & filters */}
       <StudentDiscoverySection />
 
-      {/* 3. Project Marketplace Section with live scoped opportunities & budgets */}
+      {/* 4. Project Marketplace Section with live scoped opportunities & budgets */}
       <ProjectMarketplaceSection />
 
-      {/* 4. How It Works Section explaining Student & Client journeys */}
+      {/* 5. How It Works Section explaining Student & Client journeys */}
       <HowItWorksSection />
 
-      {/* 5. High-contrast Dark CTA Section with strong typography & signups */}
+      {/* 6. High-contrast Dark CTA Section with strong typography & signups */}
       <DarkCtaSection />
     </div>
   )
