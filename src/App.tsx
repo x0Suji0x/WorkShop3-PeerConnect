@@ -1,13 +1,22 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider'
 import { AppShell } from './components/layout/AppShell'
-import { routes } from './app/routes'
+import { routes, communityRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
 import { StudentDashboardPage } from './pages/Dashboard/StudentDashboardPage'
 import { StudentProfilePage } from './pages/Profiles/StudentProfilePage'
 import { VerificationPage } from './pages/Verification/VerificationPage'
 import { ModulePlaceholderPage } from './pages/Shared/ModulePlaceholderPage'
 import { NotFoundPage } from './pages/Shared/NotFoundPage'
+
+// Communities and Team Finder pages
+import { CommunitiesPage } from './pages/Communities/CommunitiesPage'
+import { CommunityDetailPage } from './pages/Communities/CommunityDetailPage'
+import { MyCommunitiesPage } from './pages/Communities/MyCommunitiesPage'
+import { TeamFinderPage } from './pages/TeamFinder/TeamFinderPage'
+import { TeamDetailPage } from './pages/TeamFinder/TeamDetailPage'
+import { NewTeamPage } from './pages/TeamFinder/NewTeamPage'
+import { TeamBuilderPage } from './pages/TeamFinder/TeamBuilderPage'
 
 export default function App() {
   return (
@@ -27,6 +36,16 @@ export default function App() {
             <Route path={routes.colleges} element={<ModulePlaceholderPage eyebrow="Community" title="Colleges" description="Discover the institutions and communities behind student talent." owner="Adi" />} />
             <Route path={routes.clubs} element={<ModulePlaceholderPage eyebrow="Community" title="Clubs" description="Find clubs, teams, and communities to join or collaborate with." owner="Adi" />} />
             <Route path={routes.events} element={<ModulePlaceholderPage eyebrow="Community" title="Events" description="Explore upcoming campus events and opportunities to contribute." owner="Adi" />} />
+
+            {/* Communities & Team Finder module routes */}
+            <Route path={communityRoutes.communities} element={<CommunitiesPage />} />
+            <Route path={communityRoutes.communityDetail} element={<CommunityDetailPage />} />
+            <Route path="/my-communities" element={<MyCommunitiesPage />} />
+            <Route path={communityRoutes.teamFinder} element={<TeamFinderPage />} />
+            <Route path={communityRoutes.newTeam} element={<NewTeamPage />} />
+            <Route path={communityRoutes.teamBuilder} element={<TeamBuilderPage />} />
+            <Route path={communityRoutes.teamDetail} element={<TeamDetailPage />} />
+
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AppShell>

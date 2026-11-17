@@ -1,7 +1,6 @@
 import type {
   Community,
   CommunityPost,
-  CommunityComment,
   CommunityMember,
   CommunityCategory,
 } from '../types/community'

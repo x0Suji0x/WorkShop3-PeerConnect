@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { routes } from '../../app/routes'
+import { routes, communityRoutes } from '../../app/routes'
 import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 
 const appLinks = [
   { label: 'Dashboard', to: routes.dashboard },
+  { label: 'Communities', to: communityRoutes.communities },
+  { label: 'Team Finder', to: communityRoutes.teamFinder },
   { label: 'Profiles', to: routes.profiles },
   { label: 'Projects', to: routes.projects },
-  { label: 'Community', to: routes.events },
 ]
 
 export function Navbar() {
