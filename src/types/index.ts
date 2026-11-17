@@ -121,6 +121,11 @@ export interface College {
   state: string
   logoUrl?: string
   verified: boolean
+  description?: string
+  studentCount?: number
+  clubCount?: number
+  eventCount?: number
+  focusAreas?: string[]
 }
 
 export interface Club {
@@ -130,6 +135,10 @@ export interface Club {
   description: string
   category: string
   memberCount: number
+  collegeName?: string
+  nextEvent?: string
+  tags?: string[]
+  isOpenToMembers?: boolean
 }
 
 export interface ProjectOpportunity {
@@ -175,6 +184,10 @@ export interface Event {
   location: string
   description: string
   attendeeCount: number
+  organizerName?: string
+  category?: string
+  capacity?: number
+  isFree?: boolean
 }
 
 export interface Review {
