@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, Menu, X, Terminal } from 'lucide-react'
+import { Sparkles, ArrowRight, Menu, X, Code2 } from 'lucide-react'
 import { Button } from '../common/Button'
 import { Badge } from '../common/Badge'
 import { useSmoothScroll } from '../../hooks/useSmoothScroll'
@@ -14,91 +14,83 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#090A0F]/90 backdrop-blur-md border-b border-white/10 transition-colors">
+    <header className="sticky top-0 z-50 w-full bg-[#F7F6F0]/90 backdrop-blur-md border-b border-[#E7E8E1] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Brand Logo & Editorial Network Label */}
+        {/* Brand Logo & Prototype Badge */}
         <div
-          onClick={() => handleNavClick('#intro')}
-          className="flex items-center gap-3 cursor-pointer group select-none"
+          onClick={() => handleNavClick('#hero')}
+          className="flex items-center gap-2.5 cursor-pointer group select-none"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#D4FF00] flex items-center justify-center text-[#090A0F] font-black shadow-[0_0_16px_rgba(212,255,0,0.3)] group-hover:scale-105 transition-all duration-200">
-            <Terminal className="w-5 h-5 stroke-[2.5]" />
+          <div className="w-10 h-10 rounded-xl bg-[#171916] flex items-center justify-center text-[#08C58A] shadow-xs group-hover:scale-105 group-hover:shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all duration-200">
+            <Code2 className="w-5 h-5" />
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-tight text-white group-hover:text-[#D4FF00] transition-colors">
-                PeerConnect
-              </span>
-              <Badge variant="lime" size="sm">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D4FF00] animate-pulse" />
-                <span>Network</span>
-              </Badge>
-            </div>
-            <span className="text-[10px] font-mono tracking-wider text-[#8E95A5] uppercase hidden sm:block">
-              Campus Builder Marketplace
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-extrabold tracking-tight text-[#171916] group-hover:text-[#08C58A] transition-colors">
+              PeerConnect
             </span>
+            <Badge variant="green" size="sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#08C58A] animate-pulse" />
+              <span>Prototype</span>
+            </Badge>
           </div>
         </div>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-wider text-[#8E95A5]">
+        <nav className="hidden md:flex items-center gap-7 lg:gap-8 text-sm font-medium text-[#777A72]">
           <button
             type="button"
-            onClick={() => handleNavClick('#problem')}
-            className="hover:text-white transition-colors cursor-pointer py-1 relative group"
+            onClick={() => handleNavClick('#talent')}
+            className="hover:text-[#171916] transition-colors cursor-pointer py-1 relative group"
           >
-            <span>02 · The Gap</span>
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4FF00] group-hover:w-full transition-all duration-200" />
+            <span>Discover Talent</span>
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#08C58A] group-hover:w-full transition-all duration-200 rounded-full" />
           </button>
           <button
             type="button"
-            onClick={() => handleNavClick('#students')}
-            className="hover:text-white transition-colors cursor-pointer py-1 relative group"
+            onClick={() => handleNavClick('#projects')}
+            className="hover:text-[#171916] transition-colors cursor-pointer py-1 relative group"
           >
-            <span>03 · Students</span>
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4FF00] group-hover:w-full transition-all duration-200" />
+            <span>Project Board</span>
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#08C58A] group-hover:w-full transition-all duration-200 rounded-full" />
           </button>
           <button
             type="button"
-            onClick={() => handleNavClick('#creators')}
-            className="hover:text-white transition-colors cursor-pointer py-1 relative group"
+            onClick={() => handleNavClick('#how-it-works')}
+            className="hover:text-[#171916] transition-colors cursor-pointer py-1 relative group"
           >
-            <span>04 · Creators</span>
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4FF00] group-hover:w-full transition-all duration-200" />
+            <span>How it Works</span>
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#08C58A] group-hover:w-full transition-all duration-200 rounded-full" />
           </button>
           <button
             type="button"
-            onClick={() => handleNavClick('#process')}
-            className="hover:text-white transition-colors cursor-pointer py-1 relative group"
+            onClick={() => handleNavClick('#cta')}
+            className="hover:text-[#171916] transition-colors cursor-pointer py-1 relative group"
           >
-            <span>05 · Process</span>
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4FF00] group-hover:w-full transition-all duration-200" />
-          </button>
-          <button
-            type="button"
-            onClick={() => handleNavClick('#marketplace')}
-            className="hover:text-white transition-colors cursor-pointer py-1 relative group"
-          >
-            <span>06 · Marketplace</span>
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D4FF00] group-hover:w-full transition-all duration-200" />
+            <span>For Startups</span>
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#08C58A] group-hover:w-full transition-all duration-200 rounded-full" />
           </button>
         </nav>
 
         {/* Action Buttons */}
-        <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleNavClick('#talent')}
+          >
+            Sign in
+          </Button>
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => handleNavClick('#students')}
-            className="font-mono text-xs"
+            onClick={() => handleNavClick('#cta')}
           >
-            Explore Talent
+            Join as Talent
           </Button>
           <Button
             variant="primary"
             size="sm"
-            onClick={() => handleNavClick('#creators')}
-            className="font-mono text-xs"
+            onClick={() => handleNavClick('#projects')}
           >
             <span>Post a Project</span>
             <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -106,97 +98,77 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu trigger */}
-        <div className="flex lg:hidden items-center gap-2">
+        <div className="lg:hidden flex items-center gap-2">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => handleNavClick('#projects')}
+            className="text-xs px-3"
+          >
+            Post Project
+          </Button>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2.5 rounded-xl border border-white/10 text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-            aria-label="Toggle menu"
+            className="p-2 rounded-xl text-[#171916] hover:bg-[#171916]/5 transition-colors cursor-pointer"
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-white/10 bg-[#090A0F]/98 backdrop-blur-xl px-4 py-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
-          <nav className="flex flex-col space-y-3 font-mono text-xs uppercase tracking-wider">
+        <div className="lg:hidden border-b border-[#E7E8E1] bg-[#F7F6F0]/98 backdrop-blur-lg px-4 pt-3 pb-6 space-y-4 shadow-lg animate-in fade-in duration-200">
+          <nav className="flex flex-col gap-2 text-base font-semibold text-[#171916]">
             <button
               type="button"
-              onClick={() => handleNavClick('#intro')}
-              className="text-left py-2 px-3 rounded-lg text-white hover:bg-white/5 flex items-center justify-between"
+              onClick={() => handleNavClick('#talent')}
+              className="text-left py-2.5 px-3 rounded-xl hover:bg-white transition-colors cursor-pointer"
             >
-              <span>01 · Introduction</span>
-              <span className="text-[#D4FF00]">→</span>
+              Discover Talent
             </button>
             <button
               type="button"
-              onClick={() => handleNavClick('#problem')}
-              className="text-left py-2 px-3 rounded-lg text-[#8E95A5] hover:text-white hover:bg-white/5 flex items-center justify-between"
+              onClick={() => handleNavClick('#projects')}
+              className="text-left py-2.5 px-3 rounded-xl hover:bg-white transition-colors cursor-pointer"
             >
-              <span>02 · The Problem</span>
-              <span className="text-[#8E95A5]">→</span>
+              Project Board
             </button>
             <button
               type="button"
-              onClick={() => handleNavClick('#students')}
-              className="text-left py-2 px-3 rounded-lg text-[#8E95A5] hover:text-white hover:bg-white/5 flex items-center justify-between"
+              onClick={() => handleNavClick('#how-it-works')}
+              className="text-left py-2.5 px-3 rounded-xl hover:bg-white transition-colors cursor-pointer"
             >
-              <span>03 · For Students</span>
-              <span className="text-[#8E95A5]">→</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavClick('#creators')}
-              className="text-left py-2 px-3 rounded-lg text-[#8E95A5] hover:text-white hover:bg-white/5 flex items-center justify-between"
-            >
-              <span>04 · For Creators</span>
-              <span className="text-[#8E95A5]">→</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavClick('#process')}
-              className="text-left py-2 px-3 rounded-lg text-[#8E95A5] hover:text-white hover:bg-white/5 flex items-center justify-between"
-            >
-              <span>05 · How It Works</span>
-              <span className="text-[#8E95A5]">→</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavClick('#marketplace')}
-              className="text-left py-2 px-3 rounded-lg text-[#8E95A5] hover:text-white hover:bg-white/5 flex items-center justify-between"
-            >
-              <span>06 · Marketplace</span>
-              <span className="text-[#8E95A5]">→</span>
+              How it Works
             </button>
             <button
               type="button"
               onClick={() => handleNavClick('#cta')}
-              className="text-left py-2 px-3 rounded-lg text-[#8E95A5] hover:text-white hover:bg-white/5 flex items-center justify-between"
+              className="text-left py-2.5 px-3 rounded-xl hover:bg-white transition-colors cursor-pointer"
             >
-              <span>07 · Join Network</span>
-              <span className="text-[#8E95A5]">→</span>
+              For Startups
             </button>
           </nav>
-
-          <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
+          <div className="pt-2 flex flex-col gap-2.5 border-t border-[#E7E8E1]">
             <Button
               variant="secondary"
               size="md"
-              onClick={() => handleNavClick('#students')}
               className="w-full justify-center"
+              onClick={() => handleNavClick('#cta')}
             >
-              Explore Talent
+              Join as Talent
             </Button>
             <Button
               variant="primary"
               size="md"
-              onClick={() => handleNavClick('#creators')}
               className="w-full justify-center"
+              onClick={() => handleNavClick('#projects')}
             >
-              <span>Post a Project</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
+              <Sparkles className="w-4 h-4 mr-1" />
+              Post a Project
             </Button>
           </div>
         </div>

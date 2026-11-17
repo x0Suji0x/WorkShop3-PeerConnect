@@ -1,34 +1,26 @@
-import { HeroIntroSection } from '../../components/home/HeroIntroSection'
-import { TheProblemSection } from '../../components/home/TheProblemSection'
-import { ForStudentsSection } from '../../components/home/ForStudentsSection'
-import { ForCreatorsSection } from '../../components/home/ForCreatorsSection'
-import { ProcessSequenceSection } from '../../components/home/ProcessSequenceSection'
-import { MarketplacePreviewSection } from '../../components/home/MarketplacePreviewSection'
-import { FinalCtaSection } from '../../components/home/FinalCtaSection'
+import { HeroSection } from '../../components/home/HeroSection'
+import { StudentDiscoverySection } from '../../components/home/StudentDiscoverySection'
+import { ProjectMarketplaceSection } from '../../components/home/ProjectMarketplaceSection'
+import { HowItWorksSection } from '../../components/home/HowItWorksSection'
+import { DarkCtaSection } from '../../components/home/DarkCtaSection'
 
 export function HomePage() {
   return (
     <div className="w-full space-y-0">
-      {/* 01. The Introduction — Talent is everywhere. Opportunity should be too. */}
-      <HeroIntroSection />
+      {/* 1. Hero with confident typography, floating cards & subtle geometric elements */}
+      <HeroSection />
 
-      {/* 02. The Problem — The Campus Disconnect (Student & Creator realities) */}
-      <TheProblemSection />
+      {/* 2. Student Discovery Section with curated profile cards & filters */}
+      <StudentDiscoverySection />
 
-      {/* 03. For Students — Turn what you can do into what you can achieve. */}
-      <ForStudentsSection />
+      {/* 3. Project Marketplace Section with live scoped opportunities & budgets */}
+      <ProjectMarketplaceSection />
 
-      {/* 04. For Creators — Good work deserves the right people. */}
-      <ForCreatorsSection />
+      {/* 4. How It Works Section explaining Student & Client journeys */}
+      <HowItWorksSection />
 
-      {/* 05. The Workflow — From brief to delivery in four clear steps. */}
-      <ProcessSequenceSection />
-
-      {/* 06. Marketplace Preview — Student Builders & Active Project Briefs */}
-      <MarketplacePreviewSection />
-
-      {/* 07. Final CTA & Integrated Editorial Footer — Starts with a connection. */}
-      <FinalCtaSection />
+      {/* 5. High-contrast Dark CTA Section with strong typography & signups */}
+      <DarkCtaSection />
     </div>
   )
 }

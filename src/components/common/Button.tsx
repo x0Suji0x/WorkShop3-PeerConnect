@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
-  variant?: 'primary' | 'dark' | 'secondary' | 'ghost' | 'outline' | 'violet'
+  variant?: 'primary' | 'dark' | 'secondary' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
@@ -15,21 +15,19 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4FF00]/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer select-none'
+    'inline-flex items-center justify-center font-medium rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#08C58A]/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
 
   const variantStyles = {
     primary:
-      'bg-[#D4FF00] hover:bg-[#c6ed00] text-[#090A0F] font-bold shadow-[0_2px_14px_rgba(212,255,0,0.25)] hover:shadow-[0_4px_22px_rgba(212,255,0,0.38)] active:scale-[0.98]',
+      'bg-[#08C58A] hover:bg-[#07B27C] text-[#0A261D] font-semibold shadow-[0_2px_12px_rgba(8,197,138,0.22)] hover:shadow-[0_4px_18px_rgba(8,197,138,0.32)] active:scale-[0.98]',
     dark:
-      'bg-[#12151E] hover:bg-[#1B202D] text-white border border-white/10 active:scale-[0.98]',
+      'bg-[#171916] hover:bg-[#242723] text-white font-medium shadow-2xs hover:shadow-xs active:scale-[0.98]',
     secondary:
-      'bg-white/10 hover:bg-white/15 text-white border border-white/15 hover:border-white/30 backdrop-blur-sm active:scale-[0.98]',
+      'bg-white hover:bg-[#F2F1EA] text-[#171916] border border-[#E7E8E1] hover:border-[#D1D2C9] shadow-2xs active:scale-[0.98]',
     ghost:
-      'bg-transparent hover:bg-white/5 text-[#8E95A5] hover:text-white',
+      'bg-transparent hover:bg-[#171916]/5 text-[#777A72] hover:text-[#171916]',
     outline:
-      'bg-transparent border border-white/20 hover:border-[#D4FF00] text-white hover:text-[#D4FF00]',
-    violet:
-      'bg-[#6366F1] hover:bg-[#4F46E5] text-white font-semibold shadow-[0_2px_14px_rgba(99,102,241,0.3)] active:scale-[0.98]',
+      'bg-transparent border border-[#E7E8E1] hover:border-[#08C58A] text-[#171916] hover:bg-[#E3F4EB]/30',
   }
 
   const sizeStyles = {

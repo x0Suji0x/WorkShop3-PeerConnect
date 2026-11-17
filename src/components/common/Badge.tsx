@@ -2,26 +2,24 @@ import type { ReactNode } from 'react'
 
 export interface BadgeProps {
   children: ReactNode
-  variant?: 'lime' | 'violet' | 'green' | 'peach' | 'lavender' | 'blue' | 'neutral' | 'dark'
+  variant?: 'green' | 'peach' | 'lavender' | 'blue' | 'neutral' | 'dark'
   size?: 'sm' | 'md'
   className?: string
 }
 
 export function Badge({
   children,
-  variant = 'lime',
+  variant = 'green',
   size = 'md',
   className = '',
 }: BadgeProps) {
   const variantStyles = {
-    lime: 'bg-[#D4FF00]/15 text-[#D4FF00] border-[#D4FF00]/30',
-    violet: 'bg-[#6366F1]/15 text-[#A5B4FC] border-[#6366F1]/30',
-    green: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    peach: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-    lavender: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-    blue: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
-    neutral: 'bg-white/5 text-[#8E95A5] border-white/10',
-    dark: 'bg-[#10131B] text-white border-white/15',
+    green: 'bg-[#E3F4EB] text-[#123D30] border-[#08C58A]/30',
+    peach: 'bg-orange-50 text-orange-800 border-orange-200/70',
+    lavender: 'bg-purple-50 text-purple-800 border-purple-200/70',
+    blue: 'bg-sky-50 text-sky-800 border-sky-200/70',
+    neutral: 'bg-[#F7F6F0] text-[#777A72] border-[#E7E8E1]',
+    dark: 'bg-[#171916] text-white border-[#2A2E28]',
   }
 
   const sizeStyles = {
