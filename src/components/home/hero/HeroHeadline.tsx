@@ -1,113 +1,115 @@
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export interface HeroHeadlineProps {
-  activeStage: number
   onExploreClick: () => void
-  onPostProjectClick: () => void
+  onFindTalentClick: () => void
   ctaExploreRef?: React.RefObject<HTMLButtonElement | null>
 }
 
 export function HeroHeadline({
-  activeStage,
   onExploreClick,
-  onPostProjectClick,
+  onFindTalentClick,
   ctaExploreRef,
 }: HeroHeadlineProps) {
-  const stageLabels = [
-    '01 Talent',
-    '02 Discovery',
-    '03 Opportunity',
-    '04 Connection',
-  ]
-
   return (
-    <div className="space-y-6 text-left">
-      {/* Eyebrow Label & Active Stage Tracker */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E3F4EB] border border-[#08C58A]/30 text-[#123D30] text-xs font-bold tracking-wider uppercase">
-          <span className="w-2 h-2 rounded-full bg-[#08C58A] animate-pulse" />
-          <span>THE NETWORK FOR WHAT&apos;S NEXT</span>
-        </div>
-
-        {/* Clean Stage Indicator */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-[#E7E8E1] shadow-2xs backdrop-blur-sm text-xs text-[#777A72]">
-          <span className="font-mono text-[11px] font-bold text-[#171916]">
-            {stageLabels[activeStage - 1]}
-          </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#08C58A]" />
-          <span className="text-[10px] text-[#777A72] uppercase font-semibold">
-            Stage {activeStage} of 4
-          </span>
-        </div>
+    <div className="space-y-6 text-left max-w-xl">
+      {/* Eyebrow Pill */}
+      <div className="hero-eyebrow inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-black/10 shadow-[0_1px_3px_rgba(0,0,0,0.05)] text-xs font-bold tracking-wider text-[#1F2937] uppercase">
+        <span className="w-2 h-2 rounded-full bg-[#08C58A]" />
+        <span>STUDENT TALENT MARKETPLACE</span>
       </div>
 
-      {/* Main Dominant Headline */}
-      <h1 className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[62px] font-black text-[#171916] leading-[1.05] tracking-tight">
-        Good people.
-        <br />
-        Big ideas.
-        <br />
-        <span className="text-[#08C58A] relative inline-block">
-          Better together.
-          <span
-            aria-hidden="true"
-            className="absolute left-0 -bottom-1 w-full h-3 bg-[#E3F4EB] -rotate-1 -z-10 rounded-sm"
-          />
+      {/* Main Headline: 4-line Stack matching the exact visual typography */}
+      <h1 className="hero-headline-title text-5xl sm:text-6xl lg:text-[66px] xl:text-[74px] font-black text-[#171916] leading-[0.98] tracking-tight">
+        <span className="block hero-title-line">Talent is</span>
+        <span className="block hero-title-line">everywhere.</span>
+        <span className="block hero-title-line relative my-0.5">
+          <span className="relative inline-block font-serif italic font-normal text-[#08C58A] pr-2">
+            Opportunity
+            {/* Hand-drawn Green Curved Underline Stroke */}
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 280 20"
+              fill="none"
+              className="absolute left-0 -bottom-1 sm:-bottom-1.5 w-full h-3 sm:h-4 text-[#08C58A] pointer-events-none overflow-visible"
+            >
+              <path
+                d="M 4,13 Q 130,19 270,9"
+                stroke="currentColor"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                className="hero-drawn-stroke"
+              />
+            </svg>
+          </span>
         </span>
+        <span className="block hero-title-line">should be too.</span>
       </h1>
 
       {/* Supporting Copy */}
-      <p className="text-base sm:text-lg text-[#777A72] leading-relaxed max-w-xl">
-        PeerConnect brings talented students together with startups, local
-        businesses and project creators looking for fresh ideas and real skills.
+      <p className="hero-subtext text-base sm:text-[17px] text-[#525A55] leading-relaxed max-w-[440px] pt-1">
+        PeerConnect connects talented students with exciting projects, businesses and campus opportunities.
       </p>
 
-      {/* Action CTA Buttons */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-1">
+      {/* Two Prominent Action CTAs */}
+      <div className="hero-ctas flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
         <button
           ref={ctaExploreRef}
           type="button"
           onClick={onExploreClick}
-          className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm bg-[#08C58A] hover:bg-[#07b27c] text-[#0A261D] shadow-[0_2px_14px_rgba(8,197,138,0.25)] hover:shadow-[0_4px_22px_rgba(8,197,138,0.35)] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer"
+          className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full font-semibold text-sm bg-[#123D30] hover:bg-[#0E3127] text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer"
         >
-          <span>Explore Talent</span>
+          <span>Explore Opportunities</span>
           <ArrowRight className="w-4 h-4 ml-0.5" />
         </button>
 
         <button
           type="button"
-          onClick={onPostProjectClick}
-          className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm bg-white hover:bg-[#F2F1EA] text-[#171916] border border-[#E7E8E1] hover:border-[#D1D2C9] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-2xs cursor-pointer"
+          onClick={onFindTalentClick}
+          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm bg-transparent hover:bg-white text-[#171916] border border-[#CBD5E1] hover:border-[#94A3B8] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-2xs cursor-pointer"
         >
-          <span>Post a Project</span>
+          <span>Find Student Talent</span>
         </button>
       </div>
 
-      {/* Authentic Supporting Trust Line without fabricated statistics */}
-      <div className="flex items-center gap-3 pt-3 border-t border-[#E7E8E1]">
-        <div className="flex -space-x-2 shrink-0">
+      {/* Trust & Community Baseline */}
+      <div className="hero-trust flex flex-wrap items-center gap-y-2 pt-6 mt-8 border-t border-[#E5E7EB]">
+        {/* 4 Overlapping Avatar Circles */}
+        <div className="flex -space-x-2 shrink-0 mr-3">
           <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-            alt="Sofia Rodriguez"
-            className="w-7 h-7 rounded-full border-2 border-white object-cover"
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+            alt="Sofia"
+            className="w-7 h-7 rounded-full border-2 border-white object-cover shadow-2xs"
           />
           <img
-            src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&q=80"
-            alt="Marcus Chen"
-            className="w-7 h-7 rounded-full border-2 border-white object-cover"
+            src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=100&q=80"
+            alt="Marcus"
+            className="w-7 h-7 rounded-full border-2 border-white object-cover shadow-2xs"
           />
           <img
-            src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80"
-            alt="Aria Vance"
-            className="w-7 h-7 rounded-full border-2 border-white object-cover"
+            src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80"
+            alt="Aria"
+            className="w-7 h-7 rounded-full border-2 border-white object-cover shadow-2xs"
           />
-          <div className="w-7 h-7 rounded-full bg-[#123D30] border-2 border-white flex items-center justify-center text-[10px] font-bold text-[#08C58A]">
-            <Sparkles className="w-3 h-3 text-[#08C58A]" />
-          </div>
+          <img
+            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
+            alt="Liam"
+            className="w-7 h-7 rounded-full border-2 border-white object-cover shadow-2xs"
+          />
         </div>
-        <p className="text-xs text-[#777A72] leading-snug">
-          Connecting university students with real-world projects and creators.
-        </p>
+
+        {/* Community Proof */}
+        <span className="text-xs font-semibold text-[#171916]">
+          Join 10k+ students &amp; creators
+        </span>
+
+        {/* Divider */}
+        <span className="hidden sm:inline-block h-3.5 w-px bg-[#CBD5E1] mx-3" />
+
+        {/* Value Tagline */}
+        <span className="text-xs text-[#525A55]">
+          Build skills. Make connections. Grow together.
+        </span>
       </div>
     </div>
   )
