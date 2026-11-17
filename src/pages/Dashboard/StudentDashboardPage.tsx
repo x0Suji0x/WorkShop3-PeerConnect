@@ -5,17 +5,18 @@ import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { PageHeading } from '../../components/common/PageHeading'
-import { dashboardNotifications, demoStudent, recommendedProjects } from '../../data/studentMockData'
-
-const stats = [
-  { label: 'Projects completed', value: demoStudent.projectsCompleted, icon: CheckCircle2, detail: 'Across paid and campus work' },
-  { label: 'Active projects', value: demoStudent.activeProjects, icon: BriefcaseBusiness, detail: 'In progress right now' },
-  { label: 'Applications sent', value: demoStudent.applicationsSent, icon: FileText, detail: '2 awaiting a response' },
-  { label: 'Profile views', value: demoStudent.profileViews, icon: Eye, detail: 'In the last 30 days' },
-]
+import { useStudentProfile } from '../../hooks/useStudentProfile'
+import { dashboardNotifications, recommendedProjects } from '../../data/studentMockData'
 
 export function StudentDashboardPage() {
-  const firstName = demoStudent.name.split(' ')[0]
+  const { student } = useStudentProfile()
+  const firstName = student.name.split(' ')[0]
+  const stats = [
+    { label: 'Projects completed', value: student.projectsCompleted, icon: CheckCircle2, detail: 'Across paid and campus work' },
+    { label: 'Active projects', value: student.activeProjects, icon: BriefcaseBusiness, detail: 'In progress right now' },
+    { label: 'Applications sent', value: student.applicationsSent, icon: FileText, detail: '2 awaiting a response' },
+    { label: 'Profile views', value: student.profileViews, icon: Eye, detail: 'In the last 30 days' },
+  ]
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
@@ -24,7 +25,7 @@ export function StudentDashboardPage() {
         title={`Good to see you, ${firstName}.`}
         description="A focused view of your profile, opportunities, and collaboration activity."
         actions={
-          <Link to={profileRoute(demoStudent.id)}>
+          <Link to={profileRoute(student.id)}>
             <Button size="sm">View profile <ArrowRight className="h-3.5 w-3.5" /></Button>
           </Link>
         }
@@ -39,13 +40,13 @@ export function StudentDashboardPage() {
                   <Sparkles className="h-4 w-4 text-[#08C58A]" />
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#123D30]">Profile momentum</p>
                 </div>
-                <h2 className="mt-2 text-xl font-black text-[#171916]">Your profile is {demoStudent.profileCompletion}% complete</h2>
+                <h2 className="mt-2 text-xl font-black text-[#171916]">Your profile is {student.profileCompletion}% complete</h2>
                 <p className="mt-1 text-sm leading-relaxed text-[#777A72]">Add a little more context to help project owners understand your strengths faster.</p>
               </div>
-              <span className="font-mono text-2xl font-black text-[#08A876]">{demoStudent.profileCompletion}%</span>
+              <span className="font-mono text-2xl font-black text-[#08A876]">{student.profileCompletion}%</span>
             </div>
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#E7E8E1]">
-              <div className="h-full rounded-full bg-[#08C58A]" style={{ width: `${demoStudent.profileCompletion}%` }} />
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#E7E8E1]" role="progressbar" aria-label="Profile completion" aria-valuemin={0} aria-valuemax={100} aria-valuenow={student.profileCompletion}>
+              <div className="h-full rounded-full bg-[#08C58A]" style={{ width: `${student.profileCompletion}%` }} />
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-3 sm:p-6">
@@ -75,7 +76,7 @@ export function StudentDashboardPage() {
               <li key={benefit} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#08C58A]" />{benefit}</li>
             ))}
           </ul>
-          <Button variant="dark" className="mt-6 w-full">Explore Student Plus · ₹99/month</Button>
+          <Button variant="dark" disabled className="mt-6 w-full">Student Plus coming soon · ₹99/month</Button>
           <p className="mt-2 text-center text-[11px] text-[#777A72]">Demo interface only — no payment is collected.</p>
         </Card>
       </section>
