@@ -22,6 +22,8 @@ export function HeroSection() {
       gsap.set('.hero-student-right', { autoAlpha: 0, xPercent: -50, y: 24, scale: 0.93 })
       gsap.set('.hero-student-left', { autoAlpha: 0, xPercent: -50, y: 24, scale: 0.93 })
       let stage = 0
+      const sceneElement = trackRef.current?.querySelector<HTMLElement>('.hero-cinematic-scene')
+
       const story = gsap.timeline({
         defaults: { ease: 'none' },
         onUpdate() {
@@ -29,20 +31,15 @@ export function HeroSection() {
           const next = progress < 0.3 ? 0 : progress < 0.65 ? 1 : 2
           if (next !== stage) { stage = next; setActiveStage(next) }
           const fadeProgress = gsap.utils.clamp(0, 1, (progress - 0.72) / 0.28)
-          trackRef.current?.querySelector<HTMLElement>('.hero-cinematic-scene')?.style.setProperty('--scene-fade-radius', `${200 - 100 * fadeProgress}%`)
+          if (sceneElement) {
+            sceneElement.style.setProperty('--scene-fade-radius', `${200 - 100 * fadeProgress}%`)
+          }
         },
         scrollTrigger: {
           trigger: trackRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.7,
-          // Let the three hero story beats settle into place; the rest of the page stays free scroll.
-          snap: {
-            snapTo: [0, 0.3, 0.65, 1],
-            delay: 0.12,
-            duration: { min: 0.16, max: 0.38 },
-            ease: 'power1.inOut',
-          },
+          scrub: 0.3,
           invalidateOnRefresh: true,
         },
       })

@@ -22,13 +22,18 @@ export function Navbar() {
   const [overHero, setOverHero] = useState(true)
   useEffect(() => {
     if (!isHome) return
-    const update = () => {
-      const hero = document.getElementById('hero')
-      setOverHero(Boolean(hero && hero.getBoundingClientRect().bottom > 80))
-    }
-    update()
-    window.addEventListener('scroll', update, { passive: true })
-    return () => window.removeEventListener('scroll', update)
+    const hero = document.getElementById('hero')
+    if (!hero) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setOverHero(entry.isIntersecting)
+      },
+      { rootMargin: '-80px 0px 0px 0px', threshold: 0 }
+    )
+
+    observer.observe(hero)
+    return () => observer.disconnect()
   }, [isHome])
 
   const homeNav = (target: string) => {
