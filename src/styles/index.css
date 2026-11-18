@@ -19,6 +19,21 @@ html {
   color: #171916;
 }
 
+/* Lenis owns wheel smoothing on desktop. Keep touch scrolling native and
+   composited so phones do not have to interpolate a second scroll layer. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
 body {
   margin: 0;
   min-height: 100vh;

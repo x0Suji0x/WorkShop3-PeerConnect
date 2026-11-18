@@ -21,14 +21,28 @@ export function Navbar() {
 
   const [overHero, setOverHero] = useState(true)
   useEffect(() => {
-    if (!isHome) return
+    if (!isHome) {
+      return
+    }
+
+    let animationFrame: number | null = null
     const update = () => {
+      animationFrame = null
       const hero = document.getElementById('hero')
-      setOverHero(Boolean(hero && hero.getBoundingClientRect().bottom > 80))
+      const nextOverHero = Boolean(hero && hero.getBoundingClientRect().bottom > 80)
+      setOverHero((current) => (current === nextOverHero ? current : nextOverHero))
+    }
+    const scheduleUpdate = () => {
+      if (animationFrame === null) {
+        animationFrame = window.requestAnimationFrame(update)
+      }
     }
     update()
-    window.addEventListener('scroll', update, { passive: true })
-    return () => window.removeEventListener('scroll', update)
+    window.addEventListener('scroll', scheduleUpdate, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate)
+      if (animationFrame !== null) window.cancelAnimationFrame(animationFrame)
+    }
   }, [isHome])
 
   const homeNav = (target: string) => {

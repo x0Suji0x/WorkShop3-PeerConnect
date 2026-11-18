@@ -35,14 +35,9 @@ export function HeroSection() {
           trigger: trackRef.current,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.7,
-          // Let the three hero story beats settle into place; the rest of the page stays free scroll.
-          snap: {
-            snapTo: [0, 0.3, 0.65, 1],
-            delay: 0.12,
-            duration: { min: 0.16, max: 0.38 },
-            ease: 'power1.inOut',
-          },
+          // Keep the story tied to the reader's input. Scroll snapping here
+          // fought the smooth-scroll interpolation and felt like a hitch.
+          scrub: 0.45,
           invalidateOnRefresh: true,
         },
       })

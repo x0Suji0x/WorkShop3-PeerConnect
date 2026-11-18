@@ -15,23 +15,29 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const lenisRef = useRef<Lenis | null>(null)
 
   useEffect(() => {
-    // Respect reduced motion
+    // Native scrolling is more responsive on touch-first devices. Lenis enhances
+    // precision-pointer devices only, and never overrides a motion preference.
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches
+    const hasPrecisionPointer = window.matchMedia(
+      '(hover: hover) and (pointer: fine)',
+    ).matches
 
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || !hasPrecisionPointer) {
       ScrollTrigger.refresh()
       return
     }
 
     const lenisInstance = new Lenis({
-      duration: 1.1,
+      // A shorter duration keeps wheel input feeling direct instead of floaty.
+      duration: 0.85,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      syncTouch: false,
+      wheelMultiplier: 0.9,
     })
 
     lenisRef.current = lenisInstance
@@ -45,12 +51,11 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     }
 
     gsap.ticker.add(tickerUpdate)
-    gsap.ticker.lagSmoothing(0)
 
     // Ensure ScrollTrigger measures the document correctly once Lenis attaches
-    const refreshTimer = setTimeout(() => {
+    const refreshFrame = window.requestAnimationFrame(() => {
       ScrollTrigger.refresh()
-    }, 100)
+    })
 
     const handleLoad = () => {
       ScrollTrigger.refresh()
@@ -58,8 +63,9 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     window.addEventListener('load', handleLoad)
 
     return () => {
-      clearTimeout(refreshTimer)
+      window.cancelAnimationFrame(refreshFrame)
       window.removeEventListener('load', handleLoad)
+      lenisInstance.off('scroll', ScrollTrigger.update)
       gsap.ticker.remove(tickerUpdate)
       lenisInstance.destroy()
       lenisRef.current = null
