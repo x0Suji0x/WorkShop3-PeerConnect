@@ -169,7 +169,7 @@ export const mockColleges: College[] = generatedColleges as any;
     id: 'col2',
     name: 'Delhi College of Art',
     shortName: 'DCA Delhi',
-    logoUrl: 'https://images.unsplash.com/photo-1543349689-9a4d426bee8e?auto=format&fit=crop&w=200&q=80',
+    logoUrl: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=200&q=80',
     coverUrl: 'https://images.unsplash.com/photo-1543349689-9a4d426bee8e?auto=format&fit=crop&w=1200&q=80',
     location: 'Tilak Marg, New Delhi',
     city: 'New Delhi',

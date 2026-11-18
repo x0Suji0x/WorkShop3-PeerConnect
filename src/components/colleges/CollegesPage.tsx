@@ -322,7 +322,11 @@ function CollegeCard({
         <div className="pt-2 mt-auto">
           <button
             type="button"
-            onClick={() => onNavigate(encodeRoute({ page: 'college-detail', collegeId: college.id }))}
+            onClick={() => {
+            const hash = encodeRoute({ page: 'college-detail', collegeId: college.id });
+            const url = `${window.location.origin}${window.location.pathname}${hash}`;
+            window.open(url, '_blank');
+          }}
             className="w-full py-2.5 rounded-xl bg-[#F7F6F0] hover:bg-[#08C58A] text-[#171916] hover:text-[#0A261D] text-sm font-semibold border border-[#E7E8E1] hover:border-[#08C58A] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group/btn"
           >
             <span>Explore College Details</span>
