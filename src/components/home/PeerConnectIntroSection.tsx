@@ -36,13 +36,13 @@ export function PeerConnectIntroSection() {
 
   useGSAP(() => {
     const cards = gsap.utils.toArray<HTMLElement>('.about-feature-card')
-    gsap.fromTo(cards, { autoAlpha: 0, y: 22 }, {
+    gsap.fromTo(cards, { autoAlpha: 0.72, y: 10 }, {
       autoAlpha: 1,
       y: 0,
-      duration: 0.65,
-      stagger: 0.12,
+      duration: 0.32,
+      stagger: 0.05,
       ease: 'power2.out',
-      scrollTrigger: { trigger: sectionRef.current, start: 'top 72%', once: true },
+      scrollTrigger: { trigger: sectionRef.current, start: 'top 82%', once: true, fastScrollEnd: true },
     })
   }, { scope: sectionRef })
 

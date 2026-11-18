@@ -1,10 +1,8 @@
 import { HeroSection } from '../../components/home/HeroSection'
 import { PeerConnectIntroSection } from '../../components/home/PeerConnectIntroSection'
-import { StudentDiscoverySection } from '../../components/home/StudentDiscoverySection'
 import { ProjectMarketplaceSection } from '../../components/home/ProjectMarketplaceSection'
 import { HowItWorksSection } from '../../components/home/HowItWorksSection'
 import { DarkCtaSection } from '../../components/home/DarkCtaSection'
-import { CollegeCommunityModule } from '../../components/colleges/CollegeCommunityModule'
 
 export function HomePage() {
   return (
@@ -12,22 +10,16 @@ export function HomePage() {
       {/* 1. Hero with confident typography, floating cards & subtle geometric elements */}
       <HeroSection />
 
-      {/* 2. Short product introduction after the hero scroll story */}
+      {/* About PeerConnect and its interactive feature cards. */}
       <PeerConnectIntroSection />
 
-      {/* 3. Student Discovery Section with curated profile cards & filters */}
-      <StudentDiscoverySection />
-
-      {/* 4. Project Marketplace Section with live scoped opportunities & budgets */}
+      {/* Keep the landing page focused on finding and building projects. */}
       <ProjectMarketplaceSection />
 
-      {/* 5. College, Clubs & Events Module — independent, hash-routed */}
-      <CollegeCommunityModule />
-
-      {/* 6. How It Works Section explaining Student & Client journeys */}
+      {/* Explain the project collaboration flow. */}
       <HowItWorksSection />
 
-      {/* 7. High-contrast Dark CTA Section with strong typography & signups */}
+      {/* High-contrast invitation for builders and project owners. */}
       <DarkCtaSection />
     </div>
   )

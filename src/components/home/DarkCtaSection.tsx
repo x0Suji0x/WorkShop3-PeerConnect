@@ -1,13 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { ArrowRight, Sparkles, FolderGit2, Briefcase, CheckCircle2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { routes } from '../../app/routes'
 import { gsap, ScrollTrigger } from '../../lib/gsap'
-import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 
 export function DarkCtaSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const { scrollTo } = useSmoothScroll()
-
   useEffect(() => {
     if (!contentRef.current) return
 
@@ -22,18 +21,19 @@ export function DarkCtaSection() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         items,
-        { opacity: 0.3, y: 18 },
+        { opacity: 0.75, y: 8 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.5,
-          stagger: 0.08,
+          duration: 0.32,
+          stagger: 0.045,
           ease: 'power2.out',
           clearProps: 'opacity,transform',
           scrollTrigger: {
             trigger: contentRef.current,
-            start: 'top 95%',
+            start: 'top 88%',
             once: true,
+            fastScrollEnd: true,
           },
         },
       )
@@ -68,13 +68,13 @@ export function DarkCtaSection() {
         <div className="max-w-3xl mx-auto text-center space-y-5">
           <div className="cta-reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#123D30] border border-[#08C58A]/35 text-[#08C58A] text-[11px] font-mono uppercase tracking-widest">
             <Sparkles className="w-3 h-3 text-[#08C58A]" />
-            <span>COMMUNITY INVITATION</span>
+            <span>PROJECT COLLABORATION</span>
           </div>
 
           <h2 className="cta-reveal text-3xl sm:text-5xl lg:text-[54px] font-black tracking-tight text-white leading-[1.08]">
-            Your next big thing starts with the{' '}
+            A strong brief turns good ideas into{' '}
             <span className="text-[#08C58A] relative inline-block">
-              right people.
+              shipped work.
               <span
                 aria-hidden="true"
                 className="absolute left-0 -bottom-1 w-full h-2.5 bg-[#08C58A]/25 -rotate-1 -z-10 rounded-sm"
@@ -83,8 +83,8 @@ export function DarkCtaSection() {
           </h2>
 
           <p className="cta-reveal text-sm sm:text-base lg:text-lg text-[#A3B8B0] leading-relaxed max-w-2xl mx-auto">
-            Whether you&apos;re looking to showcase your skills or find talented students for your next
-            project, there&apos;s a place for you here.
+            Browse scoped opportunities or post your own and find student builders ready to work
+            together.
           </p>
         </div>
 
@@ -131,14 +131,13 @@ export function DarkCtaSection() {
             </div>
 
             <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => scrollTo('#talent')}
+              <Link
+                to={routes.projects}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#08C58A] hover:bg-[#07b27c] text-[#0A261D] shadow-[0_4px_20px_rgba(8,197,138,0.35)] hover:shadow-[0_6px_28px_rgba(8,197,138,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
               >
-                <span>Join as Talent</span>
+                <span>Explore Projects</span>
                 <ArrowRight className="w-4 h-4 ml-0.5" />
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -177,14 +176,13 @@ export function DarkCtaSection() {
             </div>
 
             <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => scrollTo('#projects')}
+              <Link
+                to={routes.newProject}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-white/10 hover:bg-white/15 text-white border border-white/20 hover:border-white/35 backdrop-blur-sm hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
               >
                 <span>Post a Project</span>
                 <ArrowRight className="w-4 h-4 ml-0.5 text-white/70" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>

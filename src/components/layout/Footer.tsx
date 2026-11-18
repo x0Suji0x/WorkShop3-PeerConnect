@@ -1,9 +1,8 @@
 import { Code2, ArrowUpRight } from 'lucide-react'
-import { useSmoothScroll } from '../../hooks/useSmoothScroll'
+import { Link } from 'react-router-dom'
+import { routes } from '../../app/routes'
 
 export function Footer() {
-  const { scrollTo } = useSmoothScroll()
-
   return (
     <footer className="w-full bg-[#F7F6F0] border-t border-[#E7E8E1] text-[#777A72] text-sm transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
@@ -38,31 +37,19 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('#talent')}
-                  className="hover:text-[#08C58A] transition-colors cursor-pointer text-left"
-                >
+                <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
                   Discover Talent
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('#projects')}
-                  className="hover:text-[#08C58A] transition-colors cursor-pointer text-left"
-                >
+                <Link to={routes.projects} className="hover:text-[#08C58A] transition-colors">
                   Browse Projects
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('#how-it-works')}
-                  className="hover:text-[#08C58A] transition-colors cursor-pointer text-left"
-                >
+                <Link to={`${routes.home}#how-it-works`} className="hover:text-[#08C58A] transition-colors">
                   How It Works
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -74,31 +61,19 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('#projects')}
-                  className="hover:text-[#08C58A] transition-colors cursor-pointer text-left"
-                >
+                <Link to={routes.newProject} className="hover:text-[#08C58A] transition-colors">
                   Post a Project
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('#talent')}
-                  className="hover:text-[#08C58A] transition-colors cursor-pointer text-left"
-                >
+                <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
                   Discover Talent
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollTo('#how-it-works')}
-                  className="hover:text-[#08C58A] transition-colors cursor-pointer text-left"
-                >
+                <Link to={`${routes.home}#how-it-works`} className="hover:text-[#08C58A] transition-colors">
                   How It Works
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -134,27 +109,15 @@ export function Footer() {
         <div className="pt-8 border-t border-[#E7E8E1] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#777A72]">
           <p>© 2026 PeerConnect. Educational open-source prototype.</p>
           <div className="flex items-center gap-6">
-            <button
-              type="button"
-              onClick={() => scrollTo('#hero')}
-              className="hover:text-[#08C58A] transition-colors cursor-pointer"
-            >
+            <Link to={routes.home} className="hover:text-[#08C58A] transition-colors">
               Back to Top
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollTo('#talent')}
-              className="hover:text-[#08C58A] transition-colors cursor-pointer"
-            >
+            </Link>
+            <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
               Talent Directory
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollTo('#projects')}
-              className="hover:text-[#08C58A] transition-colors cursor-pointer"
-            >
+            </Link>
+            <Link to={routes.projects} className="hover:text-[#08C58A] transition-colors">
               Project Board
-            </button>
+            </Link>
           </div>
         </div>
       </div>

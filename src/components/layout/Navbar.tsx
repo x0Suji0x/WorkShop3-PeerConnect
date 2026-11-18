@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { routes, communityRoutes, authRoutes } from '../../app/routes'
-import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 
-const appLinks = [
-  { label: 'Dashboard', to: routes.dashboard },
+const homeLinks = [
+  { label: 'Projects', to: routes.projects },
+  { label: 'Talent', to: routes.profiles },
   { label: 'Communities', to: communityRoutes.communities },
   { label: 'Team Finder', to: communityRoutes.teamFinder },
-  { label: 'Profiles', to: routes.profiles },
-  { label: 'Projects', to: routes.projects },
+  { label: 'Colleges', to: routes.colleges },
 ]
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { scrollTo } = useSmoothScroll()
   const { pathname } = useLocation()
   const isHome = pathname === routes.home
   const closeMenu = () => setMobileMenuOpen(false)
@@ -45,11 +43,6 @@ export function Navbar() {
     }
   }, [isHome])
 
-  const homeNav = (target: string) => {
-    scrollTo(target)
-    closeMenu()
-  }
-
   return (
     <header
       data-over-hero={isHome && overHero}
@@ -66,43 +59,19 @@ export function Navbar() {
           <span className="text-xl font-extrabold tracking-tight text-[#171916]">PeerConnect</span>
         </Link>
 
-        {isHome ? (
-          <nav className="hidden items-center gap-7 text-sm font-medium text-[#171916] md:flex">
-            <button type="button" onClick={() => homeNav('#talent')} className="flex items-center gap-1 py-1 transition-colors hover:text-[#08C58A]">
-              <span>Explore</span>
-              <ChevronDown className="h-3.5 w-3.5 text-[#525A55]" />
-            </button>
-            <button type="button" onClick={() => homeNav('#talent')} className="py-1 transition-colors hover:text-[#08C58A]">
-              Talent
-            </button>
-            <button type="button" onClick={() => homeNav('#projects')} className="py-1 transition-colors hover:text-[#08C58A]">
-              Projects
-            </button>
-            <Link to={communityRoutes.communities} className="py-1 transition-colors hover:text-[#08C58A]">
-              Communities
-            </Link>
-            <Link to={communityRoutes.teamFinder} className="py-1 transition-colors hover:text-[#08C58A]">
-              Team Finder
-            </Link>
-            <button type="button" onClick={() => homeNav('#about')} className="py-1 transition-colors hover:text-[#08C58A]">
-              About
-            </button>
-          </nav>
-        ) : (
-          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            {appLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) =>
-                  `transition-colors ${isActive ? 'text-[#08A876]' : 'text-[#525A55] hover:text-[#171916]'}`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
-        )}
+        <nav className="hidden items-center gap-5 text-sm font-medium text-[#171916] lg:flex xl:gap-7">
+          {homeLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `py-1 transition-colors ${isActive ? 'text-[#08A876]' : 'text-[#171916] hover:text-[#08C58A]'}`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
           {isHome ? (
@@ -132,11 +101,11 @@ export function Navbar() {
 
         <div className="flex items-center gap-2 lg:hidden">
           <Link
-            to={routes.dashboard}
+            to={isHome ? authRoutes.signup : routes.dashboard}
             onClick={closeMenu}
             className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
           >
-            Dashboard
+            {isHome ? 'Get Started' : 'Dashboard'}
           </Link>
           <button
             type="button"
@@ -154,25 +123,13 @@ export function Navbar() {
         <div className="border-b border-[#E7E8E1] bg-[#FAF8F5]/98 px-4 pb-6 pt-3 shadow-lg backdrop-blur-lg lg:hidden">
           <nav className="flex flex-col gap-1 text-base font-semibold text-[#171916]">
             {isHome ? (
-              <>
-                <button type="button" onClick={() => homeNav('#talent')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
-                  Explore talent
-                </button>
-                <button type="button" onClick={() => homeNav('#projects')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
-                  Projects
-                </button>
-                <Link to={communityRoutes.communities} onClick={closeMenu} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
-                  Communities
+              homeLinks.map((link) => (
+                <Link key={link.to} to={link.to} onClick={closeMenu} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
+                  {link.label}
                 </Link>
-                <Link to={communityRoutes.teamFinder} onClick={closeMenu} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
-                  Team Finder
-                </Link>
-                <button type="button" onClick={() => homeNav('#about')} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
-                  About
-                </button>
-              </>
+              ))
             ) : (
-              appLinks.map((link) => (
+              homeLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}

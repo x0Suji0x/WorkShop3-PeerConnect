@@ -3,10 +3,10 @@ import { SmoothScrollProvider } from './components/providers/SmoothScrollProvide
 import { AppShell } from './components/layout/AppShell'
 import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
+import { StudentDiscoverySection } from './components/home/StudentDiscoverySection'
 import { StudentDashboardPage } from './pages/Dashboard/StudentDashboardPage'
 import { StudentProfilePage } from './pages/Profiles/StudentProfilePage'
 import { VerificationPage } from './pages/Verification/VerificationPage'
-import { ModulePlaceholderPage } from './pages/Shared/ModulePlaceholderPage'
 import { NotFoundPage } from './pages/Shared/NotFoundPage'
 import { CollegesPage } from './pages/Colleges/CollegesPage'
 import { ClubsPage } from './pages/Clubs/ClubsPage'
@@ -41,7 +41,7 @@ export default function App() {
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
               <Route path={routes.dashboard} element={<StudentDashboardPage />} />
-              <Route path={routes.profiles} element={<ModulePlaceholderPage eyebrow="Talent" title="Student profiles" description="Discover the students, skills, and portfolios shaping the next generation of work." owner="the shared profile directory" />} />
+              <Route path={routes.profiles} element={<StudentDiscoverySection />} />
               <Route path="/profiles/:profileId" element={<StudentProfilePage />} />
               <Route path={routes.verification} element={<VerificationPage />} />
               <Route path={routes.projects} element={<ProjectsPage />} />

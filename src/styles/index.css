@@ -259,10 +259,16 @@ body {
 
 /* Full viewport campus story. All people share one fixed photographic stage. */
 .home-page-surface {
-  background:
-    radial-gradient(ellipse 58% 9% at 8% 25%, rgba(246, 204, 133, 0.2) 0%, transparent 100%),
-    radial-gradient(ellipse 58% 9% at 92% 25%, rgba(216, 164, 177, 0.2) 0%, transparent 100%),
-    linear-gradient(110deg, #fbf2e8 0%, #fbf3ef 52%, #f5e9eb 100%);
+  background-color: #faf8f5;
+  background-image:
+    radial-gradient(ellipse 92vw 112vh at 0% 48%, rgba(241, 190, 112, 0.23) 0%, transparent 78%),
+    radial-gradient(ellipse 92vw 112vh at 100% 52%, rgba(211, 157, 173, 0.21) 0%, transparent 78%);
+  background-attachment: fixed, fixed;
+  background-repeat: no-repeat;
+}
+.home-page-surface #projects {
+  background-color: transparent;
+  border-color: transparent;
 }
 .hero-scroll-track { position: relative; height: 340svh; background: transparent; }
 .hero-story-stage {
