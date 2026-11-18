@@ -4,6 +4,7 @@ import { StudentDiscoverySection } from '../../components/home/StudentDiscoveryS
 import { ProjectMarketplaceSection } from '../../components/home/ProjectMarketplaceSection'
 import { HowItWorksSection } from '../../components/home/HowItWorksSection'
 import { DarkCtaSection } from '../../components/home/DarkCtaSection'
+import { CollegeCommunityModule } from '../../components/colleges/CollegeCommunityModule'
 
 export function HomePage() {
   return (
@@ -20,10 +21,13 @@ export function HomePage() {
       {/* 4. Project Marketplace Section with live scoped opportunities & budgets */}
       <ProjectMarketplaceSection />
 
-      {/* 5. How It Works Section explaining Student & Client journeys */}
+      {/* 5. College, Clubs & Events Module — independent, hash-routed */}
+      <CollegeCommunityModule />
+
+      {/* 6. How It Works Section explaining Student & Client journeys */}
       <HowItWorksSection />
 
-      {/* 6. High-contrast Dark CTA Section with strong typography & signups */}
+      {/* 7. High-contrast Dark CTA Section with strong typography & signups */}
       <DarkCtaSection />
     </div>
   )
