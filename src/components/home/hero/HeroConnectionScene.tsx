@@ -6,6 +6,7 @@ export function HeroConnectionScene() {
     <div className="hero-cinematic-scene" aria-hidden="true">
       <img className="hero-campus-plate" src={campus} alt="" fetchPriority="high" />
       <div className="hero-photo-light" />
+      <div className="hero-transition-glow" />
       <div className="hero-cast">
         <div className="hero-person hero-student-right"><img src={students} className="hero-sprite-right" alt="" /></div>
         <div className="hero-person hero-student-left"><img src={students} className="hero-sprite-left" alt="" /></div>

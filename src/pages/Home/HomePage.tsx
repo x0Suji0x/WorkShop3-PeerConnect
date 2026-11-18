@@ -8,7 +8,7 @@ import { CollegeCommunityModule } from '../../components/colleges/CollegeCommuni
 
 export function HomePage() {
   return (
-    <div className="w-full space-y-0">
+    <div className="home-page-surface w-full space-y-0">
       {/* 1. Hero with confident typography, floating cards & subtle geometric elements */}
       <HeroSection />
 
