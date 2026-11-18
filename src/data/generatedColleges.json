@@ -1,0 +1,37 @@
+[
+  {
+    "id": "col-upgrad-tech",
+    "name": "upGrad School of Technology",
+    "shortName": "upGrad SoT",
+    "location": "Bandra Kurla Complex, Mumbai / Online",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "type": "Engineering",
+    "established": 2023,
+    "registeredStudents": 850,
+    "website": "https://www.upgrad.com",
+    "description": "Next-generation tech institution focused on industry-integrated CS, AI/ML, and full-stack software development with Silicon Valley-style project learning.",
+    "logoUrl": "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=200&q=80",
+    "coverUrl": "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
+    "clubCount": 6,
+    "upcomingEventsCount": 3
+  },
+  {
+    "id": "col-newton-school",
+    "name": "Newton School of Technology",
+    "shortName": "Newton SoT",
+    "location": "Rishihood University Campus, Sonipat, Haryana",
+    "city": "Sonipat",
+    "state": "Haryana",
+    "type": "Engineering",
+    "established": 2022,
+    "registeredStudents": 1100,
+    "website": "https://www.newtonschool.co",
+    "description": "Forward-looking computer science and AI academy bridging undergraduate engineering with global venture studios and tech apprenticeships.",
+    "logoUrl": "",
+    "coverUrl": "",
+    "clubCount": 5,
+    "upcomingEventsCount": 2
+  }
+  // ... additional entries omitted for brevity ...
+]

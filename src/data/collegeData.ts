@@ -145,7 +145,9 @@ export interface SubmittedApplication {
 // ----------------------------------------------------------------
 // 1. COLLEGES
 // ----------------------------------------------------------------
-export const mockColleges: College[] = [
+import generatedColleges from './generatedColleges.json';
+
+export const mockColleges: College[] = generatedColleges as any;
   {
     id: 'col1',
     name: 'Indian Institute of Technology Bombay',
