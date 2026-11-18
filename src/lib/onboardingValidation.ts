@@ -83,8 +83,8 @@ export function validateStep1(data: OnboardingFormData['basicInfo']): FormValida
   const phoneDigits = data.phone.replace(/\D/g, '')
   if (!data.phone.trim()) {
     errors.phone = 'Phone number is required.'
-  } else if (phoneDigits.length < 10) {
-    errors.phone = 'Please enter a valid 10-digit mobile number.'
+  } else if (phoneDigits.length !== 10) {
+    errors.phone = 'Mobile number must be exactly 10 digits.'
   }
 
   if (!data.password) {

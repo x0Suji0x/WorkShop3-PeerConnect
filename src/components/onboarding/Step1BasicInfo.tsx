@@ -13,9 +13,10 @@ import {
   ZoomIn,
   RefreshCw,
   Check,
-  KeyRound,
   ShieldCheck,
   AlertCircle,
+  Camera,
+  Image as ImageIcon,
 } from 'lucide-react'
 import type { OnboardingBasicInfo, FormValidationErrors } from '../../types/onboarding'
 import { evaluatePasswordStrength } from '../../lib/onboardingValidation'
@@ -38,17 +39,17 @@ const AVATAR_PRESETS = [
 
 // Avatar Builder options
 const SKIN_TONES = [
-  { label: 'Fair', color: '#FDDFCC' },
+  { label: 'Fair Light', color: '#FDDFCC' },
   { label: 'Warm Beige', color: '#F3C7A5' },
-  { label: 'Honey', color: '#D99B77' },
-  { label: 'Olive', color: '#BA7854' },
+  { label: 'Honey Gold', color: '#D99B77' },
+  { label: 'Olive Bronze', color: '#BA7854' },
   { label: 'Caramel', color: '#8C5338' },
-  { label: 'Espresso', color: '#543224' },
+  { label: 'Deep Espresso', color: '#543224' },
 ]
 
 const HAIR_STYLES = [
   { id: 'short', label: 'Crew Cut' },
-  { id: 'curly', label: 'Curly' },
+  { id: 'curly', label: 'Curly Volume' },
   { id: 'waves', label: 'Long Waves' },
   { id: 'bob', label: 'Classic Bob' },
   { id: 'bun', label: 'Top Bun' },
@@ -56,11 +57,11 @@ const HAIR_STYLES = [
 ]
 
 const HAIR_COLORS = [
-  { label: 'Black', color: '#18181B' },
-  { label: 'Dark Brown', color: '#451A03' },
+  { label: 'Jet Black', color: '#18181B' },
+  { label: 'Deep Brown', color: '#451A03' },
   { label: 'Honey Brown', color: '#B45309' },
   { label: 'Auburn', color: '#991B1B' },
-  { label: 'Silver', color: '#64748B' },
+  { label: 'Silver Gray', color: '#64748B' },
 ]
 
 const OUTFIT_COLORS = [
@@ -73,18 +74,18 @@ const OUTFIT_COLORS = [
 ]
 
 const BG_COLORS = [
-  { label: 'Ivory', color: '#FAF8F5' },
-  { label: 'Mint', color: '#E3F4EB' },
-  { label: 'Sky', color: '#E0F2FE' },
+  { label: 'Warm Ivory', color: '#FAF8F5' },
+  { label: 'Mint Soft', color: '#E3F4EB' },
+  { label: 'Sky Tint', color: '#E0F2FE' },
   { label: 'Lavender', color: '#EDE9FE' },
-  { label: 'Peach', color: '#FFEDD5' },
-  { label: 'Sage', color: '#ECFDF5' },
+  { label: 'Peach Tint', color: '#FFEDD5' },
+  { label: 'Sage Tint', color: '#ECFDF5' },
 ]
 
 const ACCESSORIES = [
   { id: 'none', label: 'None' },
-  { id: 'glasses', label: 'Glasses' },
-  { id: 'sunglasses', label: 'Shades' },
+  { id: 'glasses', label: 'Eyeglasses' },
+  { id: 'sunglasses', label: 'Sunglasses' },
   { id: 'headphones', label: 'Headphones' },
 ]
 
@@ -142,21 +143,41 @@ const PERSONAL_EMAIL_DOMAINS = [
   'zoho.com',
 ]
 
+// Check if email ends with .edu or .ac.in
+function checkIsEduEmail(emailStr: string): boolean {
+  const trimmed = emailStr.trim().toLowerCase()
+  if (!trimmed.includes('@')) return false
+  const parts = trimmed.split('@')
+  if (parts.length !== 2 || !parts[1]) return false
+  const domain = parts[1]
+
+  // Personal emails cannot have the verified student tick
+  if (PERSONAL_EMAIL_DOMAINS.some((d) => domain === d || domain.endsWith('.' + d))) {
+    return false
+  }
+
+  // Must end in .edu or .ac.in or .edu.in or .ac.uk
+  return (
+    domain.endsWith('.edu') ||
+    domain.endsWith('.ac.in') ||
+    domain.endsWith('.edu.in') ||
+    domain.endsWith('.ac.uk') ||
+    domain.includes('.edu.') ||
+    domain.includes('.ac.')
+  )
+}
+
 export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [avatarTab, setAvatarTab] = useState<'upload' | 'builder'>('upload')
   const [zoomLevel, setZoomLevel] = useState(1)
+  const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const refFileInputRef = useRef<HTMLInputElement>(null)
 
   // Suggestion rotation index
   const [suggestionBatch, setSuggestionBatch] = useState(0)
-
-  // Institutional Email OTP Demo State
-  const [showOtpBox, setShowOtpBox] = useState(false)
-  const [otpInput, setOtpInput] = useState('')
-  const [otpError, setOtpError] = useState('')
-  const [isSendingOtp, setIsSendingOtp] = useState(false)
 
   // Avatar Builder state
   const [avatarConfig, setAvatarConfig] = useState({
@@ -170,49 +191,29 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
 
   const passwordStrength = evaluatePasswordStrength(data.password)
 
-  // Institutional email validation logic
-  const validateEmailFormat = (emailVal: string): { valid: boolean; reason?: string } => {
-    const trimmed = emailVal.trim().toLowerCase()
-    if (!trimmed) return { valid: false, reason: 'Institutional email is required' }
-    const parts = trimmed.split('@')
-    if (parts.length !== 2 || !parts[0] || !parts[1]) {
-      return { valid: false, reason: 'Please enter a complete email address' }
-    }
-    const domain = parts[1]
-    if (PERSONAL_EMAIL_DOMAINS.includes(domain)) {
-      return {
-        valid: false,
-        reason: `Personal email (@${domain}) is not eligible for student verification. Use your official college email (e.g. name@university.edu or name@college.ac.in).`,
-      }
-    }
-    const isEdu =
-      domain.endsWith('.edu') ||
-      domain.endsWith('.ac.in') ||
-      domain.endsWith('.edu.in') ||
-      domain.endsWith('.ac.uk') ||
-      domain.includes('.edu.') ||
-      domain.includes('university') ||
-      domain.includes('college')
+  // Check if current email has verified .edu / .ac.in domain
+  const isEduVerified = checkIsEduEmail(data.email)
 
-    if (!isEdu) {
-      return {
-        valid: false,
-        reason: 'Institutional email must end with .edu, .ac.in, or your official college domain.',
-      }
-    }
-    return { valid: true }
+  // When email changes, automatically sync verified status
+  const handleEmailChange = (val: string) => {
+    onChange('email', val)
+    const isEdu = checkIsEduEmail(val)
+    onChange('isEmailVerified', isEdu)
   }
 
-  const emailValidation = validateEmailFormat(data.email)
+  // Phone number handler: limit strictly to 10 digits
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value
+    // Strip non-digits and cap at exactly 10 digits
+    const digitsOnly = rawVal.replace(/\D/g, '').slice(0, 10)
+    onChange('phone', digitsOnly)
+  }
 
-  // Handle device file upload
-  const handleDeviceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  // Handle device file upload with instant preview
+  const handleFileChosen = (file: File) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg']
     if (!validTypes.includes(file.type)) {
-      alert('Please upload a valid image (JPG, PNG, or WebP).')
+      alert('Please select a valid image file (JPG, PNG, or WebP).')
       return
     }
 
@@ -224,6 +225,18 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
       }
     }
     reader.readAsDataURL(file)
+  }
+
+  const handleDeviceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) handleFileChosen(file)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) handleFileChosen(file)
   }
 
   // Generate SVG avatar Data URL
@@ -255,7 +268,6 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
         <path d="M 30 50 C 30 28, 70 28, 70 50 C 70 42, 65 34, 50 34 C 35 34, 30 42, 30 50 Z" fill="${hairColor}" />
       `
     } else {
-      // afro
       hairSvg = `<circle cx="50" cy="45" r="28" fill="${hairColor}" />`
     }
 
@@ -303,29 +315,6 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
     onChange('avatarUrl', url)
   }
 
-  // OTP Handlers
-  const DEMO_OTP = '482910'
-
-  const handleSendOtp = () => {
-    if (!emailValidation.valid) return
-    setIsSendingOtp(true)
-    setTimeout(() => {
-      setIsSendingOtp(false)
-      setShowOtpBox(true)
-      setOtpError('')
-    }, 400)
-  }
-
-  const handleVerifyOtp = () => {
-    if (otpInput.trim() === DEMO_OTP) {
-      onChange('isEmailVerified', true)
-      setShowOtpBox(false)
-      setOtpError('')
-    } else {
-      setOtpError(`Invalid code. For preview demo, enter ${DEMO_OTP}.`)
-    }
-  }
-
   // Display 3 headlines at a time
   const displayedHeadlines = [
     HEADLINE_SUGGESTIONS[(suggestionBatch * 3) % HEADLINE_SUGGESTIONS.length],
@@ -351,61 +340,88 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
         </p>
       </div>
 
-      {/* Profile Picture & Custom Avatar Card */}
-      <div className="rounded-3xl border border-[#E7E8E1] bg-white p-5 shadow-2xs">
-        <div className="flex items-center justify-between border-b border-[#F2F1EA] pb-3">
+      {/* Profile Picture & Custom Avatar Card (Enhanced) */}
+      <div className="rounded-3xl border border-[#E7E8E1] bg-white p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#F2F1EA] pb-3">
           <div>
-            <h3 className="text-sm font-bold text-[#171916]">Profile Picture & Avatar</h3>
-            <p className="text-xs text-[#777A72]">Select a photo from your device or create a custom avatar</p>
+            <div className="flex items-center gap-2">
+              <Camera className="h-4 w-4 text-[#08A876]" />
+              <h3 className="text-sm font-bold text-[#171916]">Profile Photo & Avatar</h3>
+            </div>
+            <p className="mt-0.5 text-xs text-[#777A72]">
+              Upload a picture from your device or design a custom personal avatar
+            </p>
           </div>
-          <div className="flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E7E8E1]">
+
+          <div className="flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E7E8E1] shrink-0">
             <button
               type="button"
               onClick={() => setAvatarTab('upload')}
-              className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
-                avatarTab === 'upload' ? 'bg-[#123D30] text-white' : 'text-[#777A72] hover:text-[#171916]'
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                avatarTab === 'upload' ? 'bg-[#123D30] text-white shadow-xs' : 'text-[#777A72] hover:text-[#171916]'
               }`}
             >
-              Upload / Presets
+              Upload Photo from Device
             </button>
             <button
               type="button"
               onClick={() => setAvatarTab('builder')}
-              className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
-                avatarTab === 'builder' ? 'bg-[#123D30] text-white' : 'text-[#777A72] hover:text-[#171916]'
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                avatarTab === 'builder' ? 'bg-[#123D30] text-white shadow-xs' : 'text-[#777A72] hover:text-[#171916]'
               }`}
             >
-              Custom Avatar Builder
+              Build Custom Avatar
             </button>
           </div>
         </div>
 
         {avatarTab === 'upload' ? (
-          /* TAB 1: DEVICE UPLOAD & PRESETS */
-          <div className="mt-4 flex flex-col sm:flex-row items-center gap-6">
-            <div className="flex flex-col items-center">
-              <div className="relative h-28 w-28 overflow-hidden rounded-3xl border-4 border-[#FAF8F5] bg-[#F7F6F0] shadow-md ring-1 ring-[#08C58A]/30">
-                <img
-                  src={data.avatarUrl || AVATAR_PRESETS[0].url}
-                  alt="Profile preview"
-                  className="h-full w-full object-cover transition-transform duration-100"
-                  style={{ transform: `scale(${zoomLevel})` }}
-                />
+          /* TAB 1: DEVICE UPLOAD DROPZONE & PRESETS */
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              {/* Main Avatar Preview (Large & Clear) */}
+              <div className="flex flex-col items-center shrink-0">
+                <div className="relative group">
+                  <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-[#F7F6F0] shadow-lg ring-2 ring-[#08C58A]/40">
+                    <img
+                      src={data.avatarUrl || AVATAR_PRESETS[0].url}
+                      alt="Profile preview"
+                      className="h-full w-full object-cover transition-transform duration-150"
+                      style={{ transform: `scale(${zoomLevel})` }}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#123D30] text-white shadow-md hover:bg-[#08C58A] transition"
+                    title="Change picture"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs font-bold text-[#123D30] hover:text-[#08C58A] transition underline"
+                  >
+                    Change Photo
+                  </button>
+                  <span className="text-[#777A72]">•</span>
+                  <button
+                    type="button"
+                    onClick={() => onChange('avatarUrl', AVATAR_PRESETS[0].url)}
+                    className="text-xs text-red-600 hover:underline flex items-center gap-0.5"
+                  >
+                    <Trash2 className="h-3 w-3" /> Reset
+                  </button>
+                </div>
               </div>
 
-              {data.avatarUrl && (
-                <button
-                  type="button"
-                  onClick={() => onChange('avatarUrl', AVATAR_PRESETS[0].url)}
-                  className="mt-2 inline-flex items-center gap-1 text-[11px] text-red-600 hover:underline"
-                >
-                  <Trash2 className="h-3 w-3" /> Reset photo
-                </button>
-              )}
-            </div>
-
-            <div className="flex-1 space-y-3 w-full">
-              <div>
+              {/* Upload Dropzone */}
+              <div className="flex-1 w-full space-y-3">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -413,179 +429,244 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                   onChange={handleDeviceUpload}
                   className="hidden"
                 />
-                <button
-                  type="button"
+
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setIsDragOver(true)
+                  }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#123D30] px-4 py-2 text-xs font-bold text-white hover:bg-[#0E3127] transition shadow-xs"
+                  className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-5 text-center cursor-pointer transition ${
+                    isDragOver
+                      ? 'border-[#08C58A] bg-[#E3F4EB]/50'
+                      : 'border-[#E7E8E1] bg-[#FAF8F5] hover:border-[#08C58A]/50 hover:bg-[#F2F1EA]/60'
+                  }`}
                 >
-                  <Upload className="h-3.5 w-3.5" />
-                  Select Image from Device
-                </button>
-                <span className="ml-3 text-[11px] text-[#777A72]">
-                  JPG, PNG, WebP (Max 5MB)
-                </span>
-              </div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-xs text-[#08A876]">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                  <p className="mt-2 text-xs font-bold text-[#171916]">
+                    Click to browse or drag and drop your photo
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-[#777A72]">
+                    High quality JPG, PNG, or WebP (max 10MB)
+                  </p>
+                </div>
 
-              {/* Zoom Slider */}
-              <div className="rounded-xl border border-[#E7E8E1] bg-[#FAF8F5] p-2.5">
-                <div className="flex items-center justify-between text-[11px] font-bold text-[#171916] mb-1">
-                  <span className="flex items-center gap-1">
-                    <ZoomIn className="h-3 w-3 text-[#08A876]" /> Zoom & Crop
+                {/* Live Zoom Slider */}
+                <div className="flex items-center justify-between rounded-xl border border-[#E7E8E1] bg-[#FAF8F5] px-3.5 py-2">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-[#171916]">
+                    <ZoomIn className="h-3.5 w-3.5 text-[#08A876]" /> Adjust Zoom:
                   </span>
-                  <span className="font-mono text-[#525A55]">{zoomLevel.toFixed(1)}x</span>
+                  <div className="flex items-center gap-3 flex-1 max-w-xs ml-4">
+                    <input
+                      type="range"
+                      min="1"
+                      max="2.5"
+                      step="0.05"
+                      value={zoomLevel}
+                      onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
+                      className="w-full accent-[#08C58A]"
+                    />
+                    <span className="font-mono text-xs text-[#525A55] min-w-8">
+                      {zoomLevel.toFixed(1)}x
+                    </span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="3"
-                  step="0.1"
-                  value={zoomLevel}
-                  onChange={(e) => setZoomLevel(parseFloat(e.target.value))}
-                  className="w-full accent-[#08C58A]"
-                />
               </div>
+            </div>
 
-              {/* Preset Avatars */}
-              <div>
-                <span className="block text-[11px] font-bold text-[#171916] mb-1.5">
-                  Or select a student portrait preset:
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {AVATAR_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      onClick={() => {
-                        onChange('avatarUrl', preset.url)
-                        setZoomLevel(1)
-                      }}
-                      className={`h-9 w-9 rounded-xl overflow-hidden border-2 transition ${
-                        data.avatarUrl === preset.url
-                          ? 'border-[#08C58A] scale-105 ring-2 ring-[#08C58A]/30'
-                          : 'border-transparent opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={preset.url} alt={preset.label} className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
+            {/* Presets Gallery */}
+            <div className="border-t border-[#F2F1EA] pt-3">
+              <span className="block text-xs font-bold text-[#171916] mb-2">
+                Or select from diverse student portraits:
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                {AVATAR_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => {
+                      onChange('avatarUrl', preset.url)
+                      setZoomLevel(1)
+                    }}
+                    className={`h-11 w-11 rounded-full overflow-hidden border-2 transition ${
+                      data.avatarUrl === preset.url
+                        ? 'border-[#08C58A] scale-110 ring-2 ring-[#08C58A]/30 shadow-xs'
+                        : 'border-transparent opacity-70 hover:opacity-100 hover:scale-105'
+                    }`}
+                  >
+                    <img src={preset.url} alt={preset.label} className="h-full w-full object-cover" />
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         ) : (
           /* TAB 2: CUSTOM SVG AVATAR BUILDER */
-          <div className="mt-4 flex flex-col sm:flex-row items-center gap-6">
-            <div className="flex flex-col items-center">
-              <div
-                className="h-28 w-28 overflow-hidden rounded-3xl border-4 border-[#FAF8F5] shadow-md ring-1 ring-[#08C58A]/30 flex items-center justify-center"
-                style={{ backgroundColor: avatarConfig.bgColor }}
-              >
-                <img
-                  src={generateSvgAvatarUrl()}
-                  alt="Custom avatar"
-                  className="h-full w-full"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleApplyCustomAvatar}
-                className="mt-2 inline-flex items-center gap-1 rounded-lg bg-[#08C58A] px-3 py-1 text-[11px] font-bold text-[#123D30] hover:bg-[#07B07B] transition shadow-xs"
-              >
-                <Check className="h-3 w-3" /> Apply Avatar
-              </button>
-            </div>
-
-            <div className="flex-1 space-y-3 w-full">
-              {/* Skin Tone */}
-              <div>
-                <span className="block text-[11px] font-bold text-[#171916] mb-1">
-                  Skin Tone:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {SKIN_TONES.map((t) => (
-                    <button
-                      key={t.color}
-                      type="button"
-                      onClick={() => setAvatarConfig((prev) => ({ ...prev, skinTone: t.color }))}
-                      className={`h-6 w-6 rounded-full border-2 transition ${
-                        avatarConfig.skinTone === t.color
-                          ? 'border-[#08C58A] scale-110 shadow-xs ring-2 ring-[#08C58A]/30'
-                          : 'border-white shadow-xs'
-                      }`}
-                      style={{ backgroundColor: t.color }}
-                      title={t.label}
-                    />
-                  ))}
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              {/* Live SVG Avatar Preview */}
+              <div className="flex flex-col items-center shrink-0">
+                <div
+                  className="h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-lg ring-2 ring-[#08C58A]/40 flex items-center justify-center transition-all"
+                  style={{ backgroundColor: avatarConfig.bgColor }}
+                >
+                  <img
+                    src={generateSvgAvatarUrl()}
+                    alt="Custom generated avatar"
+                    className="h-full w-full"
+                  />
                 </div>
+
+                <button
+                  type="button"
+                  onClick={handleApplyCustomAvatar}
+                  className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#08C58A] px-4 py-1.5 text-xs font-bold text-[#123D30] hover:bg-[#07B07B] transition shadow-xs"
+                >
+                  <Check className="h-3.5 w-3.5" /> Apply This Avatar
+                </button>
               </div>
 
-              {/* Hairstyle */}
-              <div>
-                <span className="block text-[11px] font-bold text-[#171916] mb-1">
-                  Hairstyle:
-                </span>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {HAIR_STYLES.map((h) => (
-                    <button
-                      key={h.id}
-                      type="button"
-                      onClick={() => setAvatarConfig((prev) => ({ ...prev, hairStyle: h.id }))}
-                      className={`rounded-lg border px-2 py-1 text-[11px] font-medium transition ${
-                        avatarConfig.hairStyle === h.id
-                          ? 'border-[#08C58A] bg-[#E3F4EB] text-[#123D30] font-bold'
-                          : 'border-[#E7E8E1] bg-white text-[#525A55] hover:bg-[#FAF8F5]'
-                      }`}
-                    >
-                      {h.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Hair Color & Outfit Color row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Avatar Attributes */}
+              <div className="flex-1 w-full space-y-3">
+                {/* Skin Tone */}
                 <div>
                   <span className="block text-[11px] font-bold text-[#171916] mb-1">
-                    Hair Color:
+                    Skin Tone:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    {HAIR_COLORS.map((hc) => (
+                    {SKIN_TONES.map((t) => (
                       <button
-                        key={hc.color}
+                        key={t.color}
                         type="button"
-                        onClick={() => setAvatarConfig((prev) => ({ ...prev, hairColor: hc.color }))}
+                        onClick={() => setAvatarConfig((prev) => ({ ...prev, skinTone: t.color }))}
                         className={`h-6 w-6 rounded-full border-2 transition ${
-                          avatarConfig.hairColor === hc.color
+                          avatarConfig.skinTone === t.color
                             ? 'border-[#08C58A] scale-110 shadow-xs ring-2 ring-[#08C58A]/30'
                             : 'border-white shadow-xs'
                         }`}
-                        style={{ backgroundColor: hc.color }}
-                        title={hc.label}
+                        style={{ backgroundColor: t.color }}
+                        title={t.label}
                       />
                     ))}
                   </div>
                 </div>
 
+                {/* Hairstyle */}
                 <div>
                   <span className="block text-[11px] font-bold text-[#171916] mb-1">
-                    Outfit Color:
+                    Hairstyle:
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {OUTFIT_COLORS.map((oc) => (
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {HAIR_STYLES.map((h) => (
                       <button
-                        key={oc.color}
+                        key={h.id}
                         type="button"
-                        onClick={() => setAvatarConfig((prev) => ({ ...prev, outfitColor: oc.color }))}
-                        className={`h-6 w-6 rounded-full border-2 transition ${
-                          avatarConfig.outfitColor === oc.color
-                            ? 'border-[#08C58A] scale-110 shadow-xs ring-2 ring-[#08C58A]/30'
-                            : 'border-white shadow-xs'
+                        onClick={() => setAvatarConfig((prev) => ({ ...prev, hairStyle: h.id }))}
+                        className={`rounded-lg border px-2 py-1 text-[11px] font-medium transition ${
+                          avatarConfig.hairStyle === h.id
+                            ? 'border-[#08C58A] bg-[#E3F4EB] text-[#123D30] font-bold'
+                            : 'border-[#E7E8E1] bg-white text-[#525A55] hover:bg-[#FAF8F5]'
                         }`}
-                        style={{ backgroundColor: oc.color }}
-                        title={oc.label}
-                      />
+                      >
+                        {h.label}
+                      </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Hair Color & Outfit Color row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="block text-[11px] font-bold text-[#171916] mb-1">
+                      Hair Color:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {HAIR_COLORS.map((hc) => (
+                        <button
+                          key={hc.color}
+                          type="button"
+                          onClick={() => setAvatarConfig((prev) => ({ ...prev, hairColor: hc.color }))}
+                          className={`h-6 w-6 rounded-full border-2 transition ${
+                            avatarConfig.hairColor === hc.color
+                              ? 'border-[#08C58A] scale-110 shadow-xs ring-2 ring-[#08C58A]/30'
+                              : 'border-white shadow-xs'
+                          }`}
+                          style={{ backgroundColor: hc.color }}
+                          title={hc.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="block text-[11px] font-bold text-[#171916] mb-1">
+                      Outfit Color:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {OUTFIT_COLORS.map((oc) => (
+                        <button
+                          key={oc.color}
+                          type="button"
+                          onClick={() => setAvatarConfig((prev) => ({ ...prev, outfitColor: oc.color }))}
+                          className={`h-6 w-6 rounded-full border-2 transition ${
+                            avatarConfig.outfitColor === oc.color
+                              ? 'border-[#08C58A] scale-110 shadow-xs ring-2 ring-[#08C58A]/30'
+                              : 'border-white shadow-xs'
+                          }`}
+                          style={{ backgroundColor: oc.color }}
+                          title={oc.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Accessories */}
+                <div>
+                  <span className="block text-[11px] font-bold text-[#171916] mb-1">
+                    Accessories:
+                  </span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {ACCESSORIES.map((acc) => (
+                      <button
+                        key={acc.id}
+                        type="button"
+                        onClick={() => setAvatarConfig((prev) => ({ ...prev, accessory: acc.id }))}
+                        className={`rounded-lg border px-2 py-1 text-center text-[11px] font-medium transition ${
+                          avatarConfig.accessory === acc.id
+                            ? 'border-[#08C58A] bg-[#E3F4EB] text-[#123D30] font-bold'
+                            : 'border-[#E7E8E1] bg-white text-[#525A55] hover:bg-[#FAF8F5]'
+                        }`}
+                      >
+                        {acc.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Upload picture as reference button */}
+                <div className="pt-1">
+                  <input
+                    ref={refFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleFileChosen(file)
+                    }}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => refFileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 text-xs text-[#08A876] font-bold hover:underline"
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" /> Or upload a photo reference from your device
+                  </button>
                 </div>
               </div>
             </div>
@@ -593,12 +674,12 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
         )}
       </div>
 
-      {/* Main Inputs: Full Name & Institutional Email */}
+      {/* Main Inputs: Full Name & Mobile Phone */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {/* Full Name */}
         <div>
           <label htmlFor="reg-name" className="block text-xs font-bold text-[#171916]">
-            Full Name *
+            Full Legal / Preferred Name *
           </label>
           <div className="relative mt-1.5">
             <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
@@ -621,48 +702,83 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
           )}
         </div>
 
-        {/* Mobile Number */}
+        {/* Mobile Phone Number (Strict 10-digit limit) */}
         <div>
-          <label htmlFor="reg-phone" className="block text-xs font-bold text-[#171916]">
-            Mobile Phone Number *
-          </label>
-          <div className="relative mt-1.5">
-            <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
+          <div className="flex items-center justify-between">
+            <label htmlFor="reg-phone" className="block text-xs font-bold text-[#171916]">
+              Mobile Phone Number (10 Digits) *
+            </label>
+            <span
+              className={`text-[11px] font-mono ${
+                (data.phone?.length || 0) === 10
+                  ? 'text-[#08A876] font-bold'
+                  : 'text-[#777A72]'
+              }`}
+            >
+              {data.phone?.length || 0}/10 digits
+            </span>
+          </div>
+
+          <div className="relative mt-1.5 flex items-center">
+            {/* Country code prefix */}
+            <span className="absolute left-3 flex items-center gap-1 text-xs font-bold text-[#525A55] select-none border-r border-[#E7E8E1] pr-2">
+              <Phone className="h-3.5 w-3.5 text-[#08A876]" />
+              +91
+            </span>
+
             <input
               id="reg-phone"
               type="tel"
               required
-              placeholder="98765 43210"
+              maxLength={10}
+              placeholder="9876543210"
               value={data.phone}
-              onChange={(e) => onChange('phone', e.target.value)}
-              className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-3.5 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
+              onChange={handlePhoneChange}
+              className={`w-full rounded-xl border bg-white py-2.5 pl-16 pr-10 text-xs text-[#171916] font-mono tracking-wider outline-none transition focus:ring-2 sm:text-sm ${
                 errors.phone
                   ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
+                  : (data.phone?.length || 0) === 10
+                  ? 'border-[#08C58A] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
                   : 'border-[#E7E8E1] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
               }`}
             />
+
+            {(data.phone?.length || 0) === 10 && (
+              <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#08A876]" />
+            )}
           </div>
-          {errors.phone && (
+
+          {errors.phone ? (
             <p className="mt-1 text-xs text-red-600 font-medium">{errors.phone}</p>
+          ) : (
+            <p className="mt-1 text-[11px] text-[#777A72]">
+              Strictly 10-digit Indian mobile number. Kept private by default.
+            </p>
           )}
         </div>
       </div>
 
       {/* Institutional Email Address Verification */}
-      <div className="rounded-2xl border border-[#E7E8E1] bg-white p-4.5 space-y-3">
-        <div className="flex items-center justify-between">
+      <div className="rounded-2xl border border-[#E7E8E1] bg-white p-5 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
           <div>
             <label htmlFor="reg-email" className="block text-xs font-bold text-[#171916]">
               Institutional College Email (.edu / .ac.in) *
             </label>
             <p className="text-[11px] text-[#777A72]">
-              Must be your official university email ending with .edu or .ac.in
+              Ending with .edu or .ac.in instantly earns the verified student checkmark
             </p>
           </div>
-          {data.isEmailVerified && (
-            <span className="flex items-center gap-1 rounded-full bg-[#E3F4EB] px-2.5 py-1 text-xs font-bold text-[#08A876] border border-[#08C58A]/30">
-              <CheckCircle2 className="h-3.5 w-3.5 text-[#08C58A]" />
-              Verified Institutional Email
+
+          {/* Green Tick verified badge if .edu / .ac.in */}
+          {isEduVerified ? (
+            <span className="flex items-center gap-1.5 rounded-full bg-[#E3F4EB] px-3 py-1 text-xs font-bold text-[#08A876] border border-[#08C58A]/40 shrink-0">
+              <CheckCircle2 className="h-4 w-4 text-[#08C58A]" />
+              ✓ Verified Institutional Email
+            </span>
+          ) : (
+            <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200 shrink-0">
+              Not verified (Needs .edu / .ac.in)
             </span>
           )}
         </div>
@@ -675,93 +791,49 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
             required
             placeholder="student@university.edu or name@college.ac.in"
             value={data.email}
-            onChange={(e) => {
-              onChange('email', e.target.value)
-              if (data.isEmailVerified) onChange('isEmailVerified', false)
-            }}
+            onChange={(e) => handleEmailChange(e.target.value)}
             className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-24 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
-              data.isEmailVerified
+              isEduVerified
                 ? 'border-[#08C58A] bg-[#E3F4EB]/20 text-[#123D30] font-medium'
-                : errors.email || (!emailValidation.valid && data.email.length > 5)
-                ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
+                : data.email.length > 5
+                ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-100'
                 : 'border-[#E7E8E1] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
             }`}
           />
 
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            {data.isEmailVerified ? (
-              <Badge variant="green" size="sm" className="font-bold">
-                ✓ Verified
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {isEduVerified ? (
+              <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
+                <Check className="h-3 w-3 text-[#08A876]" /> Verified
               </Badge>
             ) : (
-              <button
-                type="button"
-                disabled={!emailValidation.valid || isSendingOtp}
-                onClick={handleSendOtp}
-                className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                  emailValidation.valid
-                    ? 'bg-[#123D30] text-white hover:bg-[#0E3127]'
-                    : 'bg-gray-100 text-[#777A72] opacity-60 cursor-not-allowed'
-                }`}
-              >
-                {isSendingOtp ? 'Sending...' : 'Verify OTP'}
-              </button>
+              <span className="text-[11px] text-[#777A72] font-mono">
+                No tick
+              </span>
             )}
           </div>
         </div>
 
-        {/* Validation error message */}
-        {!data.isEmailVerified && (errors.email || (!emailValidation.valid && data.email.length > 5)) && (
-          <div className="flex items-start gap-1.5 pt-0.5 text-xs text-red-600">
-            <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            <span>{errors.email || emailValidation.reason}</span>
+        {/* Dynamic status feedback */}
+        {isEduVerified ? (
+          <div className="flex items-center gap-2 rounded-xl bg-[#E3F4EB] p-2.5 text-xs font-bold text-[#123D30] border border-[#08C58A]/30">
+            <CheckCircle2 className="h-4 w-4 text-[#08A876] shrink-0" />
+            <span>
+              Official educational domain detected ({data.email}) — your student badge is verified!
+            </span>
           </div>
-        )}
-
-        {/* OTP Demo Interface */}
-        {showOtpBox && !data.isEmailVerified && (
-          <div className="rounded-xl border border-[#08C58A]/30 bg-[#FAF8F5] p-3.5 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-[#123D30]">
-                <KeyRound className="h-3.5 w-3.5 text-[#08A876]" />
-                Simulated Institutional OTP Code
-              </span>
-              <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                Demo Code: {DEMO_OTP}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                maxLength={6}
-                placeholder="Enter 6-digit code"
-                value={otpInput}
-                onChange={(e) => setOtpInput(e.target.value)}
-                className="w-36 rounded-xl border border-[#E7E8E1] bg-white px-3 py-1.5 text-center font-mono text-xs font-bold tracking-widest text-[#171916] outline-none focus:border-[#08C58A]"
-              />
-              <button
-                type="button"
-                onClick={handleVerifyOtp}
-                className="rounded-xl bg-[#08C58A] px-3.5 py-1.5 text-xs font-bold text-[#123D30] hover:bg-[#07B07B] transition shadow-xs"
-              >
-                Confirm OTP
-              </button>
-              <button
-                type="button"
-                onClick={() => setOtpInput(DEMO_OTP)}
-                className="rounded-xl border border-[#E7E8E1] bg-white px-3 py-1.5 text-xs font-semibold text-[#525A55] hover:bg-[#F7F6F0]"
-              >
-                Auto-fill
-              </button>
-            </div>
-            {otpError && <p className="text-xs text-red-600 font-medium">{otpError}</p>}
+        ) : data.email.length > 4 ? (
+          <div className="flex items-start gap-1.5 pt-0.5 text-xs text-amber-700">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600" />
+            <span>
+              Personal email providers (e.g. @gmail.com) do not qualify for the verified student tick. Enter an email ending in <strong>.edu</strong> or <strong>.ac.in</strong> to show as verified.
+            </span>
           </div>
-        )}
+        ) : null}
 
         <p className="text-[11px] text-[#777A72] flex items-center gap-1">
           <ShieldCheck className="h-3.5 w-3.5 text-[#08A876]" />
-          Institutional email is kept private and used only for verified student status.
+          Institutional email is private by default and used only for campus discovery.
         </p>
       </div>
 
@@ -804,7 +876,7 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
         <div className="rounded-2xl border border-[#08C58A]/20 bg-[#FAF8F5] p-3.5">
           <div className="flex items-center justify-between pb-2">
             <span className="flex items-center gap-1.5 text-xs font-bold text-[#123D30]">
-              <Sparkles className="h-3.5 w-3.5 text-[#08C58A]" />
+              <Sparkles className="h-3.5 w-3.5 text-[#08A876]" />
               Recommended Headlines (Tap to apply)
             </span>
             <button

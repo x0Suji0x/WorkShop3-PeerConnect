@@ -178,6 +178,16 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
   }
 
   const emailValidation = validateCollegeEmail(data.collegeEmail)
+  const isEduDomain = emailValidation.valid
+
+  const handleCollegeEmailInput = (val: string) => {
+    onChange('collegeEmail', val)
+    const validEdu = validateCollegeEmail(val).valid
+    onChange('isEmailVerified', validEdu)
+    if (validEdu) {
+      onChange('idVerificationStatus', 'verified')
+    }
+  }
 
   const handleSelectCollege = (college: College) => {
     setSearchTerm(college.name)
@@ -615,10 +625,14 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
               <label htmlFor="col-email" className="block text-xs font-bold text-[#171916]">
                 Institutional Email Address (.edu / .ac.in)
               </label>
-              {data.isEmailVerified && (
+              {isEduDomain ? (
                 <span className="flex items-center gap-1 text-xs font-bold text-[#08A876]">
                   <CheckCircle2 className="h-4 w-4" />
                   <span>{data.collegeEmail}</span> ✓ Verified
+                </span>
+              ) : (
+                <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  No verified tick (Needs .edu / .ac.in)
                 </span>
               )}
             </div>
@@ -630,16 +644,17 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
                 type="email"
                 placeholder="e.g. yourname@iitb.ac.in or student@university.edu"
                 value={data.collegeEmail}
-                onChange={(e) => {
-                  onChange('collegeEmail', e.target.value)
-                  if (data.isEmailVerified) onChange('isEmailVerified', false)
-                }}
-                className="w-full rounded-xl border border-[#E7E8E1] bg-white py-2 pl-10 pr-28 text-xs text-[#171916] outline-none focus:border-[#08C58A] sm:text-sm"
+                onChange={(e) => handleCollegeEmailInput(e.target.value)}
+                className={`w-full rounded-xl border bg-white py-2 pl-10 pr-28 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
+                  isEduDomain
+                    ? 'border-[#08C58A] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
+                    : 'border-[#E7E8E1] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
+                }`}
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                {data.isEmailVerified ? (
-                  <Badge variant="green" size="sm" className="font-bold">
-                    ✓ Verified
+                {isEduDomain ? (
+                  <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
+                    <Check className="h-3 w-3 text-[#08A876]" /> Verified
                   </Badge>
                 ) : (
                   <button
