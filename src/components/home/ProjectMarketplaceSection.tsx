@@ -108,18 +108,19 @@ export function ProjectMarketplaceSection() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         rows,
-        { opacity: 0.25, y: 16 },
+        { opacity: 0.72, y: 8 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.45,
-          stagger: 0.08,
+          duration: 0.3,
+          stagger: 0.045,
           ease: 'power2.out',
           clearProps: 'opacity,transform',
           scrollTrigger: {
             trigger: rosterRef.current,
-            start: 'top 95%',
+            start: 'top 88%',
             once: true,
+            fastScrollEnd: true,
           },
         },
       )

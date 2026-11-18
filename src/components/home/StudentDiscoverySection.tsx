@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { ArrowRight, FolderGit2, Check, Sparkles, UserCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { routes } from '../../app/routes'
 import { mockStudents } from '../../data/mockData'
 import { gsap, ScrollTrigger } from '../../lib/gsap'
-import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 import type { SkillCategory } from '../../types'
 
 export function StudentDiscoverySection() {
@@ -10,8 +11,6 @@ export function StudentDiscoverySection() {
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollTo } = useSmoothScroll()
-
   const filteredStudents = mockStudents.filter((student) => {
     if (activeCategory === 'all') return true
     if (activeCategory === 'design') {
@@ -54,18 +53,19 @@ export function StudentDiscoverySection() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         cards,
-        { opacity: 0.25, y: 16 },
+        { opacity: 0.72, y: 8 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.5,
-          stagger: 0.08,
+          duration: 0.32,
+          stagger: 0.045,
           ease: 'power2.out',
           clearProps: 'opacity,transform',
           scrollTrigger: {
             trigger: containerRef.current,
-            start: 'top 95%',
+            start: 'top 88%',
             once: true,
+            fastScrollEnd: true,
           },
         },
       )
@@ -436,14 +436,13 @@ export function StudentDiscoverySection() {
         {/* Section Bottom Transition Strip */}
         <div className="mt-14 pt-8 border-t border-[#E7E8E1] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#777A72]">
           <p>Have an open project brief or looking for collaborative student builders?</p>
-          <button
-            type="button"
-            onClick={() => scrollTo('#projects')}
+          <Link
+            to={routes.projects}
             className="text-[#08C58A] font-bold hover:underline inline-flex items-center gap-1.5 cursor-pointer text-sm"
           >
             <span>Explore Open Project Opportunities</span>
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
     </section>

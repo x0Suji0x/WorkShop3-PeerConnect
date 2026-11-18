@@ -26,14 +26,15 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     }
 
     const lenisInstance = new Lenis({
+      // A snappy duration keeps input feeling direct and natural instead of floaty/laggy.
       duration: 0.85,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
+      syncTouch: false,
       wheelMultiplier: 0.95,
       touchMultiplier: 1.0,
-      syncTouch: false,
     })
 
     lenisRef.current = lenisInstance
@@ -47,13 +48,13 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     }
 
     gsap.ticker.add(tickerUpdate)
-    // Enable healthy lagSmoothing so frame drops don't cause animation jumps
+    // Enable healthy lag smoothing so frame drops don't cause sudden animation jumps
     gsap.ticker.lagSmoothing(500, 33)
 
     // Ensure ScrollTrigger measures the document correctly once Lenis attaches
-    const refreshTimer = setTimeout(() => {
+    const refreshFrame = window.requestAnimationFrame(() => {
       ScrollTrigger.refresh()
-    }, 100)
+    })
 
     const handleLoad = () => {
       ScrollTrigger.refresh()
@@ -61,7 +62,7 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     window.addEventListener('load', handleLoad)
 
     return () => {
-      clearTimeout(refreshTimer)
+      window.cancelAnimationFrame(refreshFrame)
       window.removeEventListener('load', handleLoad)
       gsap.ticker.remove(tickerUpdate)
       lenisInstance.destroy()

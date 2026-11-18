@@ -78,18 +78,19 @@ export function HowItWorksSection() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         stations,
-        { opacity: 0.25, y: 20 },
+        { opacity: 0.72, y: 8 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.5,
-          stagger: 0.12,
+          duration: 0.32,
+          stagger: 0.06,
           ease: 'power2.out',
           clearProps: 'opacity,transform',
           scrollTrigger: {
             trigger: stepsContainerRef.current,
-            start: 'top 95%',
+            start: 'top 88%',
             once: true,
+            fastScrollEnd: true,
           },
         },
       )

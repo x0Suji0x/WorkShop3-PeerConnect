@@ -39,6 +39,7 @@ export function HeroSection() {
           trigger: trackRef.current,
           start: 'top top',
           end: 'bottom bottom',
+          // Keep the story tied directly to the reader's input without fighting scroll snapping
           scrub: 0.3,
           invalidateOnRefresh: true,
         },
@@ -60,7 +61,7 @@ export function HeroSection() {
     <section id="hero" ref={trackRef} className="hero-scroll-track" aria-label="PeerConnect introduction">
       <div className="hero-story-stage">
         <HeroConnectionScene />
-        <HeroHeadline activeStage={activeStage} onExploreClick={() => scrollTo('#about')} />
+        <HeroHeadline activeStage={activeStage} onExploreClick={() => scrollTo('#projects')} />
       </div>
     </section>
   )

@@ -13,6 +13,27 @@ export function useSmoothScroll() {
   ) => {
     if (lenisRef.current) {
       lenisRef.current.scrollTo(target, options)
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    const behavior = prefersReducedMotion ? 'auto' : 'smooth'
+
+    if (typeof target === 'number') {
+      window.scrollTo({ top: target, behavior })
+      return
+    }
+
+    const element = typeof target === 'string'
+      ? document.querySelector<HTMLElement>(target)
+      : target
+
+    if (element) {
+      const headerOffset = 80
+      const top = element.getBoundingClientRect().top + window.scrollY - headerOffset
+      window.scrollTo({ top, behavior })
     }
   }
 
