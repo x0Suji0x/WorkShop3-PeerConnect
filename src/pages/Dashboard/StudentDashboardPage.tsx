@@ -1,5 +1,16 @@
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, Eye, FileText, ShieldCheck, Sparkles, UserRoundCheck } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import {
+  ArrowRight,
+  Briefcase,
+  BriefcaseBusiness,
+  CheckCircle2,
+  Eye,
+  FileText,
+  ShieldCheck,
+  Sparkles,
+  UserRoundCheck,
+} from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { profileRoute, routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
@@ -8,8 +19,57 @@ import { PageHeading } from '../../components/common/PageHeading'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
 import { calculateProfileCompletion } from '../../lib/profileCompletion'
 import { dashboardNotifications, recommendedProjects } from '../../data/studentMockData'
+import { ClientDashboardView } from '../../components/dashboard/ClientDashboardView'
 
 export function StudentDashboardPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const roleParam = searchParams.get('role')
+  const [internalRole, setInternalRole] = useState<'student' | 'client' | null>(null)
+
+  const activeRole: 'student' | 'client' =
+    internalRole ??
+    (roleParam === 'client'
+      ? 'client'
+      : roleParam === 'student'
+      ? 'student'
+      : (() => {
+          try {
+            return localStorage.getItem('peerconnect_active_role') === 'client' ? 'client' : 'student'
+          } catch {
+            return 'student'
+          }
+        })())
+
+  const switchToClient = () => {
+    setInternalRole('client')
+    setSearchParams({ role: 'client' })
+    try {
+      localStorage.setItem('peerconnect_active_role', 'client')
+    } catch {
+      // ignore
+    }
+  }
+
+  const switchToStudent = () => {
+    setInternalRole('student')
+    setSearchParams({ role: 'student' })
+    try {
+      localStorage.setItem('peerconnect_active_role', 'student')
+    } catch {
+      // ignore
+    }
+  }
+
+  // If in Client Mode, render Client Dashboard View
+  if (activeRole === 'client') {
+    return <ClientDashboardView onSwitchToStudent={switchToStudent} />
+  }
+
+  // Otherwise render Student Dashboard
+  return <StudentDashboardContent onSwitchToClient={switchToClient} />
+}
+
+function StudentDashboardContent({ onSwitchToClient }: { onSwitchToClient: () => void }) {
   const { student } = useStudentProfile()
   const completionReport = calculateProfileCompletion(student)
   const firstName = student.name.split(' ')[0]
@@ -23,6 +83,27 @@ export function StudentDashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      {/* Top Role Switcher */}
+      <div className="flex items-center justify-between border-b border-[#E7E8E1] pb-3 mb-6">
+        <div className="flex items-center gap-2">
+          <Badge variant="neutral" size="sm" className="font-bold">
+            🎓 Student Dashboard
+          </Badge>
+          <span className="text-xs text-[#777A72]">
+            Signed in as <strong className="text-[#171916]">{student.name}</strong>
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={onSwitchToClient}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
+        >
+          <Briefcase className="h-3.5 w-3.5 text-[#08C58A]" />
+          Switch to Employer View
+        </button>
+      </div>
+
       <PageHeading
         eyebrow="Student dashboard"
         title={`Good to see you, ${firstName}.`}

@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   CheckCircle2,
 } from 'lucide-react'
-import { routes } from '../../app/routes'
 import { Button } from '../../components/common/Button'
 import { Badge } from '../../components/common/Badge'
 
@@ -75,7 +74,7 @@ export function SignUpPage() {
 
               {/* Client / Business Option */}
               <div className="rounded-2xl border border-[#E7E8E1] bg-[#F7F6F0] p-5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#525A55] border border-[#E7E8E1]">
                       <Briefcase className="h-5 w-5" />
@@ -89,12 +88,20 @@ export function SignUpPage() {
                       </p>
                     </div>
                   </div>
-                  <Link
-                    to={routes.dashboard}
-                    className="shrink-0 rounded-full border border-[#E7E8E1] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#171916] hover:bg-gray-50"
-                  >
-                    Client Hub
-                  </Link>
+                  <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                    <Link
+                      to="/signin?role=client"
+                      className="rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#171916] hover:bg-gray-50 transition-colors"
+                    >
+                      Client Sign In
+                    </Link>
+                    <Link
+                      to="/signin?role=client&mode=register"
+                      className="rounded-full bg-[#123D30] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0E3127] transition-colors"
+                    >
+                      Register Company
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
