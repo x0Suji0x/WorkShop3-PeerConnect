@@ -51,12 +51,58 @@ export function StudentProfilePage() {
     <div className="bg-[#FAF8F5]">
       <div className="h-40 bg-cover bg-center sm:h-56" style={{ backgroundImage: `linear-gradient(90deg, rgba(18,61,48,.62), rgba(18,61,48,.14)), url(${student.coverImageUrl})` }} />
       <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="relative -mt-16 border-b border-[#E7E8E1] pb-6 sm:-mt-20 sm:flex sm:items-end sm:justify-between sm:gap-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <img src={student.avatarUrl} alt={student.name} className="h-32 w-32 rounded-3xl border-4 border-[#FAF8F5] object-cover shadow-lg sm:h-36 sm:w-36" />
-            <div className="pt-1 sm:pb-1"><div className="flex flex-wrap items-center gap-2"><h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">{student.name}</h1>{student.isPlusMember && <Badge>Plus</Badge>}</div><p className="mt-1 text-base font-semibold text-[#08A876]">{student.headline}</p><p className="mt-1 text-sm text-[#777A72]">{student.college} · {student.degree}, {student.graduationYear}</p></div>
+        <div className="relative border-b border-[#E7E8E1] pb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+            {/* Avatar & Student Details */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+              {/* Avatar protruding up into cover banner */}
+              <div className="-mt-16 sm:-mt-20 shrink-0">
+                <img
+                  src={student.avatarUrl}
+                  alt={student.name}
+                  className="h-28 w-28 sm:h-36 sm:w-36 rounded-3xl border-4 border-[#FAF8F5] object-cover shadow-lg bg-white"
+                />
+              </div>
+
+              {/* Student Name & Meta — sits cleanly below the banner */}
+              <div className="pt-1 sm:pt-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#171916]">
+                    {student.name}
+                  </h1>
+                  {student.isPlusMember && <Badge>Plus</Badge>}
+                </div>
+                <p className="mt-1 text-sm sm:text-base font-semibold text-[#08A876]">
+                  {student.headline}
+                </p>
+                <p className="mt-1 text-xs sm:text-sm text-[#777A72]">
+                  {student.college} · {student.degree}, {student.graduationYear}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions: Dashboard & Edit Profile */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-4 shrink-0">
+              <Link to={routes.dashboard}>
+                <Button variant="secondary" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+              <Button size="sm" onClick={() => setIsEditing((value) => !value)}>
+                {isEditing ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    {isSaving ? 'Saving…' : 'Done editing'}
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit profile
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2 sm:mt-0"><Link to={routes.dashboard}><Button variant="secondary" size="sm">Dashboard</Button></Link><Button size="sm" onClick={() => setIsEditing((value) => !value)}>{isEditing ? <><Check className="h-3.5 w-3.5" />{isSaving ? 'Saving…' : 'Done editing'}</> : <><Pencil className="h-3.5 w-3.5" />Edit profile</>}</Button></div>
         </div>
 
         {profileId !== student.id && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">Showing a local demo profile while profile data is not connected. Requested profile: {profileId}</p>}
