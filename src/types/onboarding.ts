@@ -8,6 +8,7 @@ export interface OnboardingBasicInfo {
   confirmPassword: string
   avatarUrl: string
   headline: string
+  isEmailVerified?: boolean
 }
 
 export interface OnboardingCollegeIdentity {
@@ -56,6 +57,28 @@ export interface OnboardingPortfolioExperience {
   role: string
   experienceType: 'work' | 'internship' | 'volunteering' | 'club'
   experienceDesc: string
+  experiences?: {
+    id: string
+    role: string
+    organization: string
+    type: 'work' | 'internship' | 'volunteering' | 'club'
+    startDate: string
+    endDate?: string
+    description: string
+  }[]
+  certifications?: {
+    id: string
+    name: string
+    issuer: string
+    issuedOn: string
+  }[]
+  projects?: {
+    id: string
+    name: string
+    description: string
+    skills: string[]
+    url?: string
+  }[]
 }
 
 export interface OnboardingFormData {

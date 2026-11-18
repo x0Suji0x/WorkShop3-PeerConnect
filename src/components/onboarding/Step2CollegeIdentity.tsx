@@ -1,16 +1,19 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   GraduationCap,
   Building2,
   Mail,
-  FileCheck2,
   AlertCircle,
   CheckCircle2,
   Clock,
   UploadCloud,
   FileText,
+  Check,
+  ChevronDown,
+  Plus,
 } from 'lucide-react'
 import type { OnboardingCollegeIdentity, FormValidationErrors } from '../../types/onboarding'
+import { mockColleges, type College } from '../../data/collegeData'
 import { Badge } from '../common/Badge'
 
 interface Step2CollegeIdentityProps {
@@ -19,33 +22,45 @@ interface Step2CollegeIdentityProps {
   onChange: (field: keyof OnboardingCollegeIdentity, value: any) => void
 }
 
-const popularColleges = [
-  'National Institute of Design, Bengaluru',
-  'IIT Bombay',
-  'IIT Delhi',
-  'IIT Madras',
-  'BITS Pilani',
-  'IIIT Hyderabad',
-  'Delhi Technological University',
-  'NIT Tiruchirappalli',
-  'SRM Institute of Science and Technology',
-  'Manipal Institute of Technology',
-  'RV College of Engineering',
-]
-
-const degreeOptions = [
+const DEGREE_OPTIONS = [
   'Bachelor of Technology (B.Tech)',
-  'Bachelor of Design (B.Des)',
-  'Bachelor of Science (B.Sc)',
+  'Bachelor of Engineering (B.E.)',
   'Bachelor of Computer Applications (BCA)',
-  'Master of Technology (M.Tech)',
-  'Master of Design (M.Des)',
-  'Master of Science (M.Sc)',
+  'Bachelor of Science (B.Sc)',
+  'Bachelor of Business Administration (BBA)',
+  'Bachelor of Commerce (B.Com)',
+  'Bachelor of Arts (BA)',
+  'Bachelor of Design (B.Des)',
+  'Bachelor of Architecture (B.Arch)',
+  'Bachelor of Fine Arts (BFA)',
   'Master of Computer Applications (MCA)',
-  'Dual Degree / Integrated M.Tech',
+  'Master of Technology (M.Tech)',
+  'Master of Science (M.Sc)',
+  'Master of Business Administration (MBA)',
+  'Master of Design (M.Des)',
+  'Doctor of Philosophy (PhD)',
+  'Diploma / Polytechnic',
+  'Other',
 ]
 
-const academicYearOptions = [
+const BRANCH_OPTIONS = [
+  'Computer Science Engineering',
+  'Information Technology',
+  'Artificial Intelligence & Machine Learning',
+  'Data Science & Analytics',
+  'Electronics & Communication Engineering',
+  'Mechanical Engineering',
+  'Electrical Engineering',
+  'Civil Engineering',
+  'Chemical Engineering',
+  'Biotechnology & Bioinformatics',
+  'Architecture & Design',
+  'Business Administration & Finance',
+  'UI/UX & Interaction Design',
+  'Other',
+]
+
+const ACADEMIC_YEAR_OPTIONS = [
   '1st Year (Freshman)',
   '2nd Year (Sophomore)',
   '3rd Year (Junior)',
@@ -54,23 +69,159 @@ const academicYearOptions = [
   'Postgraduate / Research Scholar',
 ]
 
+const GRADUATION_YEARS = ['2024', '2025', '2026', '2027', '2028', '2029', '2030']
+
+const PERSONAL_EMAIL_DOMAINS = [
+  'gmail.com',
+  'yahoo.com',
+  'yahoo.co.in',
+  'outlook.com',
+  'hotmail.com',
+  'icloud.com',
+  'rediffmail.com',
+  'protonmail.com',
+  'aol.com',
+  'zoho.com',
+]
+
 export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIdentityProps) {
+  // College Search & Autocomplete state
+  const [searchTerm, setSearchTerm] = useState(data.collegeName || '')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isManualCollege, setIsManualCollege] = useState(false)
+  const [customCollegeInput, setCustomCollegeInput] = useState('')
+
+  // Custom Degree & Branch State
+  const [isCustomDegree, setIsCustomDegree] = useState(
+    Boolean(data.degree && !DEGREE_OPTIONS.includes(data.degree))
+  )
+  const [customDegreeText, setCustomDegreeText] = useState(
+    data.degree && !DEGREE_OPTIONS.includes(data.degree) ? data.degree : ''
+  )
+
+  const [isCustomBranch, setIsCustomBranch] = useState(
+    Boolean(data.fieldOfStudy && !BRANCH_OPTIONS.includes(data.fieldOfStudy))
+  )
+  const [customBranchText, setCustomBranchText] = useState(
+    data.fieldOfStudy && !BRANCH_OPTIONS.includes(data.fieldOfStudy) ? data.fieldOfStudy : ''
+  )
+
+  // OTP Demo state
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const [otpValue, setOtpValue] = useState(data.otpCode || '')
   const [otpError, setOtpError] = useState('')
 
-  const handleSendOtp = () => {
-    if (!data.collegeEmail || !data.collegeEmail.includes('@')) {
-      return
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Filter colleges from mockColleges (from collegeData.ts)
+  const filteredColleges = mockColleges.filter((c) => {
+    const term = searchTerm.toLowerCase().trim()
+    if (!term) return true
+    return (
+      c.name.toLowerCase().includes(term) ||
+      c.shortName.toLowerCase().includes(term) ||
+      c.city.toLowerCase().includes(term) ||
+      c.state.toLowerCase().includes(term)
+    )
+  })
+
+  // Match check
+  const matchedCollege = mockColleges.find(
+    (c) =>
+      c.name.toLowerCase() === data.collegeName.toLowerCase() ||
+      c.shortName.toLowerCase() === data.collegeName.toLowerCase()
+  )
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
     }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Email format validation (.edu or .ac.in requirement)
+  const validateCollegeEmail = (email: string): { valid: boolean; reason?: string } => {
+    const trimmed = email.trim().toLowerCase()
+    if (!trimmed) return { valid: false, reason: 'College email is required for verification' }
+    const parts = trimmed.split('@')
+    if (parts.length !== 2 || !parts[0] || !parts[1]) {
+      return { valid: false, reason: 'Please enter a valid email address' }
+    }
+    const domain = parts[1]
+    if (PERSONAL_EMAIL_DOMAINS.includes(domain)) {
+      return {
+        valid: false,
+        reason: `Personal email (@${domain}) cannot be verified as an institutional email. Must end in .edu or .ac.in.`,
+      }
+    }
+    const isEdu =
+      domain.endsWith('.edu') ||
+      domain.endsWith('.ac.in') ||
+      domain.endsWith('.edu.in') ||
+      domain.endsWith('.ac.uk') ||
+      domain.includes('.edu.') ||
+      domain.includes('university') ||
+      domain.includes('college')
+
+    if (!isEdu) {
+      return {
+        valid: false,
+        reason: 'Institutional email must end with .edu, .ac.in, or official university domain.',
+      }
+    }
+    return { valid: true }
+  }
+
+  const emailValidation = validateCollegeEmail(data.collegeEmail)
+
+  const handleSelectCollege = (college: College) => {
+    setSearchTerm(college.name)
+    onChange('collegeName', college.name)
+    setIsDropdownOpen(false)
+    setIsManualCollege(false)
+  }
+
+  const handleSelectManual = () => {
+    setIsManualCollege(true)
+    setIsDropdownOpen(false)
+    setCustomCollegeInput(searchTerm)
+    onChange('collegeName', searchTerm)
+  }
+
+  const handleDegreeChange = (selected: string) => {
+    if (selected === 'Other') {
+      setIsCustomDegree(true)
+      onChange('degree', customDegreeText || 'Other')
+    } else {
+      setIsCustomDegree(false)
+      onChange('degree', selected)
+    }
+  }
+
+  const handleBranchChange = (selected: string) => {
+    if (selected === 'Other') {
+      setIsCustomBranch(true)
+      onChange('fieldOfStudy', customBranchText || 'Other')
+    } else {
+      setIsCustomBranch(false)
+      onChange('fieldOfStudy', selected)
+    }
+  }
+
+  const handleSendOtp = () => {
+    if (!emailValidation.valid) return
     setIsSendingOtp(true)
     setTimeout(() => {
       setIsSendingOtp(false)
       setOtpSent(true)
-      setOtpValue('482910') // Demo code
+      setOtpValue('482910')
       onChange('otpCode', '482910')
-    }, 700)
+    }, 500)
   }
 
   const handleVerifyOtp = () => {
@@ -89,7 +240,6 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
       onChange('idCardFileName', file.name)
       onChange('idVerificationStatus', 'pending')
     } else {
-      // Demo fallback
       onChange('idCardFileName', 'student_id_card_front.jpg')
       onChange('idVerificationStatus', 'pending')
     }
@@ -100,231 +250,427 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
       {/* Step Header */}
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-[#08A876]">
-          Step 2 of 6 · College Identity
+          Step 2 of 6 · College Identity & Academics
         </p>
         <h2 className="mt-1 text-2xl font-black text-[#171916]">
           Establish your university presence.
         </h2>
         <p className="mt-1 text-xs text-[#525A55] sm:text-sm">
-          PeerConnect connects students across engineering, design, and research programs.
+          Select from PeerConnect's network of tech schools and colleges, or add your institution manually.
         </p>
       </div>
 
       {/* College Info Form */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {/* College Name with suggestion list */}
-        <div className="sm:col-span-2">
-          <label htmlFor="col-name" className="block text-xs font-bold text-[#171916]">
-            College / University Name *
-          </label>
-          <div className="relative mt-1.5">
-            <Building2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
-            <input
-              id="col-name"
-              list="college-suggestions"
-              type="text"
-              required
-              placeholder="e.g. National Institute of Design, Bengaluru"
-              value={data.collegeName}
-              onChange={(e) => onChange('collegeName', e.target.value)}
-              className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-3.5 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
-                errors.collegeName
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#E7E8E1] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
-              }`}
-            />
-            <datalist id="college-suggestions">
-              {popularColleges.map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
+      <div className="space-y-5 rounded-3xl border border-[#E7E8E1] bg-white p-6 shadow-2xs">
+        {/* College Name Autocomplete from collegeData.ts */}
+        <div className="relative" ref={dropdownRef}>
+          <div className="flex items-center justify-between">
+            <label htmlFor="col-search-input" className="block text-xs font-bold text-[#171916]">
+              College / University Name *
+            </label>
+            <span className="text-[11px] text-[#777A72]">
+              {mockColleges.length}+ tech schools in directory
+            </span>
           </div>
+
+          {!isManualCollege ? (
+            <div className="relative mt-1.5">
+              <Building2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
+              <input
+                id="col-search-input"
+                type="text"
+                required
+                autoComplete="off"
+                placeholder="Search tech school (e.g. IIT Bombay, BITS Pilani, NIT Trichy...)"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  onChange('collegeName', e.target.value)
+                  setIsDropdownOpen(true)
+                }}
+                onFocus={() => setIsDropdownOpen(true)}
+                className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-10 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
+                  errors.collegeName
+                    ? 'border-red-400 focus:border-red-500'
+                    : 'border-[#E7E8E1] focus:border-[#08C58A] focus:ring-[#08C58A]/20'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777A72] hover:text-[#171916]"
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          ) : (
+            /* Manual College Entry Field */
+            <div className="mt-1.5 space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter full college name (e.g. St. Xavier's College, Mumbai)"
+                  value={customCollegeInput}
+                  onChange={(e) => {
+                    setCustomCollegeInput(e.target.value)
+                    onChange('collegeName', e.target.value)
+                  }}
+                  className="flex-1 rounded-xl border border-[#08C58A] bg-white px-3.5 py-2.5 text-xs text-[#171916] outline-none focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsManualCollege(false)
+                    setSearchTerm('')
+                    onChange('collegeName', '')
+                  }}
+                  className="rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-2 text-xs font-semibold text-[#525A55] hover:bg-[#F7F6F0]"
+                >
+                  Search List
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl bg-amber-50 p-2.5 text-xs text-amber-900 border border-amber-200">
+                <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+                <span>
+                  <strong>Unlisted Institution:</strong> We'll manually verify your campus credentials during registration review.
+                </span>
+              </div>
+            </div>
+          )}
+
           {errors.collegeName && (
             <p className="mt-1 text-xs text-red-600 font-medium">{errors.collegeName}</p>
           )}
+
+          {/* Verified Partner Badge */}
+          {matchedCollege && !isManualCollege && (
+            <div className="mt-2 flex items-center justify-between rounded-xl bg-[#E3F4EB]/60 p-2.5 text-xs text-[#123D30] border border-[#08C58A]/30">
+              <div className="flex items-center gap-2">
+                <Check className="h-3.5 w-3.5 text-[#08C58A]" />
+                <span className="font-semibold">
+                  {matchedCollege.shortName} · {matchedCollege.city}, {matchedCollege.state}
+                </span>
+              </div>
+              <Badge variant="green" size="sm">
+                Verified Partner Institution
+              </Badge>
+            </div>
+          )}
+
+          {/* Autocomplete Dropdown */}
+          {isDropdownOpen && !isManualCollege && (
+            <div className="absolute z-50 mt-1 max-h-72 w-full overflow-y-auto rounded-2xl border border-[#E7E8E1] bg-white py-1.5 shadow-xl">
+              {filteredColleges.length > 0 ? (
+                <div className="divide-y divide-[#F2F1EA]">
+                  {filteredColleges.slice(0, 10).map((college) => {
+                    const isSelected = college.name.toLowerCase() === data.collegeName.toLowerCase()
+                    return (
+                      <button
+                        key={college.id}
+                        type="button"
+                        onClick={() => handleSelectCollege(college)}
+                        className={`flex w-full items-start justify-between p-3 text-left transition ${
+                          isSelected ? 'bg-[#E3F4EB]/50' : 'hover:bg-[#FAF8F5]'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-[#171916]">{college.name}</span>
+                            {college.shortName && (
+                              <span className="text-[11px] font-mono text-[#08A876]">
+                                ({college.shortName})
+                              </span>
+                            )}
+                          </div>
+                          <p className="mt-0.5 text-[11px] text-[#525A55]">
+                            {college.city}, {college.state} • Est. {college.established}
+                          </p>
+                        </div>
+                        <Badge variant="neutral" size="sm" className="shrink-0 text-[10px]">
+                          {college.type}
+                        </Badge>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-xs text-[#777A72]">
+                  No matching college found for "{searchTerm}".
+                </div>
+              )}
+
+              {/* Manual Add / Other option */}
+              <div className="border-t border-[#E7E8E1] bg-[#FAF8F5] p-2">
+                <button
+                  type="button"
+                  onClick={handleSelectManual}
+                  className="flex w-full items-center justify-between rounded-xl p-2.5 text-xs font-bold text-[#123D30] hover:bg-white transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 text-[#08C58A]" />
+                    <span>My college isn't listed – Add manually / Other</span>
+                  </div>
+                  <span className="text-[11px] font-normal text-[#777A72]">(Manual review)</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Degree / Program */}
+        {/* Degree / Program Selection */}
         <div>
-          <label htmlFor="col-degree" className="block text-xs font-bold text-[#171916]">
+          <label className="block text-xs font-bold text-[#171916]">
             Degree / Program *
           </label>
-          <div className="relative mt-1.5">
-            <GraduationCap className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
-            <input
-              id="col-degree"
-              list="degree-suggestions"
-              type="text"
-              required
-              placeholder="e.g. Bachelor of Design (B.Des)"
-              value={data.degree}
-              onChange={(e) => onChange('degree', e.target.value)}
-              className="w-full rounded-xl border border-[#E7E8E1] bg-white py-2.5 pl-10 pr-3.5 text-xs text-[#171916] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
-            />
-            <datalist id="degree-suggestions">
-              {degreeOptions.map((d) => (
-                <option key={d} value={d} />
-              ))}
-            </datalist>
+          <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {DEGREE_OPTIONS.map((deg) => {
+              const isSelected = isCustomDegree
+                ? deg === 'Other'
+                : data.degree === deg || data.degree.includes(deg)
+              return (
+                <button
+                  key={deg}
+                  type="button"
+                  onClick={() => handleDegreeChange(deg)}
+                  className={`rounded-xl border p-2 text-left text-xs transition ${
+                    isSelected
+                      ? 'border-[#08C58A] bg-[#E3F4EB] text-[#123D30] font-bold ring-1 ring-[#08C58A]'
+                      : 'border-[#E7E8E1] bg-white text-[#525A55] hover:bg-[#FAF8F5]'
+                  }`}
+                >
+                  {deg}
+                </button>
+              )
+            })}
           </div>
-          {errors.degree && (
-            <p className="mt-1 text-xs text-red-600 font-medium">{errors.degree}</p>
+
+          {/* Custom Degree Input */}
+          {isCustomDegree && (
+            <div className="mt-2.5">
+              <input
+                type="text"
+                autoFocus
+                placeholder="Enter your custom degree (e.g. BS-MS Dual, PGP, etc.)"
+                value={customDegreeText}
+                onChange={(e) => {
+                  setCustomDegreeText(e.target.value)
+                  onChange('degree', e.target.value)
+                }}
+                className="w-full rounded-xl border border-[#08C58A] bg-white px-3.5 py-2 text-xs text-[#171916] outline-none focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
+              />
+            </div>
           )}
+          {errors.degree && <p className="mt-1 text-xs text-red-600 font-medium">{errors.degree}</p>}
         </div>
 
         {/* Branch / Specialization */}
         <div>
-          <label htmlFor="col-field" className="block text-xs font-bold text-[#171916]">
+          <label className="block text-xs font-bold text-[#171916]">
             Branch or Specialisation *
           </label>
-          <input
-            id="col-field"
-            type="text"
-            required
-            placeholder="e.g. Interaction Design or Computer Science"
-            value={data.fieldOfStudy}
-            onChange={(e) => onChange('fieldOfStudy', e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-2.5 text-xs text-[#171916] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
-          />
+          <div className="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+            {BRANCH_OPTIONS.map((b) => {
+              const isSelected = isCustomBranch
+                ? b === 'Other'
+                : data.fieldOfStudy === b || data.fieldOfStudy.includes(b)
+              return (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => handleBranchChange(b)}
+                  className={`rounded-xl border p-2 text-left text-xs transition ${
+                    isSelected
+                      ? 'border-[#08C58A] bg-[#E3F4EB] text-[#123D30] font-bold ring-1 ring-[#08C58A]'
+                      : 'border-[#E7E8E1] bg-white text-[#525A55] hover:bg-[#FAF8F5]'
+                  }`}
+                >
+                  {b}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Custom Branch Input */}
+          {isCustomBranch && (
+            <div className="mt-2.5">
+              <input
+                type="text"
+                autoFocus
+                placeholder="Enter your custom branch (e.g. Aerospace Engineering, Cognitive Science...)"
+                value={customBranchText}
+                onChange={(e) => {
+                  setCustomBranchText(e.target.value)
+                  onChange('fieldOfStudy', e.target.value)
+                }}
+                className="w-full rounded-xl border border-[#08C58A] bg-white px-3.5 py-2 text-xs text-[#171916] outline-none focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
+              />
+            </div>
+          )}
           {errors.fieldOfStudy && (
             <p className="mt-1 text-xs text-red-600 font-medium">{errors.fieldOfStudy}</p>
           )}
         </div>
 
-        {/* Academic Year */}
-        <div>
-          <label htmlFor="col-year" className="block text-xs font-bold text-[#171916]">
-            Current Academic Year *
-          </label>
-          <select
-            id="col-year"
-            value={data.academicYear}
-            onChange={(e) => onChange('academicYear', e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-2.5 text-xs text-[#171916] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
-          >
-            {academicYearOptions.map((yr) => (
-              <option key={yr} value={yr}>
-                {yr}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Academic Year & Graduation Year */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="col-year" className="block text-xs font-bold text-[#171916]">
+              Current Academic Year *
+            </label>
+            <div className="relative mt-1.5">
+              <GraduationCap className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
+              <select
+                id="col-year"
+                value={data.academicYear}
+                onChange={(e) => onChange('academicYear', e.target.value)}
+                className="w-full appearance-none rounded-xl border border-[#E7E8E1] bg-white py-2.5 pl-10 pr-9 text-xs text-[#171916] outline-none focus:border-[#08C58A] sm:text-sm"
+              >
+                {ACADEMIC_YEAR_OPTIONS.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
+            </div>
+          </div>
 
-        {/* Graduation Year */}
-        <div>
-          <label htmlFor="col-grad" className="block text-xs font-bold text-[#171916]">
-            Expected Graduation Year *
-          </label>
-          <select
-            id="col-grad"
-            value={data.graduationYear}
-            onChange={(e) => onChange('graduationYear', e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-2.5 text-xs text-[#171916] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20 sm:text-sm"
-          >
-            {['2025', '2026', '2027', '2028', '2029', '2030'].map((yr) => (
-              <option key={yr} value={yr}>
-                Class of {yr}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label htmlFor="col-grad" className="block text-xs font-bold text-[#171916]">
+              Expected Graduation Year *
+            </label>
+            <div className="relative mt-1.5">
+              <select
+                id="col-grad"
+                value={data.graduationYear}
+                onChange={(e) => onChange('graduationYear', e.target.value)}
+                className="w-full appearance-none rounded-xl border border-[#E7E8E1] bg-white py-2.5 px-3.5 text-xs text-[#171916] outline-none focus:border-[#08C58A] sm:text-sm"
+              >
+                {GRADUATION_YEARS.map((yr) => (
+                  <option key={yr} value={yr}>
+                    Class of {yr}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* College Verification Section */}
-      <div className="rounded-2xl border border-[#E7E8E1] bg-white p-5 shadow-2xs space-y-4">
+      {/* College Identity Verification Card */}
+      <div className="rounded-3xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
         <div>
-          <div className="flex items-center gap-2">
-            <FileCheck2 className="h-4 w-4 text-[#08A876]" />
-            <h3 className="text-sm font-bold text-[#171916]">
-              Institutional Verification (Demo Verification)
-            </h3>
-          </div>
-          <p className="mt-1 text-xs text-[#525A55]">
-            Choose how you'd like to verify your college student status.
+          <h3 className="text-sm font-bold text-[#171916]">Campus Identity Verification</h3>
+          <p className="text-xs text-[#777A72]">
+            Verify enrollment via your .edu / .ac.in institutional email or college ID upload
           </p>
         </div>
 
-        {/* Verification method radio toggle */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Verification Method Tabs */}
+        <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={() => onChange('verificationMethod', 'college_email')}
-            className={`rounded-xl border p-3.5 text-left transition-all ${
+            className={`rounded-2xl border p-3.5 text-left transition ${
               data.verificationMethod === 'college_email'
-                ? 'border-[#08C58A] bg-[#E3F4EB]/30 ring-1 ring-[#08C58A]'
-                : 'border-[#E7E8E1] hover:border-[#CBD5E1]'
+                ? 'border-[#08C58A] bg-[#E3F4EB]/40 shadow-xs ring-1 ring-[#08C58A]'
+                : 'border-[#E7E8E1] bg-white hover:bg-[#FAF8F5]'
             }`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-[#08C58A]" />
               <span className="text-xs font-bold text-[#171916]">Option A: College Email</span>
-              <Badge variant={data.isEmailVerified ? 'green' : 'blue'} size="sm">
-                {data.isEmailVerified ? 'Verified' : 'Instant'}
-              </Badge>
             </div>
-            <p className="mt-1 text-[11px] text-[#525A55]">
-              Verify instantly using your campus email (.edu, .ac.in).
+            <p className="mt-1 text-[11px] text-[#777A72]">
+              Instant OTP verification with official .edu or .ac.in email
             </p>
           </button>
 
           <button
             type="button"
             onClick={() => onChange('verificationMethod', 'college_id')}
-            className={`rounded-xl border p-3.5 text-left transition-all ${
+            className={`rounded-2xl border p-3.5 text-left transition ${
               data.verificationMethod === 'college_id'
-                ? 'border-[#08C58A] bg-[#E3F4EB]/30 ring-1 ring-[#08C58A]'
-                : 'border-[#E7E8E1] hover:border-[#CBD5E1]'
+                ? 'border-[#08C58A] bg-[#E3F4EB]/40 shadow-xs ring-1 ring-[#08C58A]'
+                : 'border-[#E7E8E1] bg-white hover:bg-[#FAF8F5]'
             }`}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#171916]">Option B: Student ID Card</span>
-              <Badge variant={data.idCardFileName ? 'peach' : 'neutral'} size="sm">
-                {data.idCardFileName ? 'Pending Review' : 'Manual Review'}
-              </Badge>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-[#08C58A]" />
+              <span className="text-xs font-bold text-[#171916]">Option B: College ID Card</span>
             </div>
-            <p className="mt-1 text-[11px] text-[#525A55]">
-              If no college email, upload your student ID photo for manual review.
+            <p className="mt-1 text-[11px] text-[#777A72]">
+              Upload front of student ID for manual staff review
             </p>
           </button>
         </div>
 
-        {/* Option A View: Email OTP */}
-        {data.verificationMethod === 'college_email' && (
-          <div className="rounded-xl border border-[#E7E8E1] bg-[#FAF8F5] p-4 space-y-3">
-            <div>
+        {/* Method A: College Email */}
+        {data.verificationMethod === 'college_email' ? (
+          <div className="rounded-2xl border border-[#E7E8E1] bg-[#FAF8F5] p-4 space-y-3">
+            <div className="flex items-center justify-between">
               <label htmlFor="col-email" className="block text-xs font-bold text-[#171916]">
-                Institutional Email Address
+                Institutional Email Address (.edu / .ac.in)
               </label>
-              <div className="mt-1.5 flex gap-2">
-                <div className="relative flex-1">
-                  <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
-                  <input
-                    id="col-email"
-                    type="email"
-                    placeholder="student@nid.edu or rollno@iitb.ac.in"
-                    value={data.collegeEmail}
-                    onChange={(e) => onChange('collegeEmail', e.target.value)}
-                    className="w-full rounded-xl border border-[#E7E8E1] bg-white py-2 pl-10 pr-3 text-xs text-[#171916] outline-none focus:border-[#08C58A]"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={isSendingOtp || data.isEmailVerified}
-                  className="rounded-xl bg-[#171916] px-3.5 py-2 text-xs font-bold text-white hover:bg-[#2A2E28] disabled:opacity-50"
-                >
-                  {isSendingOtp ? 'Sending...' : otpSent ? 'Resend Demo OTP' : 'Send OTP'}
-                </button>
+              {data.isEmailVerified && (
+                <span className="flex items-center gap-1 text-xs font-bold text-[#08A876]">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>{data.collegeEmail}</span> ✓ Verified
+                </span>
+              )}
+            </div>
+
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
+              <input
+                id="col-email"
+                type="email"
+                placeholder="e.g. yourname@iitb.ac.in or student@university.edu"
+                value={data.collegeEmail}
+                onChange={(e) => {
+                  onChange('collegeEmail', e.target.value)
+                  if (data.isEmailVerified) onChange('isEmailVerified', false)
+                }}
+                className="w-full rounded-xl border border-[#E7E8E1] bg-white py-2 pl-10 pr-28 text-xs text-[#171916] outline-none focus:border-[#08C58A] sm:text-sm"
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                {data.isEmailVerified ? (
+                  <Badge variant="green" size="sm" className="font-bold">
+                    ✓ Verified
+                  </Badge>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!emailValidation.valid || isSendingOtp}
+                    onClick={handleSendOtp}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                      emailValidation.valid
+                        ? 'bg-[#123D30] text-white hover:bg-[#0E3127]'
+                        : 'bg-gray-100 text-[#777A72] opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    {isSendingOtp ? 'Sending...' : 'Send OTP'}
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* OTP Entry Simulation */}
+            {/* Error message */}
+            {!data.isEmailVerified && !emailValidation.valid && data.collegeEmail.length > 4 && (
+              <p className="text-xs text-red-600 font-medium">{emailValidation.reason}</p>
+            )}
+
+            {/* OTP Form */}
             {otpSent && !data.isEmailVerified && (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 space-y-2">
+              <div className="rounded-xl border border-[#08C58A]/30 bg-white p-3 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-[#123D30]">
-                    Demo OTP generated for testing: <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-emerald-200">482910</code>
+                  <span className="font-bold text-[#123D30]">Enter 6-digit OTP code:</span>
+                  <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                    Demo Code: 482910
                   </span>
-                  <span className="text-[11px] text-[#777A72]">Simulation</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -332,71 +678,55 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
                     maxLength={6}
                     value={otpValue}
                     onChange={(e) => setOtpValue(e.target.value)}
-                    placeholder="Enter 6-digit OTP"
-                    className="w-36 rounded-lg border border-[#CBD5E1] bg-white px-3 py-1.5 font-mono text-xs tracking-widest text-center text-[#171916] outline-none focus:border-[#08C58A]"
+                    className="w-32 rounded-lg border border-[#E7E8E1] p-1.5 text-center font-mono text-xs font-bold tracking-widest outline-none focus:border-[#08C58A]"
                   />
                   <button
                     type="button"
                     onClick={handleVerifyOtp}
-                    className="rounded-lg bg-[#08C58A] px-3 py-1.5 text-xs font-bold text-[#0A261D] hover:bg-[#07B27C]"
+                    className="rounded-lg bg-[#08C58A] px-3 py-1.5 text-xs font-bold text-[#123D30]"
                   >
-                    Confirm Verification
+                    Confirm OTP
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOtpValue('482910')}
+                    className="text-[11px] text-[#525A55] underline hover:text-[#171916]"
+                  >
+                    Auto-fill
                   </button>
                 </div>
-                {otpError && <p className="text-xs text-red-600">{otpError}</p>}
-              </div>
-            )}
-
-            {data.isEmailVerified && (
-              <div className="flex items-center gap-2 rounded-lg bg-[#E3F4EB] p-2.5 text-xs text-[#123D30]">
-                <CheckCircle2 className="h-4 w-4 text-[#08C58A]" />
-                <span className="font-bold">Institutional Email Verified (Demo status)</span>
+                {otpError && <p className="text-xs text-red-600 font-medium">{otpError}</p>}
               </div>
             )}
           </div>
-        )}
-
-        {/* Option B View: ID Card Upload */}
-        {data.verificationMethod === 'college_id' && (
-          <div className="rounded-xl border border-[#E7E8E1] bg-[#FAF8F5] p-4 space-y-3">
-            <div className="rounded-xl border-2 border-dashed border-[#CBD5E1] p-5 text-center bg-white hover:border-[#08C58A] transition-colors">
-              <UploadCloud className="mx-auto h-8 w-8 text-[#777A72]" />
-              <p className="mt-2 text-xs font-bold text-[#171916]">
-                Upload College ID Card or Admission Letter
-              </p>
+        ) : (
+          /* Method B: College ID Card Upload */
+          <div className="rounded-2xl border border-dashed border-[#E7E8E1] bg-[#FAF8F5] p-5 text-center space-y-3">
+            <UploadCloud className="mx-auto h-8 w-8 text-[#08C58A]" />
+            <div>
+              <p className="text-xs font-bold text-[#171916]">Upload Student ID Card Document</p>
               <p className="mt-0.5 text-[11px] text-[#777A72]">
-                Supports JPG, PNG or PDF (Max 5MB). Stored securely and never shown publicly.
+                Supports JPG, PNG, or PDF of your university ID card
               </p>
-              <label className="mt-3 inline-block cursor-pointer rounded-full bg-[#171916] px-4 py-1.5 text-xs font-bold text-white hover:bg-[#2A2E28]">
-                Select File
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  onChange={handleSimulateIdUpload}
-                />
-              </label>
             </div>
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#123D30] px-4 py-2 text-xs font-bold text-white hover:bg-[#0E3127]">
+              <span>Choose File</span>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={handleSimulateIdUpload}
+                className="hidden"
+              />
+            </label>
 
             {data.idCardFileName && (
-              <div className="flex items-center justify-between rounded-lg border border-[#E7E8E1] bg-white p-3 text-xs">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#08C58A]" />
-                  <span className="font-bold text-[#171916]">{data.idCardFileName}</span>
-                </div>
-                <Badge variant="peach" size="sm">
-                  <Clock className="h-3 w-3" />
-                  Pending manual review
-                </Badge>
+              <div className="flex items-center justify-center gap-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-900 border border-amber-200">
+                <Clock className="h-3.5 w-3.5 text-amber-600" />
+                <span>
+                  <strong>Uploaded:</strong> {data.idCardFileName} (Pending verification review)
+                </span>
               </div>
             )}
-
-            <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-2.5 text-[11px] text-amber-900 border border-amber-200">
-              <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
-              <span>
-                <strong>Notice:</strong> Document verification is in demo mode. Verification is not complete until reviewed by our campus ambassadors or administration team.
-              </span>
-            </div>
           </div>
         )}
       </div>

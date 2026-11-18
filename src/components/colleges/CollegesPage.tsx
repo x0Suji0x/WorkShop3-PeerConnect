@@ -192,10 +192,9 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
 
 function CollegeCard({
   college,
-  onNavigate,
 }: {
   college: College
-  onNavigate: (hash: string) => void
+  onNavigate?: (hash: string) => void
 }) {
   const clubs = useMemo(() => getClubsByCollege(college.id), [college.id])
   const events = useMemo(() => getEventsByCollege(college.id), [college.id])

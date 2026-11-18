@@ -33,6 +33,7 @@ export function StudentOnboardingPage() {
   const [highestStepVisited, setHighestStepVisited] = useState<number>(1)
   const [errors, setErrors] = useState<FormValidationErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [profileCreated, setProfileCreated] = useState(false)
 
   // Central form state preserving all information across steps
   const [formData, setFormData] = useState<OnboardingFormData>({
@@ -136,7 +137,7 @@ export function StudentOnboardingPage() {
   }, [formData])
 
   // Field change handlers
-  const handleBasicInfoChange = (field: keyof OnboardingFormData['basicInfo'], value: string) => {
+  const handleBasicInfoChange = (field: keyof OnboardingFormData['basicInfo'], value: any) => {
     setFormData((prev) => ({
       ...prev,
       basicInfo: { ...prev.basicInfo, [field]: value },
@@ -205,15 +206,69 @@ export function StudentOnboardingPage() {
     return Object.keys(stepErrors).length === 0
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateCurrentStep()) {
       return
+    }
+
+    if (currentStep === 1) {
+      // Step 1 completed: Immediately create the initial student profile in store!
+      const initialVerifications: Verification[] = [
+        {
+          id: 'ver-college',
+          type: 'college_identity',
+          status: formData.basicInfo.isEmailVerified ? 'verified' : 'pending',
+          label: 'Institutional enrollment',
+          description: formData.basicInfo.isEmailVerified
+            ? `Verified via institutional email (${formData.basicInfo.email})`
+            : 'Institutional email pending verification',
+        },
+        {
+          id: 'ver-phone',
+          type: 'phone_number',
+          status: 'verified',
+          label: 'Mobile phone',
+          description: `Registered mobile: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}`,
+        },
+      ]
+
+      await updateStudent({
+        name: formData.basicInfo.fullName || student.name,
+        headline: formData.basicInfo.headline || student.headline,
+        avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
+        verifications: initialVerifications,
+        profileCompletion: formData.basicInfo.isEmailVerified ? 40 : 30,
+      })
+      setProfileCreated(true)
     }
 
     const nextStep = (currentStep + 1) as OnboardingStep
     setCurrentStep(nextStep)
     setHighestStepVisited((prev) => Math.max(prev, nextStep))
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleSkipToDashboard = async () => {
+    // Save any progress entered so far and go directly to dashboard
+    await updateStudent({
+      name: formData.basicInfo.fullName || student.name,
+      headline: formData.basicInfo.headline || student.headline,
+      avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
+      college: formData.college.collegeName || student.college,
+      university: formData.college.collegeName || student.university,
+      degree: formData.college.degree || student.degree,
+      fieldOfStudy: formData.college.fieldOfStudy || student.fieldOfStudy,
+      graduationYear: formData.college.graduationYear || student.graduationYear,
+      skills: formData.skillsInterests.skills.length > 0 ? formData.skillsInterests.skills : student.skills,
+      interests: formData.skillsInterests.interests.length > 0 ? formData.skillsInterests.interests : student.interests,
+      profileCompletion: estimatedCompletion,
+    })
+    navigate('/dashboard?welcome=true', {
+      state: {
+        justRegistered: true,
+        studentName: formData.basicInfo.fullName || student.name,
+      },
+    })
   }
 
   const handleBack = () => {
@@ -316,31 +371,41 @@ export function StudentOnboardingPage() {
         behance: formData.portfolio.behanceUrl || student.socialLinks.behance,
         portfolio: formData.portfolio.portfolioUrl || student.socialLinks.portfolio,
       },
-      portfolioProjects: formData.portfolio.featuredProjectName
-        ? [
-            {
-              id: `proj-${Date.now()}`,
-              name: formData.portfolio.featuredProjectName,
-              description: formData.portfolio.featuredProjectDesc || 'Student showcase project',
-              skills: formData.skillsInterests.skills.map((s) => s.name).slice(0, 3),
-              url: formData.portfolio.featuredProjectUrl,
-            },
-            ...student.portfolioProjects,
-          ]
-        : student.portfolioProjects,
-      experiences: formData.portfolio.organization
-        ? [
-            {
-              id: `exp-${Date.now()}`,
-              organization: formData.portfolio.organization,
-              role: formData.portfolio.role || 'Contributor',
-              type: formData.portfolio.experienceType,
-              startDate: 'Recent',
-              description: formData.portfolio.experienceDesc || 'Added during onboarding',
-            },
-            ...student.experiences,
-          ]
-        : student.experiences,
+      portfolioProjects: [
+        ...(formData.portfolio.projects || []),
+        ...(formData.portfolio.featuredProjectName
+          ? [
+              {
+                id: `proj-${Date.now()}`,
+                name: formData.portfolio.featuredProjectName,
+                description: formData.portfolio.featuredProjectDesc || 'Student showcase project',
+                skills: formData.skillsInterests.skills.map((s) => s.name).slice(0, 3),
+                url: formData.portfolio.featuredProjectUrl,
+              },
+            ]
+          : []),
+        ...student.portfolioProjects,
+      ],
+      experiences: [
+        ...(formData.portfolio.experiences || []),
+        ...(formData.portfolio.organization
+          ? [
+              {
+                id: `exp-${Date.now()}`,
+                organization: formData.portfolio.organization,
+                role: formData.portfolio.role || 'Contributor',
+                type: formData.portfolio.experienceType,
+                startDate: 'Recent',
+                description: formData.portfolio.experienceDesc || 'Added during onboarding',
+              },
+            ]
+          : []),
+        ...student.experiences,
+      ],
+      certifications: [
+        ...(formData.portfolio.certifications || []),
+        ...student.certifications,
+      ],
       verifications: updatedVerifications,
       profileCompletion: estimatedCompletion,
     }
@@ -380,13 +445,35 @@ export function StudentOnboardingPage() {
         </div>
 
         {/* Stepper Progress Bar */}
-        <div className="mb-8 rounded-2xl border border-[#E7E8E1] bg-white p-4.5 shadow-2xs">
+        <div className="mb-6 rounded-2xl border border-[#E7E8E1] bg-white p-4.5 shadow-2xs">
           <OnboardingProgress
             currentStep={currentStep}
             onStepClick={(step) => setCurrentStep(step)}
             highestStepVisited={highestStepVisited}
           />
         </div>
+
+        {/* Profile Created Status Banner */}
+        {(profileCreated || currentStep > 1) && (
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-[#08C58A]/40 bg-[#E3F4EB] p-4 text-xs text-[#123D30] shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-5 w-5 text-[#08A876] shrink-0" />
+              <div>
+                <p className="font-bold">Student Profile Created!</p>
+                <p className="text-[11px] text-[#525A55]">
+                  Step 1 credentials are saved. You can continue filling your university & portfolio details or skip to your dashboard anytime.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSkipToDashboard}
+              className="rounded-xl bg-[#123D30] px-4 py-2 text-xs font-bold text-white hover:bg-[#0E3127] transition shrink-0"
+            >
+              Skip to Dashboard →
+            </button>
+          </div>
+        )}
 
         {/* Wizard Form Container */}
         <div className="rounded-3xl border border-[#E7E8E1] bg-white p-6 shadow-sm sm:p-10">
@@ -457,6 +544,16 @@ export function StudentOnboardingPage() {
             </div>
 
             <div className="flex items-center gap-3">
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={handleSkipToDashboard}
+                  className="rounded-full border border-[#08C58A]/30 bg-[#E3F4EB] px-4 py-2 text-xs font-bold text-[#123D30] hover:bg-[#08C58A]/20 transition"
+                >
+                  Skip to Dashboard
+                </button>
+              )}
+
               {currentStep === 5 && (
                 <button
                   type="button"
