@@ -11,6 +11,10 @@ import { NotFoundPage } from './pages/Shared/NotFoundPage'
 import { CollegesPage } from './pages/Colleges/CollegesPage'
 import { ClubsPage } from './pages/Clubs/ClubsPage'
 import { EventsPage } from './pages/Events/EventsPage'
+import { ProjectsPage } from './pages/Projects/ProjectsPage'
+import { ProjectDetailPage } from './pages/Projects/ProjectDetailPage'
+import { NewProjectPage } from './pages/Projects/NewProjectPage'
+import { ApplicationsPage } from './pages/Applications/ApplicationsPage'
 import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
 
 // Auth & Onboarding pages
@@ -40,10 +44,10 @@ export default function App() {
               <Route path={routes.profiles} element={<ModulePlaceholderPage eyebrow="Talent" title="Student profiles" description="Discover the students, skills, and portfolios shaping the next generation of work." owner="the shared profile directory" />} />
               <Route path="/profiles/:profileId" element={<StudentProfilePage />} />
               <Route path={routes.verification} element={<VerificationPage />} />
-              <Route path={routes.projects} element={<ModulePlaceholderPage eyebrow="Marketplace" title="Project marketplace" description="Find scoped opportunities and student talent for meaningful work." owner="Sujay" />} />
-              <Route path="/projects/:projectId" element={<ModulePlaceholderPage eyebrow="Marketplace" title="Project details" description="The project-detail route is reserved for the marketplace module." owner="Sujay" />} />
-              <Route path={routes.newProject} element={<ModulePlaceholderPage eyebrow="Marketplace" title="Post a project" description="This route is ready for the project-creation workflow." owner="Sujay" />} />
-              <Route path={routes.applications} element={<ModulePlaceholderPage eyebrow="Marketplace" title="Applications" description="This route is ready for applicant and application management." owner="Sujay" />} />
+              <Route path={routes.projects} element={<ProjectsPage />} />
+              <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
+              <Route path={routes.newProject} element={<NewProjectPage />} />
+              <Route path={routes.applications} element={<ApplicationsPage />} />
               <Route path={routes.colleges} element={<CollegesPage />} />
               <Route path={routes.clubs} element={<ClubsPage />} />
               <Route path={routes.events} element={<EventsPage />} />

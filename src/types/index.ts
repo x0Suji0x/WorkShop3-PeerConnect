@@ -157,6 +157,11 @@ export interface ProjectOpportunity {
   badge?: 'High Urgency' | 'Featured' | 'New' | 'Verified Client'
   applicantsCount: number
   postedTimeAgo: string
+  category?: string
+  workMode?: 'Remote' | 'Hybrid' | 'On-site'
+  deadline?: string
+  deliverables?: string[]
+  clientVerified?: boolean
 }
 
 export interface Project extends ProjectOpportunity {
@@ -172,6 +177,9 @@ export interface Application {
   coverLetter: string
   status: 'draft' | 'submitted' | 'shortlisted' | 'rejected' | 'accepted'
   createdAt: string
+  updatedAt?: string
+  projectTitle?: string
+  clientName?: string
 }
 
 export interface Event {
