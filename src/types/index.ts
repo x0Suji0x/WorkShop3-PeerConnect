@@ -180,6 +180,11 @@ export interface Application {
   updatedAt?: string
   projectTitle?: string
   clientName?: string
+  studentName?: string
+  studentCollege?: string
+  studentRole?: string
+  studentAvatar?: string
+  skills?: string[]
 }
 
 export interface Event {

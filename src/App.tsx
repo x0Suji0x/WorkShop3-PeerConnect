@@ -3,9 +3,9 @@ import { SmoothScrollProvider } from './components/providers/SmoothScrollProvide
 import { AppShell } from './components/layout/AppShell'
 import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
-import { StudentDiscoverySection } from './components/home/StudentDiscoverySection'
 import { StudentDashboardPage } from './pages/Dashboard/StudentDashboardPage'
 import { StudentProfilePage } from './pages/Profiles/StudentProfilePage'
+import { TalentDirectoryPage } from './pages/Profiles/TalentDirectoryPage'
 import { VerificationPage } from './pages/Verification/VerificationPage'
 import { NotFoundPage } from './pages/Shared/NotFoundPage'
 import { CollegesPage } from './pages/Colleges/CollegesPage'
@@ -41,7 +41,7 @@ export default function App() {
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
               <Route path={routes.dashboard} element={<StudentDashboardPage />} />
-              <Route path={routes.profiles} element={<StudentDiscoverySection />} />
+              <Route path={routes.profiles} element={<TalentDirectoryPage />} />
               <Route path="/profiles/:profileId" element={<StudentProfilePage />} />
               <Route path={routes.verification} element={<VerificationPage />} />
               <Route path={routes.projects} element={<ProjectsPage />} />

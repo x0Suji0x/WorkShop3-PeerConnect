@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Briefcase,
@@ -21,6 +21,11 @@ import { Card } from '../common/Card'
 import { PageHeading } from '../common/PageHeading'
 import { mockProjects } from '../../data/mockData'
 import type { ProjectOpportunity } from '../../types'
+import {
+  getStoredApplications,
+  updateApplicationStatus,
+  type ExtendedApplication,
+} from '../../lib/applicationStorage'
 
 interface ClientAuthData {
   name?: string
@@ -98,6 +103,27 @@ const INITIAL_APPLICANTS: ApplicantItem[] = [
   },
 ]
 
+function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
+  const dynamicItems: ApplicantItem[] = stored.map((app) => ({
+    id: app.id,
+    name: app.studentName || 'Student Applicant',
+    college: app.studentCollege || 'National Institute of Design (NID)',
+    role: app.studentRole || 'Design Engineer & Frontend Architect',
+    avatar:
+      app.studentAvatar ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+    matchScore: 98,
+    projectApplied: app.projectTitle || 'Web & Mobile Project',
+    pitch: app.coverLetter || 'Enthusiastic to deliver this project with milestone deliverables.',
+    skills: app.skills && app.skills.length > 0 ? app.skills : ['React', 'TypeScript', 'Tailwind CSS'],
+    isShortlisted: app.status === 'shortlisted',
+  }))
+
+  const storedIds = new Set(dynamicItems.map((a) => a.id))
+  const remainingInitial = INITIAL_APPLICANTS.filter((a) => !storedIds.has(a.id))
+  return [...dynamicItems, ...remainingInitial]
+}
+
 export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewProps) {
   // Load saved client auth
   const [clientData] = useState<ClientAuthData>(() => {
@@ -113,9 +139,19 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
   const companyName = clientData.company || 'Apex Studio & Labs'
 
   const [projects, setProjects] = useState<ProjectOpportunity[]>(mockProjects)
-  const [applicants, setApplicants] = useState<ApplicantItem[]>(INITIAL_APPLICANTS)
+  const [applicants, setApplicants] = useState<ApplicantItem[]>(() =>
+    buildApplicantsList(getStoredApplications())
+  )
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setApplicants(buildApplicantsList(getStoredApplications()))
+    }
+    window.addEventListener('peerconnect_applications_updated', handleUpdate)
+    return () => window.removeEventListener('peerconnect_applications_updated', handleUpdate)
+  }, [])
 
   // New Project Form State
   const [newTitle, setNewTitle] = useState('')
@@ -155,11 +191,24 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
   }
 
   const toggleShortlist = (appId: string) => {
+    const target = applicants.find((app) => app.id === appId)
+    const nextState = !target?.isShortlisted
+
+    // Update persistent application status if stored
+    updateApplicationStatus(appId, nextState ? 'shortlisted' : 'submitted')
+
     setApplicants((prev) =>
       prev.map((app) =>
-        app.id === appId ? { ...app, isShortlisted: !app.isShortlisted } : app
+        app.id === appId ? { ...app, isShortlisted: nextState } : app
       )
     )
+
+    setToastMessage(
+      nextState
+        ? `Shortlisted candidate ${target?.name || ''}! Student status updated.`
+        : `Removed candidate ${target?.name || ''} from shortlist.`
+    )
+    setTimeout(() => setToastMessage(null), 4000)
   }
 
   const shortlistedCount = applicants.filter((a) => a.isShortlisted).length
@@ -392,7 +441,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
 
                   <div className="flex items-center gap-2">
                     <Link
-                      to="/profiles/sofia-rodriguez"
+                      to={`/profiles/${app.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                       className="inline-flex items-center gap-1 text-xs font-bold text-[#123D30] hover:text-[#08A876]"
                     >
                       Portfolio <ExternalLink className="h-3 w-3" />
