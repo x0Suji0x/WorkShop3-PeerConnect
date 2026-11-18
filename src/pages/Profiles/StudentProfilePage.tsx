@@ -54,9 +54,9 @@ export function StudentProfilePage() {
     <div className="bg-[#FAF8F5]">
       <div className="h-40 bg-cover bg-center sm:h-56" style={{ backgroundImage: `linear-gradient(90deg, rgba(18,61,48,.62), rgba(18,61,48,.14)), url(${student.coverImageUrl})` }} />
       <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="relative -mt-16 border-b border-[#E7E8E1] pb-6 sm:-mt-20 sm:flex sm:items-end sm:justify-between sm:gap-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <img src={student.avatarUrl} alt={student.name} className="h-32 w-32 rounded-3xl border-4 border-[#FAF8F5] object-cover shadow-lg sm:h-36 sm:w-36" />
+        <div className="relative border-b border-[#E7E8E1] pb-6 sm:flex sm:items-start sm:justify-between sm:gap-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <img src={student.avatarUrl} alt={student.name} className="-mt-16 h-32 w-32 rounded-3xl border-4 border-[#FAF8F5] object-cover shadow-lg sm:-mt-20 sm:h-36 sm:w-36" />
             <div className="pt-1 sm:pb-1"><div className="flex flex-wrap items-center gap-2"><h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">{student.name}</h1>{student.isPlusMember && <Badge>Plus</Badge>}<Badge variant="green" size="sm">{student.availability}</Badge></div>{isEditing ? <Input value={student.headline} onChange={(event) => void updateStudent({ headline: event.target.value })} aria-label="Professional headline" className="mt-2 max-w-xl" /> : <p className="mt-1 text-base font-semibold text-[#08A876]">{student.headline}</p>}<p className="mt-1 text-sm text-[#777A72]">{student.college} · {student.degree}, {student.graduationYear}</p></div>
           </div>
           <div className="mt-5 flex flex-wrap gap-2 sm:mt-0"><Link to={routes.dashboard}><Button variant="secondary" size="sm">Dashboard</Button></Link><Button size="sm" onClick={() => setIsEditing((value) => !value)}>{isEditing ? <><Check className="h-3.5 w-3.5" />{isSaving ? 'Saving…' : 'Done editing'}</> : <><Pencil className="h-3.5 w-3.5" />Edit profile</>}</Button></div>
