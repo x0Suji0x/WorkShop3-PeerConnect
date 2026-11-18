@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { routes, communityRoutes } from '../../app/routes'
+import { routes, communityRoutes, authRoutes } from '../../app/routes'
 import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 
 const appLinks = [
@@ -94,13 +94,13 @@ export function Navbar() {
           {isHome ? (
             <>
               <Link
-                to={routes.dashboard}
+                to={authRoutes.signin}
                 className="rounded-full border border-[#CBD5E1] px-5 py-2 text-sm font-medium text-[#171916] shadow-2xs transition-all hover:border-[#94A3B8] hover:bg-white"
               >
                 Sign In
               </Link>
               <Link
-                to={routes.dashboard}
+                to={authRoutes.signup}
                 className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D] shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all hover:bg-[#07b27c]"
               >
                 Get Started

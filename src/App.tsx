@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider'
 import { AppShell } from './components/layout/AppShell'
-import { routes, communityRoutes } from './app/routes'
+import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
 import { StudentDashboardPage } from './pages/Dashboard/StudentDashboardPage'
 import { StudentProfilePage } from './pages/Profiles/StudentProfilePage'
@@ -12,6 +12,12 @@ import { CollegesPage } from './pages/Colleges/CollegesPage'
 import { ClubsPage } from './pages/Clubs/ClubsPage'
 import { EventsPage } from './pages/Events/EventsPage'
 import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
+
+// Auth & Onboarding pages
+import { SignUpPage } from './pages/Auth/SignUpPage'
+import { SignInPage } from './pages/Auth/SignInPage'
+import { StudentOnboardingPage } from './pages/Onboarding/StudentOnboardingPage'
+import { OnboardingCompletePage } from './pages/Onboarding/OnboardingCompletePage'
 
 // Communities and Team Finder pages
 import { CommunitiesPage } from './pages/Communities/CommunitiesPage'
@@ -41,6 +47,12 @@ export default function App() {
               <Route path={routes.colleges} element={<CollegesPage />} />
               <Route path={routes.clubs} element={<ClubsPage />} />
               <Route path={routes.events} element={<EventsPage />} />
+
+              {/* Authentication & Onboarding routes */}
+              <Route path={authRoutes.signup} element={<SignUpPage />} />
+              <Route path={authRoutes.signupStudent} element={<StudentOnboardingPage />} />
+              <Route path={authRoutes.signupComplete} element={<OnboardingCompletePage />} />
+              <Route path={authRoutes.signin} element={<SignInPage />} />
 
               {/* Communities & Team Finder module routes */}
               <Route path={communityRoutes.communities} element={<CommunitiesPage />} />

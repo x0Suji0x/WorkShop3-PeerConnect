@@ -25,3 +25,10 @@ export const communityRoutes = {
 
 export const communityDetailRoute = (slug: string) => `/communities/${slug}`
 export const teamDetailRoute = (id: string) => `/team-finder/${id}`
+
+export const authRoutes = {
+  signup: '/signup',
+  signupStudent: '/signup/student',
+  signupComplete: '/signup/student/complete',
+  signin: '/signin',
+} as const
