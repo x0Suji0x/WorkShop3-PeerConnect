@@ -135,41 +135,37 @@ export function ProjectMarketplaceSection() {
     <section
       id="projects"
       ref={sectionRef}
-      className="py-18 sm:py-24 lg:py-28 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
+      className="scroll-mt-20 pt-10 pb-18 sm:pt-12 sm:pb-24 lg:pt-14 lg:pb-28 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ============================================================== */}
         {/* SECTION HEADER: BOLD EDITORIAL HEADLINE & METRICS             */}
         {/* ============================================================== */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-10 border-b border-[#E7E8E1]">
-          <div className="max-w-2xl space-y-3">
+        <div className="flex flex-col items-center gap-5 pb-8 text-center border-b border-[#E7E8E1]">
+          <div className="max-w-3xl space-y-3">
             {/* Small Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E3F4EB] border border-[#08C58A]/30 text-[#123D30] text-xs font-bold tracking-wider uppercase">
-              <span className="w-2 h-2 rounded-full bg-[#08C58A] animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/75 border border-[#176B4C]/15 text-[#315448] text-[11px] font-bold tracking-[0.14em] uppercase">
+              <span className="w-2 h-2 rounded-full bg-[#08A875]" />
               <span>MARKETPLACE OPPORTUNITY BOARD</span>
             </div>
 
             {/* Headline */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-black text-[#171916] leading-[1.08] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-medium text-[#171916] leading-[1.08] tracking-[-0.04em]">
               Real projects.{' '}
-              <span className="text-[#08C58A] relative inline-block">
+              <span className="font-serif font-normal italic text-[#16845F]">
                 Ambitious briefs.
-                <span
-                  aria-hidden="true"
-                  className="absolute left-0 -bottom-1 w-full h-2.5 bg-[#E3F4EB] -rotate-1 -z-10 rounded-sm"
-                />
               </span>
             </h2>
 
             {/* Supporting Text */}
-            <p className="text-base sm:text-lg text-[#777A72] leading-relaxed pt-1">
+            <p className="mx-auto max-w-2xl text-base sm:text-lg text-[#525A55] leading-relaxed pt-1">
               Explore scoped briefs from startups, local businesses, and creator studios looking to
               collaborate with student talent.
             </p>
           </div>
 
           {/* Directory Count Indicator */}
-          <div className="self-start lg:self-auto flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E7E8E1] text-xs font-semibold text-[#171916]">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-[#E7E8E1] text-xs font-semibold text-[#171916]">
             <span className="w-2 h-2 rounded-full bg-[#08C58A]" />
             <span>
               Showing <strong className="text-[#171916] font-bold">{filteredProjects.length}</strong> of{' '}
