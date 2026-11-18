@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "lenis/dist/lenis.css";
 
 /* Reset and cohesive warm off-white design system */
 :root {
@@ -17,21 +16,6 @@ html {
   scroll-behavior: auto;
   background-color: #FAF8F5;
   color: #171916;
-}
-
-/* Lenis owns wheel smoothing on desktop. Keep touch scrolling native and
-   composited so phones do not have to interpolate a second scroll layer. */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
-
-.lenis.lenis-stopped {
-  overflow: clip;
 }
 
 body {
@@ -263,7 +247,9 @@ body {
   background-image:
     radial-gradient(ellipse 92vw 112vh at 0% 48%, rgba(241, 190, 112, 0.23) 0%, transparent 78%),
     radial-gradient(ellipse 92vw 112vh at 100% 52%, rgba(211, 157, 173, 0.21) 0%, transparent 78%);
-  background-attachment: fixed, fixed;
+  /* Fixed full-page gradients force repaints while scrolling on several
+     browsers. Normal attachment preserves the look without the scroll cost. */
+  background-attachment: scroll, scroll;
   background-repeat: no-repeat;
 }
 .home-page-surface #projects {
@@ -285,11 +271,7 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  --scene-fade-radius: 200%;
-  -webkit-mask-image: radial-gradient(ellipse 115% var(--scene-fade-radius) at 50% 0%, #000 68%, transparent 100%);
-  mask-image: radial-gradient(ellipse 115% var(--scene-fade-radius) at 50% 0%, #000 68%, transparent 100%);
   transform: translateZ(0);
-  will-change: transform;
 }
 .hero-campus-plate {
   width: 100%;
@@ -380,6 +362,11 @@ body {
   .hero-cast { width: 100%; height: 88%; bottom: -22%; }
   .hero-student-left { translate: -88% 0; }
   .hero-student-right { translate: -12% 0; }
+}
+@media (max-width: 767px) {
+  /* Touch devices use the static hero state, so do not reserve a long
+     scroll track for an animation that is intentionally not running. */
+  .hero-scroll-track { height: 100svh; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .hero-student-left,.hero-student-right { translate: none; }

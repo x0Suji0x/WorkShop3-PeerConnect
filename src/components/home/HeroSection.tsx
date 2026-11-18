@@ -11,18 +11,27 @@ export function HeroSection() {
 
   useGSAP(() => {
     const media = gsap.matchMedia()
-    media.add('(prefers-reduced-motion: reduce)', () => { setActiveStage(2) })
-    media.add('(prefers-reduced-motion: no-preference)', () => {
+    const showStaticHero = () => {
+      setActiveStage(2)
+      gsap.set('.hero-copy-stage-0, .hero-copy-stage-1', { autoAlpha: 0 })
+      gsap.set('.hero-copy-stage-2', { autoAlpha: 1, y: 0 })
+      gsap.set('.hero-transition-glow', { autoAlpha: 1, y: 0 })
+      gsap.set('.hero-student-right', { autoAlpha: 1, xPercent: 5, y: 0, scale: 1 })
+      gsap.set('.hero-student-left', { autoAlpha: 1, xPercent: -105, y: 0, scale: 1 })
+    }
+
+    // A large, image-led pinned hero is best kept static on touch devices.
+    // This avoids expensive scroll-linked compositing on mobile GPUs.
+    media.add('(prefers-reduced-motion: reduce), (max-width: 767px), (pointer: coarse)', showStaticHero)
+    media.add('(prefers-reduced-motion: no-preference) and (min-width: 768px) and (pointer: fine)', () => {
       setActiveStage(0)
       gsap.set('.hero-copy-stage-0', { autoAlpha: 1, y: 0 })
       gsap.set(['.hero-copy-stage-1', '.hero-copy-stage-2'], { autoAlpha: 0, y: 20 })
       gsap.set('.hero-transition-glow', { autoAlpha: 0, y: 28 })
-      gsap.set('.hero-cinematic-scene', { '--scene-fade-radius': '200%' })
       // Their final positions flank the center. Start inward, behind her foreground layer.
       gsap.set('.hero-student-right', { autoAlpha: 0, xPercent: -50, y: 24, scale: 0.93 })
       gsap.set('.hero-student-left', { autoAlpha: 0, xPercent: -50, y: 24, scale: 0.93 })
       let stage = 0
-      const sceneElement = trackRef.current?.querySelector<HTMLElement>('.hero-cinematic-scene')
 
       const story = gsap.timeline({
         defaults: { ease: 'none' },
@@ -30,10 +39,6 @@ export function HeroSection() {
           const progress = this.progress()
           const next = progress < 0.3 ? 0 : progress < 0.65 ? 1 : 2
           if (next !== stage) { stage = next; setActiveStage(next) }
-          const fadeProgress = gsap.utils.clamp(0, 1, (progress - 0.72) / 0.28)
-          if (sceneElement) {
-            sceneElement.style.setProperty('--scene-fade-radius', `${200 - 100 * fadeProgress}%`)
-          }
         },
         scrollTrigger: {
           trigger: trackRef.current,
