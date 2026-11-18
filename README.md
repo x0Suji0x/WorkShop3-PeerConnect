@@ -17,8 +17,11 @@ Once the development server is running (`npm run dev`), access PeerConnect local
 | **Landing Page** | [http://localhost:5173/](http://localhost:5173/) | Hero showcase, student talent highlights, marketplace preview |
 | **Sign Up Landing** | [http://localhost:5173/signup](http://localhost:5173/signup) | Student & creator onboarding entry point |
 | **Student Registration** | [http://localhost:5173/signup/student](http://localhost:5173/signup/student) | 6-step multi-step registration flow |
-| **Sign In** | [http://localhost:5173/signin](http://localhost:5173/signin) | Student authentication with one-click demo access |
+| **Sign In (Student / Client)** | [http://localhost:5173/signin](http://localhost:5173/signin) | Role-aware authentication for students & employers |
+| **Client Sign In** | [http://localhost:5173/signin?role=client](http://localhost:5173/signin?role=client) | Employer & Recruiter sign-in with corporate domain check |
+| **Client Register** | [http://localhost:5173/signin?role=client&mode=register](http://localhost:5173/signin?role=client&mode=register) | Register company account, hiring scope & verified employer badge |
 | **Student Dashboard** | [http://localhost:5173/dashboard](http://localhost:5173/dashboard) | Active metrics, verification status & momentum score |
+| **Employer Workspace** | [http://localhost:5173/dashboard?role=client](http://localhost:5173/dashboard?role=client) | Manage project briefs, proposals, escrow & shortlist talent |
 | **Student Profile** | [http://localhost:5173/profiles/sofia-rodriguez](http://localhost:5173/profiles/sofia-rodriguez) | Public portfolio, skills, experience & verified identity |
 | **Verification Centre** | [http://localhost:5173/verification](http://localhost:5173/verification) | Institutional email, phone, and portfolio verification signals |
 | **Communities** | [http://localhost:5173/communities](http://localhost:5173/communities) | 12 student interest circles, filters & AI recommendations |
