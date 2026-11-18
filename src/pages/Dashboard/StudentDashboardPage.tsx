@@ -1,6 +1,6 @@
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, Eye, FileText, ShieldCheck, Sparkles, UserRoundCheck } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, Compass, Eye, FileText, Home, ShieldCheck, Sparkles, UserRoundCheck, UsersRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { profileRoute, routes } from '../../app/routes'
+import { communityRoutes, profileRoute, routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
@@ -27,11 +27,7 @@ export function StudentDashboardPage() {
         eyebrow="Student dashboard"
         title={`Good to see you, ${firstName}.`}
         description="A focused view of your profile, opportunities, and collaboration activity."
-        actions={
-          <Link to={profileRoute(student.id)}>
-            <Button size="sm">View profile <ArrowRight className="h-3.5 w-3.5" /></Button>
-          </Link>
-        }
+        actions={<><Link to={routes.home}><Button variant="secondary" size="sm"><Home className="h-3.5 w-3.5" />Home</Button></Link><Link to={profileRoute(student.id)}><Button size="sm">View profile <ArrowRight className="h-3.5 w-3.5" /></Button></Link></>}
       />
 
       <section className="mt-7 grid grid-cols-1 gap-5 lg:grid-cols-12">
@@ -95,6 +91,16 @@ export function StudentDashboardPage() {
         ))}
       </section>
 
+      <section className="mt-8">
+        <div className="mb-4"><p className="text-lg font-black text-[#171916]">Keep moving forward</p><p className="mt-0.5 text-sm text-[#777A72]">A few useful places to continue your PeerConnect journey.</p></div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <JourneyLink to={profileRoute(student.id)} icon={UserRoundCheck} title="Refine your profile" description="Keep your work, skills, and availability current." />
+          <JourneyLink to={routes.verification} icon={ShieldCheck} title="Review trust signals" description="Understand the demo verification states on your profile." />
+          <JourneyLink to={communityRoutes.communities} icon={Compass} title="Explore communities" description="Find focused campus spaces to learn and contribute." />
+          <JourneyLink to={communityRoutes.teamFinder} icon={UsersRound} title="Find your team" description="Meet student collaborators for your next build." />
+        </div>
+      </section>
+
       <section className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <div className="mb-4 flex items-center justify-between"><div><p className="text-lg font-black text-[#171916]">Recommended for you</p><p className="mt-0.5 text-sm text-[#777A72]">Based on your demo skills and interests</p></div><Link to={routes.projects} className="text-sm font-bold text-[#123D30] hover:text-[#08A876]">Browse all</Link></div>
@@ -116,4 +122,8 @@ export function StudentDashboardPage() {
       </section>
     </div>
   )
+}
+
+function JourneyLink({ to, icon: Icon, title, description }: { to: string; icon: typeof Compass; title: string; description: string }) {
+  return <Link to={to} className="group rounded-2xl border border-[#E7E8E1] bg-white p-4 shadow-[0_4px_18px_rgba(23,25,22,0.04)] transition hover:-translate-y-0.5 hover:border-[#08C58A]/60 hover:shadow-[0_8px_24px_rgba(23,25,22,0.08)]"><Icon className="h-5 w-5 text-[#08A876]" /><h2 className="mt-4 text-sm font-black text-[#171916] group-hover:text-[#08A876]">{title}</h2><p className="mt-1 text-xs leading-relaxed text-[#777A72]">{description}</p><span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#123D30]">Open <ArrowRight className="h-3 w-3" /></span></Link>
 }

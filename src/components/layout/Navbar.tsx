@@ -5,11 +5,11 @@ import { routes, communityRoutes, authRoutes } from '../../app/routes'
 import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 
 const appLinks = [
+  { label: 'Home', to: routes.home },
   { label: 'Dashboard', to: routes.dashboard },
+  { label: 'Projects', to: routes.projects },
   { label: 'Communities', to: communityRoutes.communities },
   { label: 'Team Finder', to: communityRoutes.teamFinder },
-  { label: 'Profiles', to: routes.profiles },
-  { label: 'Projects', to: routes.projects },
 ]
 
 export function Navbar() {
@@ -17,6 +17,7 @@ export function Navbar() {
   const { scrollTo } = useSmoothScroll()
   const { pathname } = useLocation()
   const isHome = pathname === routes.home
+  const isDashboard = pathname === routes.dashboard
   const closeMenu = () => setMobileMenuOpen(false)
 
   const [overHero, setOverHero] = useState(true)
@@ -75,7 +76,7 @@ export function Navbar() {
             </button>
           </nav>
         ) : (
-          <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+          <nav aria-label="Application navigation" className="hidden items-center gap-5 text-sm font-medium md:flex">
             {appLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -108,21 +109,21 @@ export function Navbar() {
             </>
           ) : (
             <Link
-              to={routes.dashboard}
+              to={isDashboard ? routes.home : routes.dashboard}
               className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D] shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all hover:bg-[#07b27c]"
             >
-              My dashboard
+              {isDashboard ? 'Back to home' : 'My dashboard'}
             </Link>
           )}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
           <Link
-            to={routes.dashboard}
+            to={isDashboard ? routes.home : routes.dashboard}
             onClick={closeMenu}
             className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
           >
-            Dashboard
+            {isDashboard ? 'Home' : 'Dashboard'}
           </Link>
           <button
             type="button"
