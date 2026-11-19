@@ -35,4 +35,7 @@ export const authRoutes = {
   signupStudent: '/signup/student',
   signupComplete: '/signup/student/complete',
   signin: '/signin',
+  callback: '/auth/callback',
+  chooseRole: '/auth/choose-role',
+  resetPassword: '/auth/reset-password',
 } as const

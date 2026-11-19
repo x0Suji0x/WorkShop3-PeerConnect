@@ -6,6 +6,9 @@ import { LoadingState } from './components/common/LoadingState'
 import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
 import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
+import { AuthProvider } from './lib/auth/AuthProvider'
+import { ProtectedRoute, RoleRoute } from './components/auth/RouteGuards'
+import { AuthCallbackPage, ChooseRolePage, ResetPasswordPage } from './pages/Auth/AuthFlowPages'
 
 const StudentDashboardPage = lazy(() => import('./pages/Dashboard/StudentDashboardPage').then(({ StudentDashboardPage: Page }) => ({ default: Page })))
 const StudentProfilePage = lazy(() => import('./pages/Profiles/StudentProfilePage').then(({ StudentProfilePage: Page }) => ({ default: Page })))
@@ -42,21 +45,21 @@ function RouteBoundary({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <SmoothScrollProvider>
+      <AuthProvider><SmoothScrollProvider>
         <StudentProfileProvider>
           <AppShell>
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
               <Route path={routes.getStarted} element={<RouteBoundary><GetStartedPage /></RouteBoundary>} />
-              <Route path={routes.dashboard} element={<RouteBoundary><StudentDashboardPage /></RouteBoundary>} />
+              <Route path={routes.dashboard} element={<ProtectedRoute><RouteBoundary><StudentDashboardPage /></RouteBoundary></ProtectedRoute>} />
               <Route path={routes.profiles} element={<RouteBoundary><TalentDirectoryPage /></RouteBoundary>} />
               <Route path="/profiles/:profileId" element={<RouteBoundary><StudentProfilePage /></RouteBoundary>} />
-              <Route path={routes.verification} element={<RouteBoundary><VerificationPage /></RouteBoundary>} />
-              <Route path={routes.studentPlus} element={<RouteBoundary><StudentPlusPage /></RouteBoundary>} />
+              <Route path={routes.verification} element={<ProtectedRoute><RouteBoundary><VerificationPage /></RouteBoundary></ProtectedRoute>} />
+              <Route path={routes.studentPlus} element={<ProtectedRoute><RouteBoundary><StudentPlusPage /></RouteBoundary></ProtectedRoute>} />
               <Route path={routes.projects} element={<RouteBoundary><ProjectsPage /></RouteBoundary>} />
               <Route path="/projects/:projectId" element={<RouteBoundary><ProjectDetailPage /></RouteBoundary>} />
-              <Route path={routes.newProject} element={<RouteBoundary><NewProjectPage /></RouteBoundary>} />
-              <Route path={routes.applications} element={<RouteBoundary><ApplicationsPage /></RouteBoundary>} />
+              <Route path={routes.newProject} element={<RoleRoute role="client"><RouteBoundary><NewProjectPage /></RouteBoundary></RoleRoute>} />
+              <Route path={routes.applications} element={<ProtectedRoute><RouteBoundary><ApplicationsPage /></RouteBoundary></ProtectedRoute>} />
               <Route path={routes.colleges} element={<RouteBoundary><CollegesPage /></RouteBoundary>} />
               <Route path={routes.clubs} element={<RouteBoundary><ClubsPage /></RouteBoundary>} />
               <Route path={routes.events} element={<RouteBoundary><EventsPage /></RouteBoundary>} />
@@ -68,6 +71,9 @@ export default function App() {
               <Route path={authRoutes.signupStudent} element={<RouteBoundary><StudentOnboardingPage /></RouteBoundary>} />
               <Route path={authRoutes.signupComplete} element={<RouteBoundary><OnboardingCompletePage /></RouteBoundary>} />
               <Route path={authRoutes.signin} element={<RouteBoundary><SignInPage /></RouteBoundary>} />
+              <Route path={authRoutes.callback} element={<AuthCallbackPage />} />
+              <Route path={authRoutes.chooseRole} element={<ChooseRolePage />} />
+              <Route path={authRoutes.resetPassword} element={<ResetPasswordPage />} />
 
               {/* Communities & Team Finder module routes */}
               <Route path={communityRoutes.communities} element={<RouteBoundary><CommunitiesPage /></RouteBoundary>} />
@@ -82,7 +88,7 @@ export default function App() {
             </Routes>
           </AppShell>
         </StudentProfileProvider>
-      </SmoothScrollProvider>
+      </SmoothScrollProvider></AuthProvider>
     </BrowserRouter>
   )
 }
