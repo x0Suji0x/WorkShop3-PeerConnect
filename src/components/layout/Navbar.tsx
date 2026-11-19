@@ -76,7 +76,7 @@ export function Navbar() {
                 Sign In
               </Link>
               <Link
-                to={authRoutes.signup}
+                to={routes.getStarted}
                 className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D] shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all hover:bg-[#07b27c]"
               >
                 Get Started
@@ -94,7 +94,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-2 lg:hidden">
           <Link
-            to={isHome ? authRoutes.signup : routes.dashboard}
+            to={isHome ? routes.getStarted : routes.dashboard}
             onClick={closeMenu}
             className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
           >

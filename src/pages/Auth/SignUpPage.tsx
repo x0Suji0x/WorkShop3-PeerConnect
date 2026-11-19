@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   ArrowRight,
   Users,
@@ -10,8 +10,12 @@ import {
 } from 'lucide-react'
 import { Button } from '../../components/common/Button'
 import { Badge } from '../../components/common/Badge'
+import { parseSignupRole } from '../../lib/signupRole'
 
 export function SignUpPage() {
+  const [searchParams] = useSearchParams()
+  const selectedRole = parseSignupRole(searchParams.get('role'))
+
   return (
     <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
       {/* Ambient lighting glows identical to home page */}
@@ -55,7 +59,7 @@ export function SignUpPage() {
                           I am a Student / Creator
                         </h2>
                         <Badge variant="green" size="sm">
-                          Recommended
+                          {selectedRole === 'student' ? 'Selected' : 'Recommended'}
                         </Badge>
                       </div>
                       <p className="mt-1 text-xs leading-relaxed text-[#525A55] sm:text-sm">
@@ -74,7 +78,7 @@ export function SignUpPage() {
               </Link>
 
               {/* Client / Business Option */}
-              <div className="peer-card-glass peer-card-glow-gold rounded-2xl border border-[rgba(91,112,96,0.18)] p-5 sm:p-6 transition-all hover:-translate-y-0.5">
+              <div className={`peer-card-glass peer-card-glow-gold rounded-2xl border p-5 sm:p-6 transition-all hover:-translate-y-0.5 ${selectedRole === 'employer' ? 'border-[#9A6A24]/60 ring-2 ring-[#9A6A24]/15' : 'border-[rgba(91,112,96,0.18)]'}`}>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FBF0DC] text-[#9A6A24] border border-[#9A6A24]/15">
@@ -84,6 +88,7 @@ export function SignUpPage() {
                       <h3 className="text-sm font-bold text-[#171916]">
                         Looking to hire students or post project briefs?
                       </h3>
+                      {selectedRole === 'employer' && <Badge variant="peach" size="sm">Selected</Badge>}
                       <p className="text-xs text-[#525A55]">
                         Discover pre-vetted campus talent across design, engineering, and AI.
                       </p>

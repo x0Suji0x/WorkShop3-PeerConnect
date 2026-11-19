@@ -1,6 +1,6 @@
 import { ArrowRight, BriefcaseBusiness, UserRoundSearch } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { routes } from '../../app/routes'
+import { authRoutes, routes } from '../../app/routes'
 
 const paths = [
   {
@@ -9,7 +9,7 @@ const paths = [
       'Find projects that fit your skills, meet collaborators, and turn your work into experience you can show.',
     details: ['Explore scoped projects', 'Showcase your skills', 'Build with a team'],
     action: 'Browse projects',
-    to: routes.projects,
+    to: `${authRoutes.signup}?role=student`,
     icon: UserRoundSearch,
     tone: 'work',
   },
@@ -19,7 +19,7 @@ const paths = [
       'Review student profiles, compare skills and portfolios, and choose the people who fit your work.',
     details: ['Browse student applicants', 'Compare skills and work', 'Choose your best fit'],
     action: 'Choose an applicant',
-    to: routes.profiles,
+    to: `${routes.profiles}?role=employer`,
     icon: BriefcaseBusiness,
     tone: 'hire',
   },
