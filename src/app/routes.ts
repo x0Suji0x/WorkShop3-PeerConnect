@@ -11,6 +11,8 @@ export const routes = {
   colleges: '/colleges',
   clubs: '/clubs',
   events: '/events',
+  terms: '/terms',
+  privacy: '/privacy',
 } as const
 
 export const profileRoute = (profileId: string) => `/profiles/${profileId}`

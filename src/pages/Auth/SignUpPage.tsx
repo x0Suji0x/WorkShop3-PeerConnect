@@ -11,6 +11,7 @@ import {
 import { Button } from '../../components/common/Button'
 import { Badge } from '../../components/common/Badge'
 import { parseSignupRole } from '../../lib/signupRole'
+import { routes } from '../../app/routes'
 
 export function SignUpPage() {
   const [searchParams] = useSearchParams()
@@ -125,13 +126,13 @@ export function SignUpPage() {
               </p>
               <p className="text-xs text-[#777A72] leading-relaxed">
                 By registering, you agree to PeerConnect's{' '}
-                <a href="#terms" className="underline hover:text-[#171916]">
+                <Link to={routes.terms} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#171916]">
                   Terms of Service
-                </a>{' '}
+                </Link>{' '}
                 and{' '}
-                <a href="#privacy" className="underline hover:text-[#171916]">
+                <Link to={routes.privacy} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#171916]">
                   Privacy Policy
-                </a>
+                </Link>
                 . Personal contact info is strictly confidential.
               </p>
             </div>

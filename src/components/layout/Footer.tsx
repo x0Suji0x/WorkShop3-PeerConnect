@@ -143,6 +143,12 @@ export function Footer() {
             <Link to={routes.projects} className="hover:text-[#08C58A] transition-colors">
               Project Board
             </Link>
+            <Link to={routes.terms} className="hover:text-[#08C58A] transition-colors">
+              Terms
+            </Link>
+            <Link to={routes.privacy} className="hover:text-[#08C58A] transition-colors">
+              Privacy
+            </Link>
           </div>
         </div>
       </div>

@@ -32,6 +32,8 @@ const TeamFinderPage = lazy(() => import('./pages/TeamFinder/TeamFinderPage').th
 const TeamDetailPage = lazy(() => import('./pages/TeamFinder/TeamDetailPage').then(({ TeamDetailPage: Page }) => ({ default: Page })))
 const NewTeamPage = lazy(() => import('./pages/TeamFinder/NewTeamPage').then(({ NewTeamPage: Page }) => ({ default: Page })))
 const TeamBuilderPage = lazy(() => import('./pages/TeamFinder/TeamBuilderPage').then(({ TeamBuilderPage: Page }) => ({ default: Page })))
+const TermsPage = lazy(() => import('./pages/Legal/TermsPage').then(({ TermsPage: Page }) => ({ default: Page })))
+const PrivacyPage = lazy(() => import('./pages/Legal/PrivacyPage').then(({ PrivacyPage: Page }) => ({ default: Page })))
 
 function RouteBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<LoadingState label="Loading page…" />}>{children}</Suspense>
@@ -58,6 +60,8 @@ export default function App() {
               <Route path={routes.colleges} element={<RouteBoundary><CollegesPage /></RouteBoundary>} />
               <Route path={routes.clubs} element={<RouteBoundary><ClubsPage /></RouteBoundary>} />
               <Route path={routes.events} element={<RouteBoundary><EventsPage /></RouteBoundary>} />
+              <Route path={routes.terms} element={<RouteBoundary><TermsPage /></RouteBoundary>} />
+              <Route path={routes.privacy} element={<RouteBoundary><PrivacyPage /></RouteBoundary>} />
 
               {/* Authentication & Onboarding routes */}
               <Route path={authRoutes.signup} element={<RouteBoundary><SignUpPage /></RouteBoundary>} />
