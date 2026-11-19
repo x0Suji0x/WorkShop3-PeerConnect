@@ -3,6 +3,7 @@ export const routes = {
   dashboard: '/dashboard',
   profiles: '/profiles',
   verification: '/verification',
+  studentPlus: '/student-plus',
   projects: '/projects',
   newProject: '/projects/new',
   applications: '/applications',

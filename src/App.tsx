@@ -7,6 +7,7 @@ import { StudentDashboardPage } from './pages/Dashboard/StudentDashboardPage'
 import { StudentProfilePage } from './pages/Profiles/StudentProfilePage'
 import { TalentDirectoryPage } from './pages/Profiles/TalentDirectoryPage'
 import { VerificationPage } from './pages/Verification/VerificationPage'
+import { StudentPlusPage } from './pages/StudentPlus/StudentPlusPage'
 import { NotFoundPage } from './pages/Shared/NotFoundPage'
 import { CollegesPage } from './pages/Colleges/CollegesPage'
 import { ClubsPage } from './pages/Clubs/ClubsPage'
@@ -44,6 +45,7 @@ export default function App() {
               <Route path={routes.profiles} element={<TalentDirectoryPage />} />
               <Route path="/profiles/:profileId" element={<StudentProfilePage />} />
               <Route path={routes.verification} element={<VerificationPage />} />
+              <Route path={routes.studentPlus} element={<StudentPlusPage />} />
               <Route path={routes.projects} element={<ProjectsPage />} />
               <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
               <Route path={routes.newProject} element={<NewProjectPage />} />

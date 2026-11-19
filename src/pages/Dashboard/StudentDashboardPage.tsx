@@ -176,8 +176,14 @@ function StudentDashboardContent({ onSwitchToClient }: { onSwitchToClient: () =>
                 <li key={benefit} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#08C58A]" />{benefit}</li>
               ))}
             </ul>
-            <Button variant="dark" disabled className="mt-6 w-full">Student Plus coming soon · ₹99/month</Button>
-            <p className="mt-2 text-center text-[11px] text-[#777A72]">Demo interface only — no payment is collected.</p>
+            <Link to={routes.studentPlus} className="mt-6 block">
+              <Button variant="dark" className="w-full">
+                {student.isPlusMember ? 'Manage Student Plus' : 'Try Student Plus demo · ₹99/month'}
+              </Button>
+            </Link>
+            <p className="mt-2 text-center text-[11px] text-[#777A72]">
+              {student.isPlusMember ? 'Demo access is active for this session.' : 'Demo interface only — no payment is collected.'}
+            </p>
           </div>
         </section>
 

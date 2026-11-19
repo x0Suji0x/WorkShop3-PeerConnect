@@ -105,6 +105,17 @@ export interface Student extends StudentProfile {
   isPlusMember: boolean
 }
 
+export type DemoPaymentMethod = 'upi' | 'card'
+
+export interface StudentPlusPlan {
+  id: string
+  name: string
+  price: number
+  currency: 'INR'
+  billingInterval: 'month'
+  benefits: string[]
+}
+
 export interface Client {
   id: string
   name: string
