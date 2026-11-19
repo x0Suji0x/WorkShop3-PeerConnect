@@ -54,7 +54,7 @@ export function TeamDetailPage() {
 
   if (!post) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-16 text-center">
+      <div className="peer-page-surface min-h-screen flex items-center justify-center px-4 py-16 text-center">
         <EmptyState
           title="Collaboration project not found"
           description="This collaboration opportunity may have expired or been removed."
@@ -141,22 +141,28 @@ export function TeamDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Back button */}
-      <Link
-        to={communityRoutes.teamFinder}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Team Opportunities
-      </Link>
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden pb-16">
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
 
-      {/* Main Grid */}
-      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left Column: Project Details, Roles, Applications */}
-        <div className="space-y-6 lg:col-span-2">
-          {/* Main Card */}
-          <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Back button */}
+        <Link
+          to={communityRoutes.teamFinder}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Team Opportunities
+        </Link>
+
+        {/* Main Grid */}
+        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Left Column: Project Details, Roles, Applications */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Main Card */}
+            <div className="peer-card-glass p-6">
             {/* Top Badges */}
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="peach" size="sm" className="capitalize font-semibold">
@@ -180,7 +186,7 @@ export function TeamDetailPage() {
               {post.title}
             </h1>
 
-            <div className="mt-3 flex items-center gap-3 border-b border-[#F2F1EA] pb-4 text-xs text-[#525A55]">
+            <div className="mt-3 flex items-center gap-3 peer-divider-fade pb-4 text-xs text-[#525A55]">
               <img
                 src={post.authorAvatar}
                 alt={post.authorName}
@@ -236,7 +242,7 @@ export function TeamDetailPage() {
           </div>
 
           {/* Open Roles Section */}
-          <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
+          <div className="peer-card-glass p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-[#171916]">Available Roles Needed</h3>
               <span className="text-xs text-[#08A876] font-semibold">
@@ -280,7 +286,7 @@ export function TeamDetailPage() {
           </div>
 
           {/* Collaboration Management: Current Squad */}
-          <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
+          <div className="peer-card-glass p-6 space-y-4">
             <h3 className="text-base font-bold text-[#171916]">
               Current Team Members ({post.currentMembers.length})
             </h3>
@@ -306,7 +312,7 @@ export function TeamDetailPage() {
           </div>
 
           {/* Collaboration Management: Received Applications */}
-          <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
+          <div className="peer-card-glass p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-[#171916]">
                 Manage Applications ({applications.length})
@@ -386,7 +392,7 @@ export function TeamDetailPage() {
 
         {/* Right Column: AI Teammate Matching Recommendations */}
         <div className="space-y-5">
-          <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-b from-[#E3F4EB]/30 to-white p-5 shadow-[0_4px_20px_rgba(8,197,138,0.06)]">
+          <div className="peer-card-glass peer-card-glow-mint p-5">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-[#08A876]">
                 <Sparkles className="h-4 w-4" />
@@ -415,6 +421,7 @@ export function TeamDetailPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

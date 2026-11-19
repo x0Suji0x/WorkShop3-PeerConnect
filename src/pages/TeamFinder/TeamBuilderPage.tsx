@@ -53,45 +53,46 @@ export function TeamBuilderPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Back button */}
-      <Link
-        to={communityRoutes.teamFinder}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Team Finder
-      </Link>
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden pb-16">
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
 
-      {/* Header */}
-      <div className="mt-4 border-b border-[#E7E8E1] pb-6">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-[#08A876]">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Back button */}
+        <Link
+          to={communityRoutes.teamFinder}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Team Finder
+        </Link>
+
+        {/* Header */}
+        <div className="mt-4 peer-divider-fade pb-6">
+          <div className="peer-eyebrow-pill">
             AI Project Team Builder
+          </div>
+          <h1 className="mt-2 text-2xl font-black text-[#171916] sm:text-3xl">
+            Architect your squad from an idea.
+          </h1>
+          <p className="mt-1 text-xs text-[#525A55] sm:text-sm max-w-2xl">
+            Describe what you want to build. Our matching engine breaks down the required roles, recommended tech stacks, and points you to the exact student communities where those specialists hang out.
           </p>
-        </div>
-        <h1 className="mt-2 text-2xl font-black text-[#171916] sm:text-3xl">
-          Architect your squad from an idea.
-        </h1>
-        <p className="mt-1 text-xs text-[#525A55] sm:text-sm max-w-2xl">
-          Describe what you want to build. Our matching engine breaks down the required roles, recommended tech stacks, and points you to the exact student communities where those specialists hang out.
-        </p>
 
-        {/* Transparent Rule-based engine banner */}
-        <div className="mt-4 flex items-center gap-2 rounded-xl bg-blue-50/70 p-3 text-xs text-blue-900 border border-blue-200">
-          <Info className="h-4 w-4 shrink-0 text-blue-600" />
-          <span>
-            <strong>Transparent Architecture:</strong> Powered by modular rule-based classification analyzing project domains, technical depth, and complementary skill requirements.
-          </span>
+          {/* Transparent Rule-based engine banner */}
+          <div className="mt-4 flex items-center gap-2 rounded-xl bg-blue-50/70 p-3 text-xs text-blue-900 border border-blue-200">
+            <Info className="h-4 w-4 shrink-0 text-blue-600" />
+            <span>
+              <strong>Transparent Architecture:</strong> Powered by modular rule-based classification analyzing project domains, technical depth, and complementary skill requirements.
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Input Section */}
-      <div className="mt-8">
-        <form onSubmit={handleAnalyze} className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs">
+        {/* Input Section */}
+        <div className="mt-8">
+          <form onSubmit={handleAnalyze} className="peer-card-glass p-6 sm:p-7 shadow-sm">
           <label htmlFor="idea-desc" className="block text-sm font-bold text-[#171916]">
             Describe your project idea
           </label>
@@ -125,7 +126,7 @@ export function TeamBuilderPage() {
             </div>
           </div>
 
-          <div className="mt-5 flex items-center justify-between border-t border-[#F2F1EA] pt-4">
+          <div className="mt-5 flex items-center justify-between peer-divider-fade-t pt-4">
             <span className="text-xs text-[#777A72]">
               {description.length} characters (min 15)
             </span>
@@ -161,7 +162,7 @@ export function TeamBuilderPage() {
       {suggestion && !isAnalyzing && (
         <div className="mt-8 space-y-8 animate-fadeIn">
           {/* Suggested Roles */}
-          <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs">
+          <div className="peer-card-glass p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-[#171916]">
@@ -182,8 +183,8 @@ export function TeamBuilderPage() {
                   key={idx}
                   className={`rounded-xl border p-4.5 space-y-2.5 transition-all ${
                     role.priority === 'required'
-                      ? 'border-[#08C58A]/40 bg-[#E3F4EB]/20'
-                      : 'border-[#E7E8E1] bg-[#F7F6F0]/50'
+                      ? 'border-[#08C58A]/40 bg-[#E3F4EB]/30'
+                      : 'border-[#E7E8E1] bg-white/70'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -219,7 +220,7 @@ export function TeamBuilderPage() {
           </div>
 
           {/* Recommended Communities */}
-          <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs">
+          <div className="peer-card-glass p-6">
             <div className="flex items-center gap-2">
               <Compass className="h-5 w-5 text-[#08C58A]" />
               <h2 className="text-lg font-bold text-[#171916]">
@@ -234,7 +235,7 @@ export function TeamBuilderPage() {
               {suggestion.communities.map((comm) => (
                 <div
                   key={comm.id}
-                  className="flex flex-col justify-between rounded-xl border border-[#E7E8E1] p-4 transition-all hover:border-[#08C58A]"
+                  className="flex flex-col justify-between rounded-xl border border-[#E7E8E1] bg-white/80 p-4 transition-all hover:border-[#08C58A] hover:shadow-xs"
                 >
                   <div>
                     <h4 className="text-sm font-bold text-[#171916]">{comm.name}</h4>
@@ -255,7 +256,7 @@ export function TeamBuilderPage() {
           </div>
 
           {/* Action CTA */}
-          <div className="rounded-2xl border border-[#08C58A]/40 bg-gradient-to-r from-[#123D30] to-[#171916] p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="rounded-2xl border border-[rgba(8,197,138,0.3)] bg-gradient-to-r from-[#123D30] via-[#0D2D24] to-[#171916] p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 className="text-base font-bold text-white">Ready to assemble your squad?</h3>
               <p className="text-xs text-white/80 mt-1 max-w-xl">
@@ -272,6 +273,7 @@ export function TeamBuilderPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

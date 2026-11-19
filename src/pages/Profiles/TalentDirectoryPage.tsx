@@ -10,7 +10,6 @@ import {
   FolderGit2,
 } from 'lucide-react'
 import { PageHeading } from '../../components/common/PageHeading'
-import { Card } from '../../components/common/Card'
 import { Button } from '../../components/common/Button'
 import { mockStudents } from '../../data/mockData'
 import { demoStudent } from '../../data/studentMockData'
@@ -94,30 +93,37 @@ export function TalentDirectoryPage() {
   }, [allStudents, activeCategory, availableOnly, collegeFilter, searchQuery])
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 space-y-8">
-      {/* Page Heading */}
-      <PageHeading
-        eyebrow="Student Talent Directory"
-        title="Discover pre-vetted campus builders."
-        description="Connect with top engineering, design, and AI students from leading universities across India. Ready for internships, hackathon squads, and client work."
-        actions={
-          <div className="flex items-center gap-2">
-            <Link to="/signup/student">
-              <Button size="sm" variant="primary">
-                Join as Student <ArrowRight className="h-3.5 w-3.5 ml-1" />
-              </Button>
-            </Link>
-            <Link to="/signin?role=client">
-              <Button size="sm" variant="secondary">
-                <Briefcase className="h-3.5 w-3.5 mr-1" /> Hire Talent
-              </Button>
-            </Link>
-          </div>
-        }
-      />
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
 
-      {/* Search and Filters Section */}
-      <section className="rounded-2xl border border-[#E7E8E1] bg-[#F7F6F0] p-4 sm:p-5 space-y-4">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 space-y-8">
+        {/* Page Heading */}
+        <PageHeading
+          eyebrow="Student Talent Directory"
+          title="Discover pre-vetted campus builders."
+          description="Connect with top engineering, design, and AI students from leading universities across India. Ready for internships, hackathon squads, and client work."
+          actions={
+            <div className="flex items-center gap-2">
+              <Link to="/signup/student">
+                <Button size="sm" variant="primary">
+                  Join as Student <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+              </Link>
+              <Link to="/signin?role=client">
+                <Button size="sm" variant="secondary">
+                  <Briefcase className="h-3.5 w-3.5 mr-1" /> Hire Talent
+                </Button>
+              </Link>
+            </div>
+          }
+        />
+
+        {/* Search and Filters Section */}
+        <section className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 sm:p-5 space-y-4 backdrop-blur-md shadow-2xs">
         {/* Search Bar */}
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#777A72]" />
@@ -202,7 +208,10 @@ export function TalentDirectoryPage() {
       {filteredStudents.length > 0 ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {filteredStudents.map((student) => (
-            <Card key={student.id} padding="md" className="group flex flex-col justify-between hover:shadow-md transition-all">
+            <div
+              key={student.id}
+              className="peer-card-glass p-5 group flex flex-col justify-between hover:-translate-y-1 transition-all duration-200"
+            >
               <div className="space-y-4">
                 {/* Header: Avatar, Name & Verified Badge */}
                 <div className="flex items-start gap-3.5">
@@ -274,7 +283,7 @@ export function TalentDirectoryPage() {
               </div>
 
               {/* Card Footer: Metrics & Action */}
-              <div className="mt-5 border-t border-[#E7E8E1] pt-3 flex items-center justify-between text-xs">
+              <div className="mt-5 peer-divider-fade-t pt-3 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1 text-[#777A72]">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                   <span className="font-bold text-[#171916]">{student.rating}</span>
@@ -288,7 +297,7 @@ export function TalentDirectoryPage() {
                   View Profile <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       ) : (
@@ -314,6 +323,7 @@ export function TalentDirectoryPage() {
           </Button>
         </div>
       )}
+      </div>
     </div>
   )
 }

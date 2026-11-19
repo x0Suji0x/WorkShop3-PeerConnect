@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import { projectRoute, routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
-import { Card } from '../../components/common/Card'
 import { EmptyState } from '../../components/common/EmptyState'
 import { PageHeading } from '../../components/common/PageHeading'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
@@ -55,58 +54,66 @@ export function ApplicationsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 space-y-6">
-      <PageHeading
-        eyebrow="Your activity"
-        title="Applications in progress."
-        description="Track your proposals, client shortlist notifications, and project interviews."
-      />
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
 
-      <MarketplaceTabs />
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 space-y-6">
+        <PageHeading
+          eyebrow="Your activity"
+          title="Applications in progress."
+          description="Track your proposals, client shortlist notifications, and project interviews."
+        />
 
-      {/* Filter Chips */}
-      <div className="flex flex-wrap gap-2">
-        {(['all', 'submitted', 'shortlisted', 'rejected'] as const).map((status) => (
-          <button
-            key={status}
-            type="button"
-            onClick={() => setFilter(status)}
-            aria-pressed={filter === status}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition-all ${
-              filter === status
-                ? 'bg-[#123D30] text-white shadow-2xs'
-                : 'border border-[#E7E8E1] bg-white text-[#525A55] hover:border-[#08C58A]'
-            }`}
-          >
-            {status === 'all' ? 'All applications' : status}
-          </button>
-        ))}
-      </div>
+        <MarketplaceTabs />
 
-      {visibleApplications.length ? (
-        <div className="space-y-3">
-          {visibleApplications.map((application) => (
-            <ApplicationCard
-              key={application.id}
-              application={application}
-              onWithdraw={() => withdraw(application.id)}
-            />
+        {/* Filter Chips */}
+        <div className="flex flex-wrap gap-2">
+          {(['all', 'submitted', 'shortlisted', 'rejected'] as const).map((status) => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setFilter(status)}
+              aria-pressed={filter === status}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition-all ${
+                filter === status
+                  ? 'bg-[#123D30] text-white shadow-2xs'
+                  : 'border border-[rgba(91,112,96,0.18)] bg-white/80 backdrop-blur-xs text-[#525A55] hover:border-[#08C58A]'
+              }`}
+            >
+              {status === 'all' ? 'All applications' : status}
+            </button>
           ))}
         </div>
-      ) : (
-        <div className="mt-6">
-          <EmptyState
-            icon={BriefcaseBusiness}
-            title="No applications in this view"
-            description="Browse open projects to start a new application."
-            action={
-              <Link to={routes.projects}>
-                <Button>Discover projects</Button>
-              </Link>
-            }
-          />
-        </div>
-      )}
+
+        {visibleApplications.length ? (
+          <div className="space-y-3">
+            {visibleApplications.map((application) => (
+              <ApplicationCard
+                key={application.id}
+                application={application}
+                onWithdraw={() => withdraw(application.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-6">
+            <EmptyState
+              icon={BriefcaseBusiness}
+              title="No applications in this view"
+              description="Browse open projects to start a new application."
+              action={
+                <Link to={routes.projects}>
+                  <Button>Discover projects</Button>
+                </Link>
+              }
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -122,8 +129,8 @@ function ApplicationCard({
   const Icon = status.icon
 
   return (
-    <Card padding="md">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="peer-card-glass p-5 hover:-translate-y-0.5 transition-all duration-200">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between relative z-10">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <Badge variant={status.variant} size="sm" className="font-bold">
@@ -156,6 +163,6 @@ function ApplicationCard({
           )}
         </div>
       </div>
-    </Card>
+    </div>
   )
 }

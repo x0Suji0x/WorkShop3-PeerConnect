@@ -43,7 +43,7 @@ export function CommunityDetailPage() {
 
   if (!community) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-16 text-center">
+      <div className="peer-page-surface min-h-screen flex items-center justify-center px-4 py-16 text-center">
         <EmptyState
           title="Community not found"
           description="The community you are looking for does not exist or has been relocated."
@@ -96,9 +96,15 @@ export function CommunityDetailPage() {
   const members = communityMembers[community.id] || []
 
   return (
-    <div className="min-h-screen bg-[#F7F6F0] pb-16">
-      {/* Cover Image Banner */}
-      <div className="relative h-56 w-full overflow-hidden bg-[#123D30] sm:h-72 lg:h-80">
+    <div className="peer-page-surface min-h-screen pb-16 relative overflow-hidden">
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/3 -right-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10">
+        {/* Cover Image Banner */}
+        <div className="relative h-56 w-full overflow-hidden bg-[#123D30] sm:h-72 lg:h-80">
         <img
           src={community.coverImageUrl}
           alt={community.name}
@@ -175,7 +181,7 @@ export function CommunityDetailPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-[#E7E8E1] pb-3 text-sm font-bold">
+        <div className="flex items-center gap-2 peer-divider-fade pb-3 text-sm font-bold">
           <button
             type="button"
             onClick={() => setActiveTab('discussions')}
@@ -308,7 +314,7 @@ export function CommunityDetailPage() {
             {/* Sidebar info */}
             <div className="space-y-5">
               {/* About Card */}
-              <div className="rounded-2xl border border-[#E7E8E1] bg-white p-5 shadow-[0_2px_12px_rgba(23,25,22,0.03)]">
+              <div className="peer-card-glass p-5">
                 <h3 className="text-sm font-bold text-[#171916]">About {community.name}</h3>
                 <p className="mt-2 text-xs leading-relaxed text-[#525A55]">{community.description}</p>
 
@@ -340,7 +346,7 @@ export function CommunityDetailPage() {
               </div>
 
               {/* Guidelines summary */}
-              <div className="rounded-2xl border border-[#E7E8E1] bg-white p-5 shadow-[0_2px_12px_rgba(23,25,22,0.03)]">
+              <div className="peer-card-glass p-5">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-[#08C58A]" />
                   <h3 className="text-sm font-bold text-[#171916]">Community Code</h3>
@@ -356,7 +362,7 @@ export function CommunityDetailPage() {
               </div>
 
               {/* Team Builder CTA */}
-              <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-br from-[#E3F4EB]/50 to-white p-5">
+              <div className="peer-card-glass peer-card-glow-mint p-5">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#123D30]">
                   <Sparkles className="h-4 w-4 text-[#08C58A]" />
                   Looking for Teammates?
@@ -389,7 +395,7 @@ export function CommunityDetailPage() {
               {members.map((member) => (
                 <div
                   key={member.id}
-                  className="flex flex-col justify-between rounded-2xl border border-[#E7E8E1] bg-white p-4 shadow-2xs transition-all hover:border-[#08C58A]/40"
+                  className="peer-card-glass flex flex-col justify-between p-4 transition-all duration-200 hover:-translate-y-1"
                 >
                   <div className="flex items-start gap-3">
                     <img
@@ -437,12 +443,12 @@ export function CommunityDetailPage() {
         {/* Tab 3: About & Guidelines */}
         {activeTab === 'about' && (
           <div className="mt-6 max-w-4xl space-y-6">
-            <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
+            <div className="peer-card-glass p-6 space-y-4">
               <h3 className="text-lg font-bold text-[#171916]">About {community.name}</h3>
               <p className="text-sm leading-relaxed text-[#525A55]">{community.description}</p>
             </div>
 
-            <div className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
+            <div className="peer-card-glass p-6 space-y-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-[#08C58A]" />
                 <h3 className="text-lg font-bold text-[#171916]">Community Guidelines</h3>
@@ -463,6 +469,7 @@ export function CommunityDetailPage() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   )

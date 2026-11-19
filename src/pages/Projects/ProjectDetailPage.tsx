@@ -64,13 +64,20 @@ export function ProjectDetailPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 space-y-6">
-      <Link
-        to={routes.projects}
-        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#525A55] hover:text-[#123D30] transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back to projects
-      </Link>
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 space-y-6">
+        <Link
+          to={routes.projects}
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#525A55] hover:text-[#123D30] transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to projects
+        </Link>
 
       <MarketplaceTabs />
 
@@ -99,7 +106,7 @@ export function ProjectDetailPage() {
 
             <p className="mt-6 text-sm leading-7 text-[#525A55]">{project.description}</p>
 
-            <section className="mt-8 border-t border-[#E7E8E1] pt-6">
+            <section className="mt-8 peer-divider-fade-t pt-6">
               <h2 className="text-lg font-black text-[#171916]">What you’ll deliver</h2>
               <ul className="mt-4 space-y-3">
                 {project.deliverables?.map((item) => (
@@ -111,7 +118,7 @@ export function ProjectDetailPage() {
               </ul>
             </section>
 
-            <section className="mt-8 border-t border-[#E7E8E1] pt-6">
+            <section className="mt-8 peer-divider-fade-t pt-6">
               <h2 className="text-lg font-black text-[#171916]">Skills that will help</h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 {project.skillsRequired.map((skill) => (
@@ -135,7 +142,7 @@ export function ProjectDetailPage() {
               <Term icon={MapPin} label="Work mode" value={project.workMode ?? 'Remote'} />
             </dl>
 
-            <div className="mt-6 border-t border-[#E7E8E1] pt-5">
+            <div className="mt-6 peer-divider-fade-t pt-5">
               {isAlreadySubmitted ? (
                 <div className="rounded-2xl border border-[#08C58A]/30 bg-[#E3F4EB] p-4 text-xs font-semibold text-[#123D30] space-y-2">
                   <div className="flex items-center gap-1.5 font-bold">
@@ -166,6 +173,7 @@ export function ProjectDetailPage() {
             </div>
           </Card>
         </aside>
+      </div>
       </div>
     </div>
   )

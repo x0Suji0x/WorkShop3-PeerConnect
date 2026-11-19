@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
-  Sparkles,
   Users,
   Compass,
   Trophy,
@@ -14,25 +13,27 @@ import { Badge } from '../../components/common/Badge'
 
 export function SignUpPage() {
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#FAF8F5]">
-      <div className="mx-auto flex min-h-[calc(100vh-80px)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-80px)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
           {/* Left Column: Sign-up Cards & Entry */}
           <div className="space-y-8 lg:col-span-6">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#E3F4EB] text-[#08C58A]">
-                  <Sparkles className="h-4 w-4" />
-                </span>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">
-                  Join PeerConnect
-                </p>
+              <div className="peer-eyebrow-pill mb-4">
+                <span className="dot" aria-hidden="true" />
+                JOIN PEERCONNECT
               </div>
-              <h1 className="mt-3 text-3xl font-black tracking-tight text-[#171916] sm:text-4xl lg:text-5xl">
-                Your journey starts here.
+              <h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl lg:text-5xl leading-[1.12]">
+                Your journey starts here, with <em className="font-serif italic font-normal text-[#16845f]">meaningful work.</em>
               </h1>
-              <p className="mt-3 text-sm leading-relaxed text-[#525A55] sm:text-base">
-                Build your professional identity, showcase your skills, and discover campus opportunities, hackathon squads, and client projects.
+              <p className="mt-4 text-sm leading-relaxed text-[#525A55] sm:text-base">
+                Build your verified professional identity, showcase proven skills, and discover campus opportunities, hackathon squads, and client projects.
               </p>
             </div>
 
@@ -41,9 +42,9 @@ export function SignUpPage() {
               {/* Student Onboarding Option (Primary) */}
               <Link
                 to="/signup/student"
-                className="group relative block rounded-2xl border-2 border-[#08C58A] bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                className="peer-card-glass peer-card-glow-mint group relative block rounded-3xl border-2 border-[#08C58A]/50 bg-gradient-to-br from-white/95 to-[#FFFDF9]/90 p-6 sm:p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-[#08C58A] hover:shadow-xl"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-4 relative z-10">
                   <div className="flex items-start gap-4">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#123D30] text-[#08C58A] shadow-xs transition-transform group-hover:scale-105">
                       <Users className="h-6 w-6" />
@@ -66,17 +67,17 @@ export function SignUpPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E3F4EB] text-[#123D30] group-hover:bg-[#08C58A] group-hover:text-[#0A261D] transition-colors">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E3F4EB] text-[#123D30] group-hover:bg-[#08C58A] group-hover:text-[#0A261D] transition-colors shadow-2xs">
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
               </Link>
 
               {/* Client / Business Option */}
-              <div className="rounded-2xl border border-[#E7E8E1] bg-[#F7F6F0] p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="peer-card-glass peer-card-glow-gold rounded-2xl border border-[rgba(91,112,96,0.18)] p-5 sm:p-6 transition-all hover:-translate-y-0.5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#525A55] border border-[#E7E8E1]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FBF0DC] text-[#9A6A24] border border-[#9A6A24]/15">
                       <Briefcase className="h-5 w-5" />
                     </div>
                     <div>
@@ -91,13 +92,13 @@ export function SignUpPage() {
                   <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                     <Link
                       to="/signin?role=client"
-                      className="rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#171916] hover:bg-gray-50 transition-colors"
+                      className="rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#171916] hover:bg-gray-50 transition-colors shadow-2xs"
                     >
                       Client Sign In
                     </Link>
                     <Link
                       to="/signin?role=client&mode=register"
-                      className="rounded-full bg-[#123D30] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0E3127] transition-colors"
+                      className="rounded-full bg-[#123D30] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0E3127] transition-colors shadow-2xs"
                     >
                       Register Company
                     </Link>
@@ -107,7 +108,7 @@ export function SignUpPage() {
             </div>
 
             {/* Existing User & Legal Links */}
-            <div className="border-t border-[#E7E8E1] pt-6 space-y-3">
+            <div className="peer-divider-fade-t pt-6 space-y-3">
               <p className="text-sm text-[#525A55]">
                 Already have a PeerConnect account?{' '}
                 <Link
@@ -131,16 +132,20 @@ export function SignUpPage() {
             </div>
           </div>
 
-          {/* Right Column: Visual Narrative Showcase */}
+          {/* Right Column: Visual Narrative Showcase matching How It Works / Dark CTA */}
           <div className="lg:col-span-6">
-            <div className="relative overflow-hidden rounded-3xl border border-[#E7E8E1] bg-gradient-to-br from-[#123D30] to-[#0A261D] p-8 text-white shadow-xl sm:p-10">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-[#08C58A]">
+            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-[#123D30] via-[#0E362A] to-[#0A261D] p-8 text-white shadow-2xl sm:p-10">
+              {/* Internal glow orb and grid */}
+              <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[#08C58A]/20 blur-[80px]" />
+              <div className="pointer-events-none absolute inset-0 bg-grid-pattern-dark opacity-20 -z-0" />
+
+              <div className="relative z-10 space-y-6">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-[#08C58A] backdrop-blur-xs">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   India's Dedicated Student Talent Network
                 </div>
 
-                <h2 className="text-2xl font-black sm:text-3xl">
+                <h2 className="text-2xl font-black sm:text-3xl leading-snug">
                   More than just a profile. An ecosystem built for ambition.
                 </h2>
 
@@ -148,9 +153,9 @@ export function SignUpPage() {
                   Connect your campus presence with genuine work, collaborative hackathon squads, and industry projects.
                 </p>
 
-                {/* Feature highlights */}
+                {/* Feature highlights with glassmorphic cards */}
                 <div className="space-y-3 pt-2">
-                  <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-xs border border-white/10">
+                  <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
                     <Compass className="h-5 w-5 shrink-0 text-[#08C58A]" />
                     <div>
                       <h4 className="text-xs font-bold text-white">12 Interest Communities</h4>
@@ -160,7 +165,7 @@ export function SignUpPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-xs border border-white/10">
+                  <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
                     <Trophy className="h-5 w-5 shrink-0 text-[#08C58A]" />
                     <div>
                       <h4 className="text-xs font-bold text-white">AI Team Finder & Matchmaker</h4>
@@ -170,7 +175,7 @@ export function SignUpPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-xs border border-white/10">
+                  <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-[#08C58A]" />
                     <div>
                       <h4 className="text-xs font-bold text-white">Campus-Verified Credibility</h4>
@@ -183,7 +188,7 @@ export function SignUpPage() {
 
                 <div className="pt-2">
                   <Link to="/signup/student">
-                    <Button variant="primary" size="lg" className="w-full">
+                    <Button variant="primary" size="lg" className="w-full shadow-md">
                       Start Student Registration
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>

@@ -263,10 +263,16 @@ export function SignInPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#FAF8F5] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-6">
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/3 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/2 -translate-x-1/2 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Role Selector Tabs */}
-        <div className="grid grid-cols-2 rounded-2xl bg-[#E7E8E1]/60 p-1.5 shadow-2xs">
+        <div className="grid grid-cols-2 rounded-2xl bg-white/70 backdrop-blur-md border border-[rgba(91,112,96,0.18)] p-1.5 shadow-2xs">
           <button
             type="button"
             onClick={() => handleRoleChange('student')}
@@ -295,6 +301,11 @@ export function SignInPage() {
 
         {/* Header */}
         <div className="text-center">
+          <div className="peer-eyebrow-pill mb-3 inline-flex">
+            <span className="dot" aria-hidden="true" />
+            {role === 'client' ? 'EMPLOYER WORKSPACE' : 'STUDENT NETWORK'}
+          </div>
+
           <div
             className={`mx-auto flex h-12 w-12 items-center justify-center rounded-2xl shadow-xs transition-colors ${
               role === 'client'
@@ -329,7 +340,7 @@ export function SignInPage() {
         {role === 'student' && (
           <>
             {/* Demo Fast Login Banner */}
-            <div className="rounded-2xl border border-[#08C58A]/30 bg-[#E3F4EB]/40 p-4 text-xs">
+            <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-br from-[#E3F4EB]/80 to-white/90 backdrop-blur-xs p-4 text-xs shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-[#123D30]">Quick Demo Access:</span>
                 <span className="text-[10px] text-[#08A876] font-semibold">Ready-to-test</span>
@@ -349,7 +360,7 @@ export function SignInPage() {
             {/* Student Form Card */}
             <form
               onSubmit={handleStudentSubmit}
-              className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-sm space-y-4"
+              className="peer-card-glass peer-card-glow-mint p-6 sm:p-7 space-y-4 shadow-xl"
             >
               {error && (
                 <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
@@ -492,7 +503,7 @@ export function SignInPage() {
         {role === 'client' && (
           <>
             {/* Client Mode Switcher (Sign In vs Register) */}
-            <div className="flex border-b border-[#E7E8E1] pb-1 text-xs">
+            <div className="flex peer-divider-fade pb-1 text-xs">
               <button
                 type="button"
                 onClick={() => handleClientModeChange('signin')}
@@ -519,7 +530,7 @@ export function SignInPage() {
 
             {/* Quick Demo Access for Client */}
             {clientMode === 'signin' && (
-              <div className="rounded-2xl border border-[#08C58A]/30 bg-[#E3F4EB]/40 p-4 text-xs">
+              <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-br from-[#E3F4EB]/80 to-white/90 backdrop-blur-xs p-4 text-xs shadow-2xs">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-[#123D30]">Quick Demo Client Access:</span>
                   <span className="text-[10px] text-[#08A876] font-semibold">Ready-to-test</span>
@@ -541,7 +552,7 @@ export function SignInPage() {
             {clientMode === 'signin' && (
               <form
                 onSubmit={handleClientSignIn}
-                className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-sm space-y-4"
+                className="peer-card-glass peer-card-glow-gold p-6 sm:p-7 space-y-4 shadow-xl"
               >
                 {error && (
                   <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
@@ -689,7 +700,7 @@ export function SignInPage() {
             {clientMode === 'register' && (
               <form
                 onSubmit={handleClientRegister}
-                className="rounded-2xl border border-[#E7E8E1] bg-white p-6 shadow-sm space-y-4"
+                className="peer-card-glass peer-card-glow-gold p-6 sm:p-7 space-y-4 shadow-xl"
               >
                 {error && (
                   <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">

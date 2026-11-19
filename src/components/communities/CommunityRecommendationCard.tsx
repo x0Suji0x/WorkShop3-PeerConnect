@@ -18,7 +18,7 @@ export function CommunityRecommendationCard({
   const { community, reason, matchScore, matchedSkills } = recommendation
 
   return (
-    <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#08C58A]/30 bg-gradient-to-b from-[#E3F4EB]/40 to-white p-5 shadow-[0_4px_18px_rgba(8,197,138,0.06)] transition-all hover:border-[#08C58A] hover:shadow-[0_8px_24px_rgba(8,197,138,0.12)]">
+    <div className="peer-card-glass peer-card-glow-mint relative flex flex-col justify-between overflow-hidden p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div>
         {/* Top bar with logo and match score */}
         <div className="flex items-start justify-between gap-3">
@@ -49,7 +49,7 @@ export function CommunityRecommendationCard({
         </div>
 
         {/* AI Explanation */}
-        <div className="mt-3 rounded-xl bg-white/80 p-3 border border-[#E7E8E1]/80 text-xs leading-relaxed text-[#171916]">
+        <div className="mt-3 rounded-xl bg-white/90 p-3 border border-[rgba(91,112,96,0.14)] text-xs leading-relaxed text-[#171916] shadow-xs">
           <span className="font-semibold text-[#123D30]">Why for you: </span>
           <span className="text-[#525A55]">{reason}</span>
         </div>
@@ -71,7 +71,7 @@ export function CommunityRecommendationCard({
       </div>
 
       {/* Action buttons */}
-      <div className="mt-4 flex items-center justify-between border-t border-[#E7E8E1]/60 pt-3">
+      <div className="mt-4 flex items-center justify-between peer-divider-fade-t pt-3">
         <Link
           to={communityDetailRoute(community.slug)}
           className="inline-flex items-center gap-1 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"

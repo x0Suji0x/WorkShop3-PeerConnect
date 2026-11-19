@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react'
 import type {
   OnboardingStep,
   OnboardingFormData,
@@ -427,8 +427,14 @@ export function StudentOnboardingPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#FAF8F5] pb-16 pt-8">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden pb-16 pt-8">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/3 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/2 -translate-x-1/2 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {/* Top return link & header */}
         <div className="flex items-center justify-between pb-6">
           <Link
@@ -438,14 +444,14 @@ export function StudentOnboardingPage() {
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Sign Up
           </Link>
-          <div className="flex items-center gap-1.5 text-xs text-[#777A72]">
-            <ShieldCheck className="h-4 w-4 text-[#08C58A]" />
-            <span>Secure Student Onboarding</span>
+          <div className="peer-eyebrow-pill">
+            <span className="dot" aria-hidden="true" />
+            STUDENT ONBOARDING
           </div>
         </div>
 
         {/* Stepper Progress Bar */}
-        <div className="mb-6 rounded-2xl border border-[#E7E8E1] bg-white p-4.5 shadow-2xs">
+        <div className="mb-6 peer-card-glass p-5 shadow-sm">
           <OnboardingProgress
             currentStep={currentStep}
             onStepClick={(step) => setCurrentStep(step)}
@@ -476,7 +482,7 @@ export function StudentOnboardingPage() {
         )}
 
         {/* Wizard Form Container */}
-        <div className="rounded-3xl border border-[#E7E8E1] bg-white p-6 shadow-sm sm:p-10">
+        <div className="peer-card-glass peer-card-glow-mint p-6 shadow-xl sm:p-10">
           {currentStep === 1 && (
             <Step1BasicInfo
               data={formData.basicInfo}
@@ -529,7 +535,7 @@ export function StudentOnboardingPage() {
           )}
 
           {/* Form Actions (Back / Next / Skip / Submit) */}
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#F2F1EA] pt-6">
+          <div className="mt-10 flex flex-wrap items-center justify-between gap-3 peer-divider-fade-t pt-6">
             <div>
               {currentStep > 1 && (
                 <button

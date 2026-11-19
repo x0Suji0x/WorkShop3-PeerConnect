@@ -4,7 +4,9 @@ import { routes } from '../../app/routes'
 
 export function Footer() {
   return (
-    <footer className="w-full bg-[#F7F6F0] border-t border-[#E7E8E1] text-[#777A72] text-sm transition-colors">
+    <footer className="w-full relative bg-[#FAF8F5] text-[#777A72] text-sm transition-colors">
+      <div className="peer-footer-fade-line" />
+      <div className="peer-footer-fade-glow" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12 mb-12">
@@ -106,7 +108,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-[#E7E8E1] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#777A72]">
+        <div className="pt-8 peer-divider-fade-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#777A72]">
           <p>© 2026 PeerConnect. Educational open-source prototype.</p>
           <div className="flex items-center gap-6">
             <Link to={routes.home} className="hover:text-[#08C58A] transition-colors">

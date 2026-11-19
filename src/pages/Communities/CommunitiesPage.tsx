@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Sparkles, Users, Compass, CheckCircle2 } from 'lucide-react'
+import { Sparkles, Users, CheckCircle2 } from 'lucide-react'
 import { communities, communityCategories } from '../../data/communityMockData'
 import { demoStudent } from '../../data/studentMockData'
 import { recommendCommunities } from '../../lib/recommendationEngine'
@@ -48,44 +48,47 @@ export function CommunitiesPage() {
   }, [searchQuery, selectedCategory])
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Top Page Heading */}
-      <div className="flex flex-col gap-4 border-b border-[#E7E8E1] pb-7 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#E3F4EB] text-[#08C58A]">
-              <Compass className="h-3.5 w-3.5" />
-            </span>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">
-              Student Communities
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden pb-16">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Top Page Heading */}
+        <div className="flex flex-col gap-4 peer-divider-fade pb-7 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl space-y-2">
+            <div className="peer-eyebrow-pill mb-1">
+              <span className="dot" aria-hidden="true" />
+              STUDENT COMMUNITIES
+            </div>
+            <h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
+              Find your people. Build together.
+            </h1>
+            <p className="text-sm leading-relaxed text-[#525A55] sm:text-base">
+              Discover peer circles across engineering, design, AI, and entrepreneurship. Share knowledge,
+              collaborate on hackathons, and expand your campus network.
             </p>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
-            Find your people. Build together.
-          </h1>
-          <p className="text-sm leading-relaxed text-[#525A55] sm:text-base">
-            Discover peer circles across engineering, design, AI, and entrepreneurship. Share knowledge,
-            collaborate on hackathons, and expand your campus network.
-          </p>
-        </div>
 
-        <div className="flex shrink-0 items-center gap-3">
-          <Link
-            to="/my-communities"
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#E7E8E1] bg-white px-4 py-2 text-xs font-bold text-[#171916] shadow-2xs transition-all hover:border-[#171916]"
-          >
-            <CheckCircle2 className="h-3.5 w-3.5 text-[#08C58A]" />
-            My Communities ({joinedCommunityIds.length})
-          </Link>
-          <Link
-            to="/team-finder"
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#171916] px-4 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#2A2E28]"
-          >
-            <Users className="h-3.5 w-3.5" />
-            Explore Teams
-          </Link>
+          <div className="flex shrink-0 items-center gap-3">
+            <Link
+              to="/my-communities"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(91,112,96,0.18)] bg-white/80 backdrop-blur-xs px-4 py-2 text-xs font-bold text-[#171916] shadow-2xs transition-all hover:border-[#171916]"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5 text-[#08C58A]" />
+              My Communities ({joinedCommunityIds.length})
+            </Link>
+            <Link
+              to="/team-finder"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#123D30] px-4 py-2 text-xs font-bold text-white shadow-2xs transition-all hover:bg-[#0E3127]"
+            >
+              <Users className="h-3.5 w-3.5 text-[#08C58A]" />
+              Explore Teams
+            </Link>
+          </div>
         </div>
-      </div>
 
       {/* AI Recommendations Section */}
       {recommendations.length > 0 && (
@@ -197,6 +200,7 @@ export function CommunitiesPage() {
           )}
         </div>
       </section>
+      </div>
     </div>
   )
 }

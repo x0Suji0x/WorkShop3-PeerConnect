@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Users, Plus, Sparkles, Filter } from 'lucide-react'
+import { Plus, Sparkles, Filter } from 'lucide-react'
 import { teamPosts } from '../../data/teamFinderMockData'
 import { communityRoutes } from '../../app/routes'
 import { TeamPostCard } from '../../components/teamfinder/TeamPostCard'
@@ -50,44 +50,45 @@ export function TeamFinderPage() {
   }, [searchQuery, selectedCategory, selectedCollabType, statusFilter])
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex flex-col gap-4 border-b border-[#E7E8E1] pb-7 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#E3F4EB] text-[#08C58A]">
-              <Users className="h-3.5 w-3.5" />
-            </span>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden pb-16">
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 peer-divider-fade pb-7 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl space-y-2">
+            <div className="peer-eyebrow-pill">
               Team Finder & Collaboration
+            </div>
+            <h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
+              Find teammates for your next breakthrough.
+            </h1>
+            <p className="text-sm leading-relaxed text-[#525A55] sm:text-base">
+              Form high-performing student squads for hackathons, research papers, campus capstones, and venture prototypes.
             </p>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
-            Find teammates for your next breakthrough.
-          </h1>
-          <p className="text-sm leading-relaxed text-[#525A55] sm:text-base">
-            Form high-performing student squads for hackathons, research papers, campus capstones, and venture prototypes.
-          </p>
-        </div>
 
-        {/* Action buttons */}
-        <div className="flex shrink-0 flex-wrap items-center gap-2.5">
-          <Link
-            to={communityRoutes.teamBuilder}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#08C58A] bg-[#E3F4EB]/50 px-4 py-2.5 text-xs font-bold text-[#123D30] transition-colors hover:bg-[#E3F4EB]"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-[#08C58A]" />
-            AI Team Builder
-          </Link>
-          <Link
-            to={communityRoutes.newTeam}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#171916] px-5 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-[#2A2E28] transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Create Collaboration
-          </Link>
+          {/* Action buttons */}
+          <div className="flex shrink-0 flex-wrap items-center gap-2.5">
+            <Link
+              to={communityRoutes.teamBuilder}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#08C58A]/50 bg-white/80 backdrop-blur-md px-4 py-2.5 text-xs font-bold text-[#123D30] transition-all hover:bg-[#E3F4EB] hover:shadow-sm"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-[#08C58A]" />
+              AI Team Builder
+            </Link>
+            <Link
+              to={communityRoutes.newTeam}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#171916] px-5 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-[#2A2E28] transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Create Collaboration
+            </Link>
+          </div>
         </div>
-      </div>
 
       {/* Filter and Search Bar */}
       <div className="mt-8 space-y-4">
@@ -122,7 +123,7 @@ export function TeamFinderPage() {
         </div>
 
         {/* Category Pills & Collab Format */}
-        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between border-y border-[#E7E8E1] py-3">
+        <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between peer-divider-fade peer-divider-fade-t py-3">
           {/* Categories */}
           <div className="flex flex-wrap items-center gap-1.5">
             <Filter className="h-3.5 w-3.5 text-[#777A72] mr-1 hidden sm:block" />
@@ -190,6 +191,7 @@ export function TeamFinderPage() {
             }
           />
         )}
+      </div>
       </div>
     </div>
   )

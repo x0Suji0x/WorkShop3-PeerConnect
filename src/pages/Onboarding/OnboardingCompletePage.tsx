@@ -9,7 +9,6 @@ import {
 import { routes, communityRoutes, profileRoute } from '../../app/routes'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
 import { calculateProfileCompletion } from '../../lib/profileCompletion'
-import { Badge } from '../../components/common/Badge'
 
 export function OnboardingCompletePage() {
   const { student } = useStudentProfile()
@@ -18,10 +17,16 @@ export function OnboardingCompletePage() {
   const firstName = student.name.split(' ')[0] || 'Student'
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#FAF8F5] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-2xl space-y-8 text-center">
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      {/* Ambient lighting glows identical to home page */}
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/3 -right-24 h-96 w-96" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/2 -translate-x-1/2 h-96 w-96" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
+
+      <div className="relative z-10 w-full max-w-2xl space-y-8 text-center">
         {/* Celebration Emblem */}
-        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#123D30] text-[#08C58A] shadow-lg">
+        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#123D30] text-[#08C58A] shadow-xl">
           <CheckCircle2 className="h-10 w-10 stroke-[2.5]" />
           <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#08C58A] text-[#0A261D] text-xs font-bold animate-bounce">
             ✨
@@ -30,20 +35,21 @@ export function OnboardingCompletePage() {
 
         {/* Headings */}
         <div className="space-y-2">
-          <Badge variant="green" size="md" className="font-bold">
-            Registration Completed Successfully
-          </Badge>
+          <div className="peer-eyebrow-pill mb-2">
+            <span className="dot" aria-hidden="true" />
+            REGISTRATION COMPLETE
+          </div>
           <h1 className="text-3xl font-black text-[#171916] sm:text-4xl">
             Welcome to PeerConnect, {firstName}!
           </h1>
           <p className="text-base text-[#525A55] max-w-lg mx-auto font-medium">
-            "Welcome to PeerConnect! Let's build something meaningful."
+            "Welcome to PeerConnect! Let's build something <em className="font-serif italic font-normal text-[#16845f]">meaningful.</em>"
           </p>
         </div>
 
         {/* Profile Completion Analysis Card */}
-        <div className="rounded-3xl border border-[#E7E8E1] bg-white p-6 sm:p-8 text-left shadow-sm space-y-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#F2F1EA] pb-5">
+        <div className="peer-card-glass peer-card-glow-mint p-6 sm:p-8 text-left shadow-xl space-y-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between peer-divider-fade pb-5">
             <div>
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-[#08C58A]" />

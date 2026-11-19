@@ -575,3 +575,279 @@ header[data-over-hero="true"] { background: transparent; border-color: transpare
   .about-feature-card { opacity: 1 !important; visibility: visible !important; transform: none !important; transition: none !important; }
   .about-feature-shell { translate: none !important; animation: none !important; }
 }
+
+/* ============================================================== */
+/* PEERCONNECT UNIFIED ATMOSPHERIC DESIGN SYSTEM                  */
+/* Consistent ambient surfaces, glow orbs, and editorial cards   */
+/* ============================================================== */
+
+/* Shared atmospheric surface identical to Home page */
+.peer-page-surface {
+  background-color: #faf8f5;
+  background-image:
+    radial-gradient(ellipse 92vw 112vh at 0% 28%, rgba(241, 190, 112, 0.22) 0%, transparent 78%),
+    radial-gradient(ellipse 92vw 112vh at 100% 48%, rgba(211, 157, 173, 0.20) 0%, transparent 78%),
+    radial-gradient(ellipse 85vw 80vh at 50% 92%, rgba(8, 197, 138, 0.12) 0%, transparent 75%);
+  background-attachment: fixed, fixed, fixed;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: calc(100vh - 80px);
+}
+
+/* Soft top and bottom edge feathering so page colors blend seamlessly into navbar and footer */
+.peer-page-surface::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: linear-gradient(180deg, #faf8f5 0%, rgba(250, 248, 245, 0.5) 45%, transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.peer-page-surface::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background: linear-gradient(0deg, #faf8f5 0%, rgba(250, 248, 245, 0.6) 45%, transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Ambient lighting orb layers for page backgrounds */
+.peer-ambient-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(100px);
+  z-index: 0;
+}
+
+.peer-glow-gold {
+  background: radial-gradient(circle, rgba(241, 185, 100, 0.28) 0%, rgba(241, 185, 100, 0.08) 60%, transparent 80%);
+}
+
+.peer-glow-rose {
+  background: radial-gradient(circle, rgba(216, 147, 163, 0.25) 0%, rgba(216, 147, 163, 0.07) 60%, transparent 80%);
+}
+
+.peer-glow-mint {
+  background: radial-gradient(circle, rgba(8, 197, 138, 0.18) 0%, rgba(8, 197, 138, 0.05) 60%, transparent 80%);
+}
+
+/* Editorial Glass Card matching the About Feature Cards below hero */
+.peer-card-glass {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(91, 112, 96, 0.16);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255, 255, 252, 0.95), rgba(255, 252, 247, 0.85));
+  box-shadow: 0 12px 34px rgba(66, 53, 40, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 240ms cubic-bezier(0.2, 0.75, 0.25, 1), border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.peer-card-glass:hover {
+  border-color: rgba(23, 107, 76, 0.32);
+  box-shadow: 0 18px 40px rgba(66, 53, 40, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.98);
+}
+
+/* Subtle corner glows in cards */
+.peer-card-glow-mint::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  right: -30px;
+  bottom: -30px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(8, 168, 117, 0.14);
+  filter: blur(36px);
+  pointer-events: none;
+}
+
+.peer-card-glow-gold::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  right: -30px;
+  bottom: -30px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(232, 180, 91, 0.17);
+  filter: blur(36px);
+  pointer-events: none;
+}
+
+.peer-card-glow-rose::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  right: -30px;
+  bottom: -30px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: rgba(206, 145, 160, 0.17);
+  filter: blur(36px);
+  pointer-events: none;
+}
+
+/* Signature Editorial Pill Eyebrow */
+.peer-eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(23, 107, 76, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #315448;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.peer-eyebrow-pill span.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #08a875;
+}
+
+/* ============================================================== */
+/* Atmospheric Faded Divider Lines that merge smoothly into color */
+/* ============================================================== */
+
+.peer-navbar-fade-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 12%,
+    rgba(241, 190, 112, 0.16) 28%,
+    rgba(8, 197, 138, 0.13) 50%,
+    rgba(211, 157, 173, 0.16) 72%,
+    transparent 88%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+.peer-navbar-fade-glow {
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(241, 190, 112, 0.04) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.peer-footer-fade-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 12%,
+    rgba(241, 190, 112, 0.16) 28%,
+    rgba(8, 197, 138, 0.13) 50%,
+    rgba(211, 157, 173, 0.16) 72%,
+    transparent 88%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 20;
+}
+
+.peer-footer-fade-glow {
+  position: absolute;
+  top: -16px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(
+    0deg,
+    rgba(8, 197, 138, 0.04) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Replaces harsh border-b with a gradient line that fades out at both ends */
+.peer-divider-fade {
+  position: relative;
+  border-bottom: none !important;
+}
+
+.peer-divider-fade::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 12%,
+    rgba(241, 190, 112, 0.16) 28%,
+    rgba(8, 197, 138, 0.13) 50%,
+    rgba(211, 157, 173, 0.16) 72%,
+    transparent 88%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Replaces harsh border-t with a gradient line that fades out at both ends */
+.peer-divider-fade-t {
+  position: relative;
+  border-top: none !important;
+}
+
+.peer-divider-fade-t::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 12%,
+    rgba(241, 190, 112, 0.16) 28%,
+    rgba(8, 197, 138, 0.13) 50%,
+    rgba(211, 157, 173, 0.16) 72%,
+    transparent 88%,
+    transparent 100%
+  );
+  pointer-events: none;
+}

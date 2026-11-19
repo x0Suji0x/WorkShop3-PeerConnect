@@ -41,12 +41,11 @@ export function ClubDirectoryPage({
   }, [search, category, selectedCollege, recruitFilter])
 
   return (
-    <section className="min-h-screen bg-[#FAF8F5] py-10 sm:py-16">
+    <section className="min-h-screen bg-transparent py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E3F4EB] border border-[#08C58A]/30 text-[#123D30] text-xs font-bold tracking-wider uppercase mb-3">
-            <span className="w-2 h-2 rounded-full bg-[#08C58A] animate-pulse" />
+          <div className="peer-eyebrow-pill mb-3">
             Club Directory
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#171916] leading-tight tracking-tight mb-3">
@@ -232,7 +231,7 @@ function ClubCard({
   }
 
   return (
-    <article className="bg-white rounded-3xl border border-[#E7E8E1] overflow-hidden hover:border-[#08C58A]/50 hover:shadow-[0_8px_32px_rgba(23,25,22,0.08)] transition-all duration-300 group flex flex-col">
+    <article className="peer-card-glass overflow-hidden hover:border-[#08C58A]/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
       {/* Cover Header */}
       <div className="relative h-36 overflow-hidden bg-[#F7F6F0]">
         <img

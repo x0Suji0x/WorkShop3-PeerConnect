@@ -26,8 +26,8 @@ export function CommunityCard({ community, isJoined = false, onJoinToggle }: Com
   }
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E7E8E1] bg-white p-5 shadow-[0_4px_18px_rgba(23,25,22,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#08C58A]/50 hover:shadow-[0_8px_24px_rgba(23,25,22,0.08)]">
-      <div>
+    <div className="peer-card-glass group relative flex flex-col justify-between p-5 hover:-translate-y-1 transition-all duration-200">
+      <div className="relative z-10">
         {/* Header with emoji logo and activity badge */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F7F6F0] text-3xl shadow-inner border border-[#E7E8E1] transition-transform group-hover:scale-105">
@@ -73,7 +73,7 @@ export function CommunityCard({ community, isJoined = false, onJoinToggle }: Com
       </div>
 
       {/* Footer with stats and Join toggle */}
-      <div className="mt-5 flex items-center justify-between border-t border-[#F2F1EA] pt-4">
+      <div className="mt-5 flex items-center justify-between peer-divider-fade-t pt-4">
         <div className="flex items-center gap-3 text-xs font-medium text-[#777A72]">
           <span className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5 text-[#525A55]" />

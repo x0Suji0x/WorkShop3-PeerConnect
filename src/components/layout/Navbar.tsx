@@ -37,8 +37,10 @@ export function Navbar() {
   return (
     <header
       data-over-hero={isHome && overHero}
-      className="sticky top-0 z-50 w-full border-b border-[#E7E8E1] bg-[#FAF8F5]/90 backdrop-blur-md transition-colors"
+      className="sticky top-0 z-50 w-full bg-[#FAF8F5]/85 backdrop-blur-md transition-colors relative"
     >
+      <div className="peer-navbar-fade-line" />
+      <div className="peer-navbar-fade-glow" />
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to={routes.home} onClick={closeMenu} className="group flex items-center gap-2.5 select-none">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#123D30] text-[#08C58A] shadow-2xs transition-transform group-hover:scale-105">
@@ -111,7 +113,7 @@ export function Navbar() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="border-b border-[#E7E8E1] bg-[#FAF8F5]/98 px-4 pb-6 pt-3 shadow-lg backdrop-blur-lg lg:hidden">
+        <div className="peer-divider-fade bg-[#FAF8F5]/98 px-4 pb-6 pt-3 shadow-lg backdrop-blur-lg lg:hidden">
           <nav className="flex flex-col gap-1 text-base font-semibold text-[#171916]">
             {isHome ? (
               homeLinks.map((link) => (
@@ -134,7 +136,7 @@ export function Navbar() {
               ))
             )}
           </nav>
-          <div className="mt-3 border-t border-[#E7E8E1] pt-3">
+          <div className="mt-3 peer-divider-fade-t pt-3">
             <Link
               to={isHome ? routes.dashboard : routes.home}
               onClick={closeMenu}

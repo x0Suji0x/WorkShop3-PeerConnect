@@ -84,61 +84,76 @@ export function NewTeamPage() {
 
   if (isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E3F4EB] text-[#08C58A]">
-          <CheckCircle2 className="h-8 w-8" />
-        </div>
-        <h1 className="mt-5 text-2xl font-black text-[#171916]">
-          Collaboration Post Created!
-        </h1>
-        <p className="mt-2 text-sm text-[#525A55] leading-relaxed">
-          Your project <strong>"{title}"</strong> has been published to the student network. Peers
-          can now discover your opportunity and apply to join your squad.
-        </p>
+      <div className="peer-page-surface min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-16 text-center relative overflow-hidden">
+        <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96 pointer-events-none" />
+        <div className="peer-ambient-glow peer-glow-mint top-1/3 -right-24 h-96 w-96 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link
-            to={communityRoutes.teamFinder}
-            className="rounded-full bg-[#171916] px-6 py-2.5 text-xs font-bold text-white hover:bg-[#2A2E28]"
-          >
-            Return to Team Finder
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setIsSubmitted(false)
-              setTitle('')
-              setDescription('')
-            }}
-            className="rounded-full border border-[#E7E8E1] bg-white px-6 py-2.5 text-xs font-bold text-[#171916] hover:bg-[#F7F6F0]"
-          >
-            Post Another Opportunity
-          </button>
+        <div className="peer-card-glass relative z-10 mx-auto max-w-lg p-8 sm:p-10 shadow-lg">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E3F4EB] text-[#08C58A]">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <h1 className="mt-5 text-2xl font-black text-[#171916]">
+            Collaboration Post Created!
+          </h1>
+          <p className="mt-2 text-sm text-[#525A55] leading-relaxed">
+            Your project <strong>"{title}"</strong> has been published to the student network. Peers
+            can now discover your opportunity and apply to join your squad.
+          </p>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link
+              to={communityRoutes.teamFinder}
+              className="rounded-full bg-[#171916] px-6 py-2.5 text-xs font-bold text-white hover:bg-[#2A2E28]"
+            >
+              Return to Team Finder
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSubmitted(false)
+                setTitle('')
+                setDescription('')
+              }}
+              className="rounded-full border border-[#E7E8E1] bg-white px-6 py-2.5 text-xs font-bold text-[#171916] hover:bg-[#F7F6F0]"
+            >
+              Post Another Opportunity
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link
-        to={communityRoutes.teamFinder}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to Team Finder
-      </Link>
+    <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden pb-16">
+      <div className="peer-ambient-glow peer-glow-gold -top-24 -left-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-rose top-1/4 -right-24 h-96 w-96 pointer-events-none" />
+      <div className="peer-ambient-glow peer-glow-mint -bottom-24 left-1/3 h-96 w-96 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-30 -z-0" />
 
-      <div className="mt-4 border-b border-[#E7E8E1] pb-6">
-        <h1 className="text-2xl font-black text-[#171916] sm:text-3xl">
-          Create a Collaboration Post
-        </h1>
-        <p className="mt-1 text-xs text-[#525A55] sm:text-sm">
-          Recruit skilled teammates for hackathons, capstones, startups, and open-source packages.
-        </p>
-      </div>
+      <div className="relative z-10 mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <Link
+          to={communityRoutes.teamFinder}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#08A876] transition-colors hover:text-[#06805a]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Team Finder
+        </Link>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+        <div className="mt-4 peer-divider-fade pb-6">
+          <div className="peer-eyebrow-pill">
+            New Squad Call
+          </div>
+          <h1 className="text-2xl font-black text-[#171916] sm:text-3xl">
+            Create a Collaboration Post
+          </h1>
+          <p className="mt-1 text-xs text-[#525A55] sm:text-sm">
+            Recruit skilled teammates for hackathons, capstones, startups, and open-source packages.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="peer-card-glass mt-6 p-6 sm:p-8 space-y-6">
         {/* Project Name and Category */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div>
@@ -329,7 +344,7 @@ export function NewTeamPage() {
         </div>
 
         {/* Submit Bar */}
-        <div className="flex items-center justify-end gap-3 border-t border-[#E7E8E1] pt-4">
+        <div className="flex items-center justify-end gap-3 peer-divider-fade-t pt-4">
           <button
             type="button"
             onClick={() => navigate(communityRoutes.teamFinder)}
@@ -342,6 +357,7 @@ export function NewTeamPage() {
           </Button>
         </div>
       </form>
+      </div>
     </div>
   )
 }

@@ -42,7 +42,7 @@ export function TeamPostCard({ post }: TeamPostCardProps) {
   const openRolesCount = post.roles.filter((r) => !r.filled).length
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E7E8E1] bg-white p-5 shadow-[0_4px_18px_rgba(23,25,22,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#08C58A]/50 hover:shadow-[0_8px_24px_rgba(23,25,22,0.08)]">
+    <div className="peer-card-glass p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg group relative flex flex-col justify-between overflow-hidden">
       <div>
         {/* Top badges: category, collab type, status */}
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -133,7 +133,7 @@ export function TeamPostCard({ post }: TeamPostCardProps) {
       </div>
 
       {/* Footer: team member avatars, deadline, CTA */}
-      <div className="mt-5 flex items-center justify-between border-t border-[#F2F1EA] pt-3.5">
+      <div className="mt-5 flex items-center justify-between peer-divider-fade-t pt-3.5">
         <div className="flex items-center gap-3">
           {/* Stacked avatars of current members */}
           <div className="flex items-center -space-x-2">
