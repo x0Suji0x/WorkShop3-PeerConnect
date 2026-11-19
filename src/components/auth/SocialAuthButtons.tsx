@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '../../app/routes'
 import { useAuth } from '../../hooks/useAuth'
@@ -17,17 +17,31 @@ export function SocialAuthButtons({
   onSuccess,
 }: SocialAuthButtonsProps) {
   const navigate = useNavigate()
-  const { loginWithGithub } = useAuth()
+  const { loginWithGithub, refreshUser } = useAuth()
   const [googleModalOpen, setGoogleModalOpen] = useState(false)
   const [isGithubLoading, setIsGithubLoading] = useState(false)
 
-  const handleGoogleSuccess = (userRole: 'student' | 'client', user?: AuthUser) => {
+  const handleGoogleSuccess = useCallback((userRole: 'student' | 'client', user?: AuthUser) => {
     if (onSuccess && user) {
       onSuccess(user)
     } else {
       navigate(`${routes.dashboard}?role=${userRole}`)
     }
-  }
+  }, [navigate, onSuccess])
+
+  // Listen for messages from standalone Google popup window
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return
+      if (event.data?.type === 'GOOGLE_SIGNIN_SUCCESS' && event.data?.user) {
+        void refreshUser?.()
+        handleGoogleSuccess(event.data.role || role, event.data.user)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [role, handleGoogleSuccess, refreshUser])
 
   const handleGithubClick = async () => {
     setIsGithubLoading(true)
