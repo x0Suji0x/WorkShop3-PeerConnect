@@ -1,5 +1,5 @@
-import { ArrowLeft, CheckCircle2, Clock3, MapPin, Send, Wallet, ExternalLink } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, CheckCircle2, Clock3, MapPin, Send, Wallet, ExternalLink, Loader2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
@@ -10,18 +10,110 @@ import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { marketplaceProjects } from '../../data/projectMarketplaceMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
 import { getStoredApplications, saveApplication } from '../../lib/applicationStorage'
+import type { Project } from '../../types'
 
 const formatBudget = (budget: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(
     budget
   )
 
+interface BackendProjectDetailRaw {
+  id: string
+  title: string
+  clientName?: string
+  clientType?: string
+  clientLocation?: string
+  budget?: number
+  budgetType?: 'Fixed Escrow' | 'Milestone Escrow' | 'Hourly'
+  duration?: string
+  hoursPerWeek?: string
+  description?: string
+  skillsRequired?: string[]
+  badge?: 'High Urgency' | 'Featured' | 'New' | 'Verified Client'
+  applicantsCount?: number
+  postedTimeAgo?: string
+  category?: string
+  workMode?: 'Remote' | 'Hybrid' | 'On-site'
+  deliverables?: string[]
+  clientId?: string
+  createdAt?: string
+}
+
 export function ProjectDetailPage() {
   const { projectId } = useParams()
   const { student } = useStudentProfile()
-  const project = marketplaceProjects.find((item) => item.id === projectId)
+  const initialProject = useMemo(
+    () => marketplaceProjects.find((item) => item.id === projectId) || null,
+    [projectId]
+  )
+  const [apiProject, setApiProject] = useState<Project | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(!initialProject)
   const [isApplying, setIsApplying] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+
+  const project = apiProject || initialProject
+
+  useEffect(() => {
+    if (!projectId) return
+
+    let isMounted = true
+    fetch(`/api/projects/${projectId}`)
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = (await res.json()) as { project?: BackendProjectDetailRaw }
+        if (isMounted && data.project) {
+          const p = data.project
+          setApiProject({
+            id: p.id,
+            title: p.title,
+            clientId: p.clientId || 'client-api',
+            clientName: p.clientName || 'Apex Studio & Labs',
+            clientType: p.clientType || 'Verified Employer',
+            clientLocation: p.clientLocation || 'Remote Scope',
+            budget: Number(p.budget) || 50000,
+            budgetType: p.budgetType || 'Milestone Escrow',
+            duration: p.duration || '3-4 Weeks',
+            hoursPerWeek: p.hoursPerWeek || '15-20 hrs/wk',
+            description: p.description || '',
+            skillsRequired: Array.isArray(p.skillsRequired) ? p.skillsRequired : [],
+            badge: p.badge || 'New',
+            applicantsCount: p.applicantsCount || 0,
+            postedTimeAgo: p.postedTimeAgo || 'Just now',
+            status: 'open',
+            createdAt: p.createdAt || new Date().toISOString(),
+            category: p.category || 'Design & development',
+            workMode: p.workMode || (p.clientLocation?.includes('Campus') ? 'Hybrid' : 'Remote'),
+            clientVerified: true,
+            deliverables: p.deliverables || [
+              'Initial scope discovery & milestone plan',
+              'Sprint deliverables with clean code and tests',
+              'Code walkthrough and project documentation',
+            ],
+          })
+        }
+      })
+      .catch((err) => {
+        console.warn('[ProjectDetailPage] Could not fetch project detail:', err)
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [projectId])
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto flex min-h-[50vh] w-full max-w-7xl items-center justify-center px-4 py-16">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-[#08A876]" />
+          <p className="text-sm font-semibold text-[#525A55]">Loading project details...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!project) {
     return (
@@ -57,11 +149,23 @@ export function ProjectDetailPage() {
       studentRole: student.headline,
       studentAvatar: student.avatarUrl,
       skills: student.skills.map((s) => s.name),
+      portfolioUrl: student.socialLinks?.portfolio || student.socialLinks?.github,
+      proposedRate: project.budget,
     })
 
     setSubmitted(true)
     setIsApplying(false)
   }
+
+  const deliverables = project.deliverables && project.deliverables.length > 0
+    ? project.deliverables
+    : [
+        'Discovery sprint and milestone alignment',
+        'High quality implementation with reviews',
+        'Handoff documentation and support',
+      ]
+
+  const skillsList = project.skillsRequired || []
 
   return (
     <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
@@ -79,101 +183,115 @@ export function ProjectDetailPage() {
           <ArrowLeft className="h-4 w-4" /> Back to projects
         </Link>
 
-      <MarketplaceTabs />
+        <MarketplaceTabs />
 
-      <div className="grid gap-6 lg:grid-cols-12">
-        <main className="lg:col-span-8 space-y-6">
-          <Card padding="lg">
-            <div className="flex flex-wrap gap-2">
-              {project.badge && (
-                <Badge variant={project.badge === 'High Urgency' ? 'peach' : 'green'}>
-                  {project.badge}
-                </Badge>
-              )}
-              {project.clientVerified && (
-                <Badge variant="neutral">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Verified client
-                </Badge>
-              )}
-            </div>
-
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
-              {project.title}
-            </h1>
-            <p className="mt-2 text-base font-semibold text-[#08A876]">
-              {project.clientName} · {project.clientType}
-            </p>
-
-            <p className="mt-6 text-sm leading-7 text-[#525A55]">{project.description}</p>
-
-            <section className="mt-8 peer-divider-fade-t pt-6">
-              <h2 className="text-lg font-black text-[#171916]">What you’ll deliver</h2>
-              <ul className="mt-4 space-y-3">
-                {project.deliverables?.map((item) => (
-                  <li key={item} className="flex gap-2.5 text-sm text-[#525A55]">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#08C58A]" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="mt-8 peer-divider-fade-t pt-6">
-              <h2 className="text-lg font-black text-[#171916]">Skills that will help</h2>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {project.skillsRequired.map((skill) => (
-                  <Badge key={skill} variant="neutral">
-                    {skill}
+        <div className="grid gap-6 lg:grid-cols-12">
+          <main className="lg:col-span-8 space-y-6">
+            <Card padding="lg">
+              <div className="flex flex-wrap gap-2">
+                {project.badge && (
+                  <Badge variant={project.badge === 'High Urgency' ? 'peach' : 'green'}>
+                    {project.badge}
                   </Badge>
-                ))}
+                )}
+                {project.clientVerified && (
+                  <Badge variant="neutral">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Verified client
+                  </Badge>
+                )}
               </div>
-            </section>
-          </Card>
-        </main>
 
-        <aside className="space-y-5 lg:col-span-4">
-          <Card padding="md">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">
-              Project terms
-            </p>
-            <dl className="mt-5 space-y-4 text-sm">
-              <Term icon={Wallet} label="Budget (Milestone Escrow)" value={formatBudget(project.budget)} />
-              <Term icon={Clock3} label="Commitment" value={`${project.duration} · ${project.hoursPerWeek}`} />
-              <Term icon={MapPin} label="Work mode" value={project.workMode ?? 'Remote'} />
-            </dl>
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
+                {project.title}
+              </h1>
+              <p className="mt-2 text-base font-semibold text-[#08A876]">
+                {project.clientName} · {project.clientType}
+              </p>
 
-            <div className="mt-6 peer-divider-fade-t pt-5">
-              {isAlreadySubmitted ? (
-                <div className="rounded-2xl border border-[#08C58A]/30 bg-[#E3F4EB] p-4 text-xs font-semibold text-[#123D30] space-y-2">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <CheckCircle2 className="h-4 w-4 text-[#08A876]" />
-                    <span>Proposal Submitted!</span>
+              <p className="mt-6 text-sm leading-7 text-[#525A55]">{project.description}</p>
+
+              <section className="mt-8 peer-divider-fade-t pt-6">
+                <h2 className="text-lg font-black text-[#171916]">What you’ll deliver</h2>
+                <ul className="mt-4 space-y-3">
+                  {deliverables.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-sm text-[#525A55]">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#08C58A]" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              {skillsList.length > 0 && (
+                <section className="mt-8 peer-divider-fade-t pt-6">
+                  <h2 className="text-lg font-black text-[#171916]">Skills that will help</h2>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {skillsList.map((skill) => (
+                      <Badge key={skill} variant="neutral">
+                        {skill}
+                      </Badge>
+                    ))}
                   </div>
-                  <p className="text-[#525A55]">
-                    Your application is live and visible to the client in their Employer Workspace.
-                  </p>
-                  <Link
-                    to={routes.applications}
-                    className="inline-flex items-center gap-1 font-bold text-[#08A876] hover:underline pt-1"
-                  >
-                    View in My Applications <ExternalLink className="h-3 w-3" />
-                  </Link>
-                </div>
-              ) : isApplying ? (
-                <ApplicationComposer
-                  studentName={student.name}
-                  onCancel={() => setIsApplying(false)}
-                  onSubmit={handleApply}
-                />
-              ) : (
-                <Button className="w-full" onClick={() => setIsApplying(true)}>
-                  <Send className="h-4 w-4 mr-1.5" /> Apply to project
-                </Button>
+                </section>
               )}
-            </div>
-          </Card>
-        </aside>
-      </div>
+            </Card>
+          </main>
+
+          <aside className="space-y-5 lg:col-span-4">
+            <Card padding="md">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">
+                Project terms
+              </p>
+              <dl className="mt-5 space-y-4 text-sm">
+                <Term
+                  icon={Wallet}
+                  label="Budget (Milestone Escrow)"
+                  value={formatBudget(project.budget)}
+                />
+                <Term
+                  icon={Clock3}
+                  label="Commitment"
+                  value={`${project.duration} · ${project.hoursPerWeek}`}
+                />
+                <Term
+                  icon={MapPin}
+                  label="Work mode"
+                  value={project.workMode ?? 'Remote'}
+                />
+              </dl>
+
+              <div className="mt-6 peer-divider-fade-t pt-5">
+                {isAlreadySubmitted ? (
+                  <div className="rounded-2xl border border-[#08C58A]/30 bg-[#E3F4EB] p-4 text-xs font-semibold text-[#123D30] space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold">
+                      <CheckCircle2 className="h-4 w-4 text-[#08A876]" />
+                      <span>Proposal Submitted!</span>
+                    </div>
+                    <p className="text-[#525A55]">
+                      Your application is live and visible to the client in their Employer Workspace.
+                    </p>
+                    <Link
+                      to={routes.applications}
+                      className="inline-flex items-center gap-1 font-bold text-[#08A876] hover:underline pt-1"
+                    >
+                      View in My Applications <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </div>
+                ) : isApplying ? (
+                  <ApplicationComposer
+                    studentName={student.name}
+                    onCancel={() => setIsApplying(false)}
+                    onSubmit={handleApply}
+                  />
+                ) : (
+                  <Button className="w-full" onClick={() => setIsApplying(true)}>
+                    <Send className="h-4 w-4 mr-1.5" /> Apply to project
+                  </Button>
+                )}
+              </div>
+            </Card>
+          </aside>
+        </div>
       </div>
     </div>
   )

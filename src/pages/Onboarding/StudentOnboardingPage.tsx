@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 import type {
   OnboardingStep,
   OnboardingFormData,
@@ -24,15 +24,18 @@ import { Step5PortfolioExperience } from '../../components/onboarding/Step5Portf
 import { Step6ReviewSubmit } from '../../components/onboarding/Step6ReviewSubmit'
 import { Button } from '../../components/common/Button'
 import type { Student, Verification } from '../../types'
+import { useAuth } from '../../hooks/useAuth'
 
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
   const { student, updateStudent } = useStudentProfile()
+  const { signupStudent } = useAuth()
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1)
   const [highestStepVisited, setHighestStepVisited] = useState<number>(1)
   const [errors, setErrors] = useState<FormValidationErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [profileCreated, setProfileCreated] = useState(false)
 
   // Central form state preserving all information across steps
@@ -208,38 +211,60 @@ export function StudentOnboardingPage() {
 
   const handleNext = async () => {
     if (!validateCurrentStep()) {
+      setTimeout(() => {
+        const firstErrorEl = document.querySelector(
+          '.border-red-500, p.text-red-600, input:invalid, [id="reg-fullname"], [id="reg-email"], [id="reg-phone"], [id="reg-password"]'
+        )
+        if (firstErrorEl) {
+          firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          const inputEl =
+            firstErrorEl.tagName === 'INPUT'
+              ? firstErrorEl
+              : firstErrorEl.parentElement?.querySelector('input') ||
+                firstErrorEl.closest('div')?.querySelector('input')
+          if (inputEl && 'focus' in inputEl) {
+            ;(inputEl as HTMLElement).focus()
+          }
+        }
+      }, 50)
       return
     }
 
     if (currentStep === 1) {
-      // Step 1 completed: Immediately create the initial student profile in store!
-      const initialVerifications: Verification[] = [
-        {
-          id: 'ver-college',
-          type: 'college_identity',
-          status: formData.basicInfo.isEmailVerified ? 'verified' : 'pending',
-          label: 'Institutional enrollment',
-          description: formData.basicInfo.isEmailVerified
-            ? `Verified via institutional email (${formData.basicInfo.email})`
-            : 'Institutional email pending verification',
-        },
-        {
-          id: 'ver-phone',
-          type: 'phone_number',
-          status: 'verified',
-          label: 'Mobile phone',
-          description: `Registered mobile: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}`,
-        },
-      ]
+      try {
+        const phoneLast4 = (formData.basicInfo.phone || '').slice(-4)
+        const initialVerifications: Verification[] = [
+          {
+            id: 'ver-college',
+            type: 'college_identity',
+            status: formData.basicInfo.email ? 'pending' : 'unverified',
+            label: 'Institutional enrollment',
+            description: formData.basicInfo.email
+              ? `Institutional email submitted (${formData.basicInfo.email}). Awaiting verification.`
+              : 'Add an institutional email to start verification.',
+          },
+          {
+            id: 'ver-phone',
+            type: 'phone_number',
+            status: formData.basicInfo.phone ? 'pending' : 'unverified',
+            label: 'Mobile phone',
+            description: formData.basicInfo.phone
+              ? `Registered mobile: +91 ${phoneLast4.padStart(10, '•')}. Awaiting verification.`
+              : 'Add a mobile number to start verification.',
+          },
+        ]
 
-      await updateStudent({
-        name: formData.basicInfo.fullName || student.name,
-        headline: formData.basicInfo.headline || student.headline,
-        avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
-        verifications: initialVerifications,
-        profileCompletion: formData.basicInfo.isEmailVerified ? 40 : 30,
-      })
-      setProfileCreated(true)
+        await updateStudent({
+          name: formData.basicInfo.fullName || student.name,
+          headline: formData.basicInfo.headline || student.headline,
+          avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
+          verifications: initialVerifications,
+          profileCompletion: formData.basicInfo.email ? 35 : 30,
+        })
+        setProfileCreated(true)
+      } catch (err) {
+        console.warn('Initial student profile creation notice:', err)
+      }
     }
 
     const nextStep = (currentStep + 1) as OnboardingStep
@@ -292,20 +317,19 @@ export function StudentOnboardingPage() {
     }
 
     setIsSubmitting(true)
+    setSubmitError(null)
 
     // Build the updated verifications list
     const updatedVerifications: Verification[] = [
       {
         id: 'ver-college',
         type: 'college_identity',
-        status: formData.college.isEmailVerified
-          ? 'verified'
-          : formData.college.idCardFileName
+        status: formData.college.collegeEmail || formData.college.idCardFileName
           ? 'pending'
           : 'unverified',
         label: 'College enrollment',
-        description: formData.college.isEmailVerified
-          ? `Verified via institutional email (${formData.college.collegeEmail})`
+        description: formData.college.collegeEmail
+          ? `Institutional email submitted (${formData.college.collegeEmail}). Awaiting verification.`
           : formData.college.idCardFileName
           ? `College ID document (${formData.college.idCardFileName}) submitted for review`
           : 'Provide a college email or ID document to verify student status.',
@@ -313,9 +337,11 @@ export function StudentOnboardingPage() {
       {
         id: 'ver-phone',
         type: 'phone_number',
-        status: 'verified',
+        status: formData.basicInfo.phone ? 'pending' : 'unverified',
         label: 'Phone number',
-        description: `Registered mobile number: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}`,
+        description: formData.basicInfo.phone
+          ? `Registered mobile number: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}. Awaiting verification.`
+          : 'Add a mobile number to start verification.',
       },
       {
         id: 'ver-exp',
@@ -411,6 +437,38 @@ export function StudentOnboardingPage() {
     }
 
     try {
+      if (formData.basicInfo.email && formData.basicInfo.password) {
+        const signupResult = await signupStudent({
+          fullName: formData.basicInfo.fullName,
+          email: formData.basicInfo.email,
+          password: formData.basicInfo.password,
+          phone: formData.basicInfo.phone,
+          collegeName: formData.college.collegeName,
+          degree: formData.college.degree,
+          fieldOfStudy: formData.college.fieldOfStudy,
+          academicYear: formData.college.academicYear,
+          graduationYear: formData.college.graduationYear,
+          collegeEmail: formData.college.collegeEmail,
+          skills: formData.skillsInterests.skills,
+          interests: formData.skillsInterests.interests,
+          portfolio: {
+            githubUrl: formData.portfolio.githubUrl,
+            linkedinUrl: formData.portfolio.linkedinUrl,
+            behanceUrl: formData.portfolio.behanceUrl,
+            portfolioUrl: formData.portfolio.portfolioUrl,
+            aboutBio: formData.portfolio.aboutBio,
+            featuredProjectName: formData.portfolio.featuredProjectName,
+            featuredProjectDesc: formData.portfolio.featuredProjectDesc,
+            featuredProjectUrl: formData.portfolio.featuredProjectUrl,
+          },
+          avatarUrl: formData.basicInfo.avatarUrl,
+          headline: formData.basicInfo.headline,
+        })
+        if (!signupResult.success) {
+          throw new Error(signupResult.error || 'Could not create your account.')
+        }
+      }
+
       await updateStudent(updatedStudentData)
       // Navigate to onboarding completion welcome screen with summary
       navigate('/signup/student/complete', {
@@ -421,6 +479,8 @@ export function StudentOnboardingPage() {
           skillsCount: formData.skillsInterests.skills.length,
         },
       })
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Could not create your account. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -460,6 +520,11 @@ export function StudentOnboardingPage() {
         </div>
 
         {/* Profile Created Status Banner */}
+        {submitError && (
+          <div role="alert" className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            {submitError}
+          </div>
+        )}
         {(profileCreated || currentStep > 1) && (
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-[#08C58A]/40 bg-[#E3F4EB] p-4 text-xs text-[#123D30] shadow-2xs">
             <div className="flex items-center gap-2.5">
@@ -535,7 +600,28 @@ export function StudentOnboardingPage() {
           )}
 
           {/* Form Actions (Back / Next / Skip / Submit) */}
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-3 peer-divider-fade-t pt-6">
+          <div className="mt-10 peer-divider-fade-t pt-6">
+            {Object.keys(errors).length > 0 && (
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-red-50/90 border border-red-200 px-4 py-3 text-xs font-semibold text-red-700 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+                  <span>
+                    Please complete the required fields highlighted in red above to continue.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const firstErrorEl = document.querySelector('.border-red-500, p.text-red-600, input:invalid')
+                    firstErrorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  }}
+                  className="shrink-0 text-[11px] font-bold text-red-600 underline hover:text-red-800"
+                >
+                  View missing field ↑
+                </button>
+              </div>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               {currentStep > 1 && (
                 <button
@@ -589,6 +675,7 @@ export function StudentOnboardingPage() {
               )}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

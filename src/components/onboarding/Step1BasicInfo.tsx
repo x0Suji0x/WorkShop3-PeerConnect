@@ -793,7 +793,9 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
             value={data.email}
             onChange={(e) => handleEmailChange(e.target.value)}
             className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-24 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
-              isEduVerified
+              errors.email
+                ? 'border-red-500 bg-red-50/20 text-[#171916] focus:border-red-500 focus:ring-red-100'
+                : isEduVerified
                 ? 'border-[#08C58A] bg-[#E3F4EB]/20 text-[#123D30] font-medium'
                 : data.email.length > 5
                 ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-100'
@@ -813,6 +815,13 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
             )}
           </div>
         </div>
+
+        {errors.email && (
+          <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1">
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {errors.email}
+          </p>
+        )}
 
         {/* Dynamic status feedback */}
         {isEduVerified ? (

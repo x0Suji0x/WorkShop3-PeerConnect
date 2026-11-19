@@ -27,10 +27,11 @@ class MockStudentRepository implements StudentRepository {
   }
 
   async update(studentId: string, changes: StudentUpdate) {
-    const currentStudent = this.students.get(studentId)
+    let currentStudent = this.students.get(studentId)
 
     if (!currentStudent) {
-      throw new Error(`Student profile "${studentId}" was not found.`)
+      currentStudent = { ...cloneStudent(demoStudent), id: studentId }
+      this.students.set(studentId, currentStudent)
     }
 
     const updatedStudent = { ...currentStudent, ...changes }

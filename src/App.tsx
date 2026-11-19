@@ -6,6 +6,7 @@ import { LoadingState } from './components/common/LoadingState'
 import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
 import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
+import { AuthProvider } from './contexts/AuthContext'
 
 const StudentDashboardPage = lazy(() => import('./pages/Dashboard/StudentDashboardPage').then(({ StudentDashboardPage: Page }) => ({ default: Page })))
 const StudentProfilePage = lazy(() => import('./pages/Profiles/StudentProfilePage').then(({ StudentProfilePage: Page }) => ({ default: Page })))
@@ -41,8 +42,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <SmoothScrollProvider>
-        <StudentProfileProvider>
-          <AppShell>
+        <AuthProvider>
+          <StudentProfileProvider>
+            <AppShell>
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
               <Route path={routes.getStarted} element={<RouteBoundary><GetStartedPage /></RouteBoundary>} />
@@ -78,7 +80,8 @@ export default function App() {
             </Routes>
           </AppShell>
         </StudentProfileProvider>
-      </SmoothScrollProvider>
-    </BrowserRouter>
+      </AuthProvider>
+    </SmoothScrollProvider>
+  </BrowserRouter>
   )
 }

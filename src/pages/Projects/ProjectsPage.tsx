@@ -1,5 +1,5 @@
 import { ArrowRight, BriefcaseBusiness, CheckCircle2, MapPin, Plus, Wallet } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { projectRoute, routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
@@ -9,14 +9,110 @@ import { PageHeading } from '../../components/common/PageHeading'
 import { SearchBar } from '../../components/common/SearchBar'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { marketplaceProjects, projectCategories } from '../../data/projectMarketplaceMockData'
+import type { Project } from '../../types'
 
-const formatBudget = (budget: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(budget)
+const formatBudget = (budget: number) =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(budget)
+
+interface BackendProjectRaw {
+  id: string
+  title: string
+  clientName?: string
+  clientType?: string
+  clientLocation?: string
+  budget?: number
+  budgetType?: 'Fixed Escrow' | 'Milestone Escrow' | 'Hourly'
+  duration?: string
+  hoursPerWeek?: string
+  description?: string
+  skillsRequired?: string[]
+  badge?: 'High Urgency' | 'Featured' | 'New' | 'Verified Client'
+  applicantsCount?: number
+  postedTimeAgo?: string
+  category?: string
+  workMode?: 'Remote' | 'Hybrid' | 'On-site'
+  deliverables?: string[]
+  clientId?: string
+  createdAt?: string
+}
 
 export function ProjectsPage() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [remoteOnly, setRemoteOnly] = useState(false)
-  const filteredProjects = useMemo(() => marketplaceProjects.filter((project) => `${project.title} ${project.clientName} ${project.skillsRequired.join(' ')} ${project.category}`.toLowerCase().includes(query.toLowerCase()) && (category === 'All' || project.category === category) && (!remoteOnly || project.workMode === 'Remote')), [category, query, remoteOnly])
+  const [backendProjects, setBackendProjects] = useState<Project[]>([])
+
+  useEffect(() => {
+    let isMounted = true
+    fetch('/api/projects')
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = (await res.json()) as { projects: BackendProjectRaw[] }
+        if (isMounted && Array.isArray(data.projects)) {
+          const mapped: Project[] = data.projects.map((p) => ({
+            id: p.id,
+            title: p.title,
+            clientId: p.clientId || 'client-api',
+            clientName: p.clientName || 'Apex Studio & Labs',
+            clientType: p.clientType || 'Verified Employer',
+            clientLocation: p.clientLocation || 'Remote Scope',
+            budget: Number(p.budget) || 50000,
+            budgetType: p.budgetType || 'Milestone Escrow',
+            duration: p.duration || '3-4 Weeks',
+            hoursPerWeek: p.hoursPerWeek || '15-20 hrs/wk',
+            description: p.description || '',
+            skillsRequired: Array.isArray(p.skillsRequired) ? p.skillsRequired : [],
+            badge: p.badge || 'New',
+            applicantsCount: p.applicantsCount || 0,
+            postedTimeAgo: p.postedTimeAgo || 'Just now',
+            status: 'open',
+            createdAt: p.createdAt || new Date().toISOString(),
+            category: p.category || 'Design & development',
+            workMode: p.workMode || (p.clientLocation?.includes('Campus') ? 'Hybrid' : 'Remote'),
+            clientVerified: true,
+            deliverables: p.deliverables || [
+              'Discovery and milestone plan',
+              'Sprint deliverables and tests',
+              'Code handoff and review',
+            ],
+          }))
+          setBackendProjects(mapped)
+        }
+      })
+      .catch((err) => {
+        console.warn('[ProjectsPage] Could not fetch backend projects:', err)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  // Merge backend projects with initial mock projects (avoiding duplicates)
+  const allProjects = useMemo(() => {
+    const backendIds = new Set(backendProjects.map((p) => p.id))
+    const mockRemaining = marketplaceProjects.filter((p) => !backendIds.has(p.id))
+    return [...backendProjects, ...mockRemaining]
+  }, [backendProjects])
+
+  const filteredProjects = useMemo(
+    () =>
+      allProjects.filter(
+        (project) =>
+          `${project.title} ${project.clientName} ${(project.skillsRequired || []).join(' ')} ${
+            project.category || ''
+          }`
+            .toLowerCase()
+            .includes(query.toLowerCase()) &&
+          (category === 'All' || project.category === category) &&
+          (!remoteOnly || project.workMode === 'Remote')
+      ),
+    [allProjects, category, query, remoteOnly]
+  )
 
   return (
     <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
@@ -106,7 +202,7 @@ export function ProjectsPage() {
   )
 }
 
-function ProjectCard({ project }: { project: (typeof marketplaceProjects)[number] }) {
+function ProjectCard({ project }: { project: Project }) {
   return (
     <div className="peer-card-glass p-5 sm:p-6 flex h-full flex-col justify-between hover:-translate-y-0.5 transition-all duration-200">
       <div className="relative z-10">
@@ -135,7 +231,7 @@ function ProjectCard({ project }: { project: (typeof marketplaceProjects)[number
         </div>
         <p className="mt-3 text-sm leading-relaxed text-[#525A55]">{project.description}</p>
         <div className="mt-4 flex flex-wrap gap-1.5">
-          {project.skillsRequired.map((skill) => (
+          {project.skillsRequired?.map((skill) => (
             <Badge key={skill} variant="neutral" size="sm">
               {skill}
             </Badge>
@@ -150,7 +246,7 @@ function ProjectCard({ project }: { project: (typeof marketplaceProjects)[number
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5" />
-            {project.workMode}
+            {project.workMode || 'Remote'}
           </span>
         </div>
         <Link

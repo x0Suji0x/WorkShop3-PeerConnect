@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowRight,
   Briefcase,
@@ -19,14 +19,16 @@ import { useStudentProfile } from '../../hooks/useStudentProfile'
 import { calculateProfileCompletion } from '../../lib/profileCompletion'
 import { dashboardNotifications, recommendedProjects } from '../../data/studentMockData'
 import { ClientDashboardView } from '../../components/dashboard/ClientDashboardView'
+import { useAuth } from '../../hooks/useAuth'
 
 export function StudentDashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const { user, isAuthenticated } = useAuth()
   const roleParam = searchParams.get('role')
   const [internalRole, setInternalRole] = useState<'student' | 'client' | null>(null)
 
   const activeRole: 'student' | 'client' =
-    internalRole ??
+    user?.role ?? internalRole ??
     (roleParam === 'client'
       ? 'client'
       : roleParam === 'student'
@@ -61,21 +63,55 @@ export function StudentDashboardPage() {
 
   // If in Client Mode, render Client Dashboard View
   if (activeRole === 'client') {
-    return <ClientDashboardView onSwitchToStudent={switchToStudent} />
+    return <ClientDashboardView onSwitchToStudent={switchToStudent} canSwitchRole={!isAuthenticated} />
   }
 
   // Otherwise render Student Dashboard
-  return <StudentDashboardContent onSwitchToClient={switchToClient} />
+  return <StudentDashboardContent onSwitchToClient={switchToClient} canSwitchRole={!isAuthenticated} />
 }
 
-function StudentDashboardContent({ onSwitchToClient }: { onSwitchToClient: () => void }) {
+function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitchToClient: () => void; canSwitchRole: boolean }) {
   const { student } = useStudentProfile()
+  const { user, token } = useAuth()
   const completionReport = calculateProfileCompletion(student)
   const firstName = student.name.split(' ')[0]
+  const [applicationSummary, setApplicationSummary] = useState<{ total: number; awaiting: number } | null>(null)
+  const lastSignIn = user?.lastLoginAt
+    ? new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(user.lastLoginAt))
+    : null
+
+  useEffect(() => {
+    if (user?.role !== 'student' || !token) return
+
+    let isMounted = true
+    fetch('/api/applications', { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (response) => {
+        if (!response.ok) return
+        const data = (await response.json()) as { applications?: Array<{ status?: string }> }
+        if (!isMounted || !Array.isArray(data.applications)) return
+        setApplicationSummary({
+          total: data.applications.length,
+          awaiting: data.applications.filter((application) => application.status === 'submitted').length,
+        })
+      })
+      .catch(() => {
+        // The dashboard retains saved profile data if the local API is offline.
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [token, user?.role])
+
   const stats = [
     { label: 'Projects completed', value: student.projectsCompleted, icon: CheckCircle2, detail: 'Across paid and campus work' },
     { label: 'Active projects', value: student.activeProjects, icon: BriefcaseBusiness, detail: 'In progress right now' },
-    { label: 'Applications sent', value: student.applicationsSent, icon: FileText, detail: '2 awaiting a response' },
+    {
+      label: 'Applications sent',
+      value: applicationSummary?.total ?? student.applicationsSent,
+      icon: FileText,
+      detail: applicationSummary ? `${applicationSummary.awaiting} awaiting a response` : 'Application activity',
+    },
     { label: 'Profile views', value: student.profileViews, icon: Eye, detail: 'In the last 30 days' },
   ]
   const pendingVerificationsCount = student.verifications.filter((v) => v.status === 'pending').length
@@ -107,20 +143,20 @@ function StudentDashboardContent({ onSwitchToClient }: { onSwitchToClient: () =>
             </span>
           </div>
 
-          <button
+          {canSwitchRole && <button
             type="button"
             onClick={onSwitchToClient}
             className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
           >
             <Briefcase className="h-3.5 w-3.5 text-[#08C58A]" />
             Switch to Employer View
-          </button>
+          </button>}
         </div>
 
         <PageHeading
           eyebrow="Student dashboard"
           title={`Good to see you, ${firstName}.`}
-          description="A focused view of your profile, opportunities, and collaboration activity."
+          description={lastSignIn ? `Last signed in ${lastSignIn}.` : 'A focused view of your profile, opportunities, and collaboration activity.'}
           actions={
             <Link to={profileRoute(student.id)}>
               <Button size="sm">View profile <ArrowRight className="h-3.5 w-3.5" /></Button>

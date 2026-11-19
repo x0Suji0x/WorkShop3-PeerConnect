@@ -1,5 +1,5 @@
-import campus from '../../../assets/hero-campus-v2.png'
-import students from '../../../assets/hero-students-sprite-v2.png'
+import campus from '../../../assets/hero-campus-v2.webp'
+import students from '../../../assets/hero-students-sprite-v2.webp'
 
 export function HeroConnectionScene() {
   return (

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { Button } from '../../components/common/Button'
 import { Badge } from '../../components/common/Badge'
+import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons'
 
 export function SignUpPage() {
   return (
@@ -104,6 +105,14 @@ export function SignUpPage() {
                     </Link>
                   </div>
                 </div>
+              </div>
+
+              {/* Instant Social Sign-Up */}
+              <div className="rounded-2xl border border-[#E5DED5] bg-white/70 backdrop-blur-xs p-4 shadow-2xs">
+                <p className="text-xs font-bold text-[#171916] mb-2.5">
+                  Or sign up instantly with your Google or GitHub account:
+                </p>
+                <SocialAuthButtons role="student" labelPrefix="Sign up" />
               </div>
             </div>
 

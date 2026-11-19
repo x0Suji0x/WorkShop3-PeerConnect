@@ -20,6 +20,8 @@ import {
 import { routes } from '../../app/routes'
 import { Button } from '../../components/common/Button'
 import { Badge } from '../../components/common/Badge'
+import { useAuth } from '../../hooks/useAuth'
+import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons'
 
 const FREEMAIL_DOMAINS = [
   'gmail.com',
@@ -50,6 +52,7 @@ const TALENT_CATEGORIES = [
 export function SignInPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { login, signupClient } = useAuth()
 
   // Role: student or client
   const roleParam = searchParams.get('role')
@@ -119,7 +122,7 @@ export function SignInPage() {
   }
 
   // Student Sign-In Submission
-  const handleStudentSubmit = (e: React.FormEvent) => {
+  const handleStudentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password) {
       setError('Please enter both your email address and password.')
@@ -129,39 +132,41 @@ export function SignInPage() {
     setIsLoading(true)
     setError('')
 
-    try {
-      localStorage.setItem('peerconnect_active_role', 'student')
-    } catch {
-      // Ignore localStorage availability issues
+    const res = await login({ email: email.trim(), password, role: 'student' })
+    setIsLoading(false)
+
+    if (!res.success) {
+      setError(res.error || 'Failed to sign in. Please verify your credentials.')
+      return
     }
 
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate(`${routes.dashboard}?role=student`)
-    }, 600)
+    navigate(`${routes.dashboard}?role=student`)
   }
 
   // Student Quick Demo
-  const handleStudentQuickDemo = () => {
+  const handleStudentQuickDemo = async () => {
     setEmail('sofia.rodriguez@nid.edu')
     setPassword('PeerConnect2026!')
     setIsLoading(true)
     setError('')
 
-    try {
-      localStorage.setItem('peerconnect_active_role', 'student')
-    } catch {
-      // ignore
+    const res = await login({
+      email: 'sofia.rodriguez@nid.edu',
+      password: 'PeerConnect2026!',
+      role: 'student',
+    })
+    setIsLoading(false)
+
+    if (!res.success) {
+      setError(res.error || 'Demo login failed.')
+      return
     }
 
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate(`${routes.dashboard}?role=student`)
-    }, 400)
+    navigate(`${routes.dashboard}?role=student`)
   }
 
   // Client Sign-In Submission
-  const handleClientSignIn = (e: React.FormEvent) => {
+  const handleClientSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password) {
       setError('Please enter both your work email and password.')
@@ -171,59 +176,42 @@ export function SignInPage() {
     setIsLoading(true)
     setError('')
 
-    const resolvedCompany = companyName.trim() || 'Apex Studio & Labs'
-    const clientData = {
-      name: 'Vikram Sen',
-      company: resolvedCompany,
-      email: email.trim(),
-      role: 'client',
-      isVerifiedEmployer: isBusinessEmail,
+    const res = await login({ email: email.trim(), password, role: 'client' })
+    setIsLoading(false)
+
+    if (!res.success) {
+      setError(res.error || 'Failed to sign in. Please check your credentials.')
+      return
     }
 
-    try {
-      localStorage.setItem('peerconnect_active_role', 'client')
-      localStorage.setItem('peerconnect_client_auth', JSON.stringify(clientData))
-    } catch {
-      // ignore
-    }
-
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate(`${routes.dashboard}?role=client`)
-    }, 500)
+    navigate(`${routes.dashboard}?role=client`)
   }
 
   // Client Quick Demo
-  const handleClientQuickDemo = () => {
+  const handleClientQuickDemo = async () => {
     setEmail('vikram.sen@apexstudio.co')
     setPassword('PeerConnectClient2026!')
     setCompanyName('Apex Studio & Labs')
     setIsLoading(true)
     setError('')
 
-    const clientData = {
-      name: 'Vikram Sen',
-      company: 'Apex Studio & Labs',
+    const res = await login({
       email: 'vikram.sen@apexstudio.co',
+      password: 'PeerConnectClient2026!',
       role: 'client',
-      isVerifiedEmployer: true,
+    })
+    setIsLoading(false)
+
+    if (!res.success) {
+      setError(res.error || 'Demo login failed.')
+      return
     }
 
-    try {
-      localStorage.setItem('peerconnect_active_role', 'client')
-      localStorage.setItem('peerconnect_client_auth', JSON.stringify(clientData))
-    } catch {
-      // ignore
-    }
-
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate(`${routes.dashboard}?role=client`)
-    }, 400)
+    navigate(`${routes.dashboard}?role=client`)
   }
 
   // Client Registration Submission
-  const handleClientRegister = (e: React.FormEvent) => {
+  const handleClientRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!companyName.trim() || !email.trim() || !password) {
       setError('Please provide company name, work email, and password.')
@@ -237,29 +225,24 @@ export function SignInPage() {
     setIsLoading(true)
     setError('')
 
-    const newClientData = {
-      name: contactName.trim() || 'Hiring Lead',
-      company: companyName.trim(),
+    const res = await signupClient({
+      companyName: companyName.trim(),
+      contactName: contactName.trim() || 'Hiring Lead',
       email: email.trim(),
+      password,
       designation: designation.trim() || 'Campus Talent Lead',
       website: website.trim(),
       orgType,
       selectedNeeds,
-      role: 'client',
-      isVerifiedEmployer: isBusinessEmail,
+    })
+    setIsLoading(false)
+
+    if (!res.success) {
+      setError(res.error || 'Failed to register employer account.')
+      return
     }
 
-    try {
-      localStorage.setItem('peerconnect_active_role', 'client')
-      localStorage.setItem('peerconnect_client_auth', JSON.stringify(newClientData))
-    } catch {
-      // ignore
-    }
-
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate(`${routes.dashboard}?role=client`)
-    }, 600)
+    navigate(`${routes.dashboard}?role=client`)
   }
 
   return (
@@ -339,6 +322,32 @@ export function SignInPage() {
         {/* -------------------- STUDENT SIGN IN -------------------- */}
         {role === 'student' && (
           <>
+            {/* Prominent High-Visibility Student Registration Callout */}
+            <div className="rounded-2xl border-2 border-[#08A876] bg-gradient-to-r from-[#E3F4EB] via-white to-[#E3F4EB] p-4 text-xs shadow-md transition-all hover:shadow-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#123D30] text-[#08C58A] shadow-xs">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-[#171916]">
+                      Don't have a student account yet?
+                    </p>
+                    <p className="text-xs text-[#525A55]">
+                      Join 100+ colleges across India and unlock peer projects & squads.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to="/signup/student"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#08A876] hover:bg-[#079366] px-4 py-2.5 text-xs font-black text-white shadow-sm transition-all hover:scale-[1.02] shrink-0"
+                >
+                  Register as a student
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+
             {/* Demo Fast Login Banner */}
             <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-br from-[#E3F4EB]/80 to-white/90 backdrop-blur-xs p-4 text-xs shadow-2xs">
               <div className="flex items-center justify-between">
@@ -362,6 +371,8 @@ export function SignInPage() {
               onSubmit={handleStudentSubmit}
               className="peer-card-glass peer-card-glow-mint p-6 sm:p-7 space-y-4 shadow-xl"
             >
+              <SocialAuthButtons role="student" labelPrefix="Sign in" />
+
               {error && (
                 <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
                   {error}
@@ -554,6 +565,8 @@ export function SignInPage() {
                 onSubmit={handleClientSignIn}
                 className="peer-card-glass peer-card-glow-gold p-6 sm:p-7 space-y-4 shadow-xl"
               >
+                <SocialAuthButtons role="client" labelPrefix="Continue" />
+
                 {error && (
                   <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
                     {error}
@@ -702,6 +715,8 @@ export function SignInPage() {
                 onSubmit={handleClientRegister}
                 className="peer-card-glass peer-card-glow-gold p-6 sm:p-7 space-y-4 shadow-xl"
               >
+                <SocialAuthButtons role="client" labelPrefix="Sign up" />
+
                 {error && (
                   <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
                     {error}

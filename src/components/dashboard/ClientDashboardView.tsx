@@ -20,8 +20,10 @@ import { Badge } from '../common/Badge'
 import { PageHeading } from '../common/PageHeading'
 import { mockProjects } from '../../data/mockData'
 import type { ProjectOpportunity } from '../../types'
+import { useAuth } from '../../hooks/useAuth'
 import {
   getStoredApplications,
+  syncApplicationsWithBackend,
   updateApplicationStatus,
   type ExtendedApplication,
 } from '../../lib/applicationStorage'
@@ -36,6 +38,7 @@ interface ClientAuthData {
 
 interface ClientDashboardViewProps {
   onSwitchToStudent: () => void
+  canSwitchRole?: boolean
 }
 
 interface ApplicantItem {
@@ -123,7 +126,8 @@ function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
   return [...dynamicItems, ...remainingInitial]
 }
 
-export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewProps) {
+export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }: ClientDashboardViewProps) {
+  const { user, token } = useAuth()
   // Load saved client auth
   const [clientData] = useState<ClientAuthData>(() => {
     try {
@@ -134,8 +138,14 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
     }
   })
 
-  const clientName = clientData.name || 'Vikram Sen'
-  const companyName = clientData.company || 'Apex Studio & Labs'
+  const clientName =
+    user?.role === 'client'
+      ? user.contactName || user.fullName
+      : clientData.name || 'Vikram Sen'
+  const companyName =
+    user?.role === 'client'
+      ? user.companyName || 'Apex Studio & Labs'
+      : clientData.company || 'Apex Studio & Labs'
 
   const [projects, setProjects] = useState<ProjectOpportunity[]>(mockProjects)
   const [applicants, setApplicants] = useState<ApplicantItem[]>(() =>
@@ -145,12 +155,48 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   useEffect(() => {
+    // 1. Sync backend applications
+    void syncApplicationsWithBackend().then((apps) => {
+      setApplicants(buildApplicantsList(apps))
+    })
+
+    // 2. Fetch live projects from SQLite backend
+    fetch('/api/projects')
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = (await res.json()) as { projects: ProjectOpportunity[] }
+        if (Array.isArray(data.projects)) {
+          const liveProjects: ProjectOpportunity[] = data.projects.map((p) => ({
+            id: p.id,
+            title: p.title,
+            clientName: p.clientName || companyName,
+            clientType: p.clientType || 'Verified Employer Scope',
+            clientLocation: p.clientLocation || 'Remote Scope',
+            budget: Number(p.budget) || 5000,
+            budgetType: p.budgetType || 'Milestone Escrow',
+            duration: p.duration || '3 Weeks',
+            hoursPerWeek: p.hoursPerWeek || '15-20 hrs/wk',
+            description: p.description || '',
+            skillsRequired: Array.isArray(p.skillsRequired) ? p.skillsRequired : [],
+            badge: p.badge || 'New',
+            applicantsCount: p.applicantsCount || 0,
+            postedTimeAgo: p.postedTimeAgo || 'Just now',
+          }))
+          const liveIds = new Set(liveProjects.map((p) => p.id))
+          const remaining = mockProjects.filter((p) => !liveIds.has(p.id))
+          setProjects([...liveProjects, ...remaining])
+        }
+      })
+      .catch((err) => {
+        console.warn('[ClientDashboardView] Projects fetch fallback:', err)
+      })
+
     const handleUpdate = () => {
       setApplicants(buildApplicantsList(getStoredApplications()))
     }
     window.addEventListener('peerconnect_applications_updated', handleUpdate)
     return () => window.removeEventListener('peerconnect_applications_updated', handleUpdate)
-  }, [])
+  }, [companyName])
 
   // New Project Form State
   const [newTitle, setNewTitle] = useState('')
@@ -160,28 +206,64 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
   const [newSkills, setNewSkills] = useState('React, TypeScript, Tailwind CSS')
   const [newDescription, setNewDescription] = useState('')
 
-  const handlePostBrief = (e: React.FormEvent) => {
+  const handlePostBrief = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTitle.trim() || !newBudget) return
 
-    const createdProject: ProjectOpportunity = {
-      id: `client-proj-${Date.now()}`,
-      title: newTitle.trim(),
-      clientName: companyName,
-      clientType: 'Verified Employer Scope',
-      clientLocation: 'Remote Scope',
-      budget: Number(newBudget) || 4000,
-      budgetType: newType,
-      duration: newDuration,
-      hoursPerWeek: '15-20 hrs/wk',
-      description: newDescription.trim() || 'Custom brief posted by verified employer.',
-      skillsRequired: newSkills.split(',').map((s) => s.trim()).filter(Boolean),
-      badge: 'New',
-      applicantsCount: 0,
-      postedTimeAgo: 'Just now',
+    if (user?.role !== 'client' || !token) {
+      setToastMessage('Sign in with an employer account to publish a project.')
+      return
     }
 
-    setProjects([createdProject, ...projects])
+    const skillsList = newSkills.split(',').map((s) => s.trim()).filter(Boolean)
+    const budgetNum = Number(newBudget) || 4000
+
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          title: newTitle.trim(),
+          clientLocation: 'Remote Scope',
+          budget: budgetNum,
+          budgetType: newType,
+          duration: newDuration,
+          hoursPerWeek: '15-20 hrs/wk',
+          description: newDescription.trim() || 'Custom brief posted by verified employer.',
+          skillsRequired: skillsList,
+          badge: 'New',
+        }),
+      })
+
+      const data = (await res.json()) as { error?: string; project?: ProjectOpportunity }
+      if (!res.ok || !data.project) {
+        throw new Error(data.error || 'Could not publish this project.')
+      }
+
+      if (data.project) {
+          const created: ProjectOpportunity = {
+            id: data.project.id,
+            title: data.project.title,
+            clientName: data.project.clientName || companyName,
+            clientType: data.project.clientType || 'Verified Employer Scope',
+            clientLocation: data.project.clientLocation || 'Remote Scope',
+            budget: Number(data.project.budget) || budgetNum,
+            budgetType: newType,
+            duration: newDuration,
+            hoursPerWeek: '15-20 hrs/wk',
+            description: newDescription.trim() || 'Custom brief posted by verified employer.',
+            skillsRequired: skillsList,
+            badge: 'New',
+            applicantsCount: 0,
+            postedTimeAgo: 'Just now',
+          }
+          setProjects((prev) => [created, ...prev.filter((p) => p.id !== created.id)])
+      }
+    } catch (err) {
+      setToastMessage(err instanceof Error ? err.message : 'Could not publish this project.')
+      return
+    }
+
     setIsModalOpen(false)
     setNewTitle('')
     setNewDescription('')
@@ -232,14 +314,14 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
             </span>
           </div>
 
-          <button
+          {canSwitchRole && <button
             type="button"
             onClick={onSwitchToStudent}
             className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
           >
             <GraduationCap className="h-3.5 w-3.5 text-[#08C58A]" />
             Switch to Student View
-          </button>
+          </button>}
         </div>
 
         {/* Success Toast */}

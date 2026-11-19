@@ -20,8 +20,25 @@ export function StudentProfilePage() {
   const { profileId } = useParams()
   const { student, isSaving, updateStudent } = useStudentProfile()
   const [isEditing, setIsEditing] = useState(false)
+  const [profileDraft, setProfileDraft] = useState({ headline: student.headline, about: student.about })
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [newSkill, setNewSkill] = useState('')
   const [newExperience, setNewExperience] = useState({ role: '', organization: '' })
+
+  const startEditing = () => {
+    setProfileDraft({ headline: student.headline, about: student.about })
+    setSaveError(null)
+    setIsEditing(true)
+  }
+
+  const finishEditing = async () => {
+    try {
+      await updateStudent(profileDraft)
+      setIsEditing(false)
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Could not save your profile.')
+    }
+  }
 
   const updateAvailability = (key: keyof AvailabilityPreferences) => {
     void updateStudent({ availabilityPreferences: { ...student.availabilityPreferences, [key]: !student.availabilityPreferences[key] } })
@@ -38,7 +55,7 @@ export function StudentProfilePage() {
 
   const addExperience = () => {
     if (!newExperience.role.trim() || !newExperience.organization.trim()) return
-    const experience: Experience = { id: `exp-${Date.now()}`, role: newExperience.role.trim(), organization: newExperience.organization.trim(), type: 'work', startDate: 'Present', description: 'New experience — add more detail when your profile service is connected.' }
+    const experience: Experience = { id: `exp-${Date.now()}`, role: newExperience.role.trim(), organization: newExperience.organization.trim(), type: 'work', startDate: 'Present', description: 'New experience' }
     void updateStudent({ experiences: [experience, ...student.experiences] })
     setNewExperience({ role: '', organization: '' })
   }
@@ -80,8 +97,8 @@ export function StudentProfilePage() {
 
               {isEditing ? (
                 <Input
-                  value={student.headline}
-                  onChange={(event) => void updateStudent({ headline: event.target.value })}
+                  value={profileDraft.headline}
+                  onChange={(event) => setProfileDraft((draft) => ({ ...draft, headline: event.target.value }))}
                   aria-label="Professional headline"
                   className="mt-2 max-w-xl"
                 />
@@ -99,11 +116,11 @@ export function StudentProfilePage() {
             <Link to={routes.dashboard}>
               <Button variant="secondary" size="sm">Dashboard</Button>
             </Link>
-            <Button size="sm" onClick={() => setIsEditing((value) => !value)}>
+            <Button size="sm" onClick={() => void (isEditing ? finishEditing() : startEditing())} disabled={isSaving}>
               {isEditing ? (
                 <>
                   <Check className="h-3.5 w-3.5" />
-                  {isSaving ? 'Saving…' : 'Done editing'}
+                  {isSaving ? 'Saving…' : 'Save changes'}
                 </>
               ) : (
                 <>
@@ -115,11 +132,12 @@ export function StudentProfilePage() {
           </div>
         </div>
 
-        {profileId !== student.id && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">Showing a local demo profile while profile data is not connected. Requested profile: {profileId}</p>}
+        {profileId !== student.id && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">This is your signed-in profile. Public profile lookup will be connected when the talent directory moves from mock data to the API.</p>}
+        {saveError && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{saveError}</p>}
 
         <div className="mt-7 grid grid-cols-1 gap-6 lg:grid-cols-12">
           <main className="space-y-6 lg:col-span-8">
-            <Card><SectionTitle title="About" icon={Sparkles} />{isEditing ? <textarea value={student.about} onChange={(event) => void updateStudent({ about: event.target.value })} className="mt-4 min-h-32 w-full resize-y rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-3 text-sm leading-7 text-[#525A55] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20" aria-label="About you" /> : <p className="mt-4 text-sm leading-7 text-[#525A55]">{student.about}</p>}</Card>
+            <Card><SectionTitle title="About" icon={Sparkles} />{isEditing ? <textarea value={profileDraft.about} onChange={(event) => setProfileDraft((draft) => ({ ...draft, about: event.target.value }))} className="mt-4 min-h-32 w-full resize-y rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-3 text-sm leading-7 text-[#525A55] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20" aria-label="About you" /> : <p className="mt-4 text-sm leading-7 text-[#525A55]">{student.about}</p>}</Card>
             <Card>
               <SectionTitle title="Skills & interests" icon={Sparkles} />
               <div className="mt-4 flex flex-wrap gap-2">{student.skills.map((skill) => <span key={skill.name} className="inline-flex items-center gap-1 rounded-lg border border-[#E7E8E1] bg-[#F7F6F0] px-3 py-1.5 text-xs font-semibold text-[#171916]">{skill.name}{isEditing && <button type="button" onClick={() => removeSkill(skill.name)} className="ml-1 rounded text-[#777A72] hover:text-red-600" aria-label={`Remove ${skill.name}`}><Trash2 className="h-3 w-3" /></button>}</span>)}</div>
