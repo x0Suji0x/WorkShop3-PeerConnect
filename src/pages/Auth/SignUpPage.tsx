@@ -38,7 +38,7 @@ export function SignUpPage() {
                 Your journey starts here, with <em className="font-serif italic font-normal text-[#16845f]">meaningful work.</em>
               </h1>
               <p className="mt-4 text-sm leading-relaxed text-[#525A55] sm:text-base">
-                Build your verified professional identity, showcase proven skills, and discover campus opportunities, hackathon squads, and client projects.
+                Build your student profile, showcase your work, and discover campus opportunities, hackathon squads, and client projects.
               </p>
             </div>
 
@@ -64,10 +64,10 @@ export function SignUpPage() {
                         </Badge>
                       </div>
                       <p className="mt-1 text-xs leading-relaxed text-[#525A55] sm:text-sm">
-                        Create your verified student profile, discover interest communities, join hackathon teams, and apply for paid work.
+                        Create your student profile, discover interest communities, join hackathon teams, and apply for paid work.
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-[#123D30]">
-                        <span className="rounded-md bg-[#E3F4EB] px-2 py-0.5">• Free verified student account</span>
+                        <span className="rounded-md bg-[#E3F4EB] px-2 py-0.5">• Student account</span>
                         <span className="rounded-md bg-[#E3F4EB] px-2 py-0.5">• AI Squad Matchmaking</span>
                       </div>
                     </div>
@@ -79,7 +79,7 @@ export function SignUpPage() {
               </Link>
 
               {/* Client / Business Option */}
-              <div className={`peer-card-glass peer-card-glow-gold rounded-2xl border p-5 sm:p-6 transition-all hover:-translate-y-0.5 ${selectedRole === 'employer' ? 'border-[#9A6A24]/60 ring-2 ring-[#9A6A24]/15' : 'border-[rgba(91,112,96,0.18)]'}`}>
+              <div className={`peer-card-glass peer-card-glow-gold rounded-2xl border p-5 sm:p-6 transition-all hover:-translate-y-0.5 ${selectedRole === 'client' ? 'border-[#9A6A24]/60 ring-2 ring-[#9A6A24]/15' : 'border-[rgba(91,112,96,0.18)]'}`}>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between relative z-10">
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FBF0DC] text-[#9A6A24] border border-[#9A6A24]/15">
@@ -89,9 +89,9 @@ export function SignUpPage() {
                       <h3 className="text-sm font-bold text-[#171916]">
                         Looking to hire students or post project briefs?
                       </h3>
-                      {selectedRole === 'employer' && <Badge variant="peach" size="sm">Selected</Badge>}
+                      {selectedRole === 'client' && <Badge variant="peach" size="sm">Selected</Badge>}
                       <p className="text-xs text-[#525A55]">
-                        Discover pre-vetted campus talent across design, engineering, and AI.
+                        Browse student profiles across design, engineering, and AI.
                       </p>
                     </div>
                   </div>
@@ -184,9 +184,9 @@ export function SignUpPage() {
                   <div className="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors">
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-[#08C58A]" />
                     <div>
-                      <h4 className="text-xs font-bold text-white">Campus-Verified Credibility</h4>
+                      <h4 className="text-xs font-bold text-white">A clearer picture of your work</h4>
                       <p className="mt-0.5 text-xs text-white/70">
-                        Institutional email verification and portfolio ownership that signals trust to employers.
+                        Add your college details and portfolio. This demo does not verify enrollment or portfolio ownership.
                       </p>
                     </div>
                   </div>

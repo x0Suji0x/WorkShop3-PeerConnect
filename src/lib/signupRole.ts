@@ -1,5 +1,5 @@
-export type SignupRole = 'student' | 'employer'
+export type SignupRole = 'student' | 'client'
 
 export function parseSignupRole(value: string | null | undefined): SignupRole | null {
-  return value === 'student' || value === 'employer' ? value : null
+  return value === 'student' || value === 'client' ? value : null
 }
