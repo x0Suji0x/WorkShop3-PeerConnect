@@ -9,6 +9,7 @@ export interface StudentProfile {
   projectsCompleted: number
   rating: number
   reviewsCount: number
+  sampleReview?: string
   availability: 'Available now' | 'Available soon' | 'Limited hours'
   skills: { name: string; category: 'design' | 'dev' | 'ai' | 'other' }[]
   featuredWork: string

@@ -9,10 +9,9 @@ import {
 } from 'lucide-react'
 import { PageHeading } from '../../components/common/PageHeading'
 import { Button } from '../../components/common/Button'
-import { mockStudents } from '../../data/mockData'
-import { demoStudent } from '../../data/studentMockData'
+import { talentDirectoryStudents } from '../../data/talentDirectoryMockData'
 import { DemoNotice } from '../../components/common/DemoNotice'
-import type { SkillCategory, StudentProfile } from '../../types'
+import type { SkillCategory } from '../../types'
 
 const CATEGORY_TABS: { id: SkillCategory | 'all'; label: string }[] = [
   { id: 'all', label: 'All Talent' },
@@ -28,28 +27,7 @@ export function TalentDirectoryPage() {
   const [availableOnly, setAvailableOnly] = useState(false)
   const [collegeFilter, setCollegeFilter] = useState('All')
 
-  // Combine demo student (Sofia Rodriguez) with mockStudents so she appears first
-  const allStudents = useMemo(() => {
-    const sofiaAsProfile: StudentProfile = {
-      id: demoStudent.id,
-      name: demoStudent.name,
-      headline: demoStudent.headline,
-      university: `${demoStudent.college} (${demoStudent.degree})`,
-      graduationYear: demoStudent.graduationYear,
-      avatarUrl: demoStudent.avatarUrl,
-      hourlyRate: 65,
-      projectsCompleted: demoStudent.projectsCompleted,
-      rating: 5.0,
-      reviewsCount: 7,
-      availability: demoStudent.availability,
-      skills: demoStudent.skills.map((s) => ({ name: s.name, category: 'design' })),
-      featuredWork: demoStudent.portfolioProjects[0]?.name || 'Interactive 3D Web Experience',
-      bio: demoStudent.about,
-    }
-
-    const rest = mockStudents.filter((s) => s.id !== demoStudent.id)
-    return [sofiaAsProfile, ...rest]
-  }, [])
+  const allStudents = talentDirectoryStudents
 
   const filteredStudents = useMemo(() => {
     return allStudents.filter((student) => {
@@ -104,7 +82,7 @@ export function TalentDirectoryPage() {
         <PageHeading
           eyebrow="Student Talent Directory"
           title="Discover student builders."
-          description="Connect with top engineering, design, and AI students from leading universities across India. Ready for internships, hackathon squads, and client work."
+          description="Explore sample student talent across engineering, design, media, content, and marketing. Ratings and reviews are illustrative demo content."
           actions={
             <div className="flex items-center gap-2">
               <Link to="/signup/student">
@@ -199,7 +177,7 @@ export function TalentDirectoryPage() {
           Showing <strong className="text-[#171916]">{filteredStudents.length}</strong> student builder profiles
         </span>
       </div>
-      <div className="mt-3"><DemoNotice>Demo profiles only. Student identity, enrollment, skills, and work history have not been independently checked.</DemoNotice></div>
+      <div className="mt-3"><DemoNotice>Demo profiles only. Ratings and reviews are sample content; student identity, enrollment, skills, and work history have not been independently checked.</DemoNotice></div>
 
       {/* Student Cards Grid */}
       {filteredStudents.length > 0 ? (
@@ -244,12 +222,19 @@ export function TalentDirectoryPage() {
                   {student.bio}
                 </p>
 
+                {student.sampleReview && (
+                  <blockquote className="rounded-xl border border-[#E7E8E1] bg-white/70 px-3 py-2.5 text-xs leading-relaxed text-[#525A55] line-clamp-2">
+                    <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-[#777A72]">Sample review</span>
+                    “{student.sampleReview}”
+                  </blockquote>
+                )}
+
                 {/* Featured Work Highlight */}
                 {student.featuredWork && (
                   <div className="rounded-xl bg-[#FAF8F5] border border-[#E7E8E1] p-2.5 text-[11px] text-[#525A55]">
                     <div className="flex items-center gap-1 font-bold text-[#171916] mb-0.5">
                       <FolderGit2 className="h-3 w-3 text-[#08C58A]" />
-                      <span>Featured Work</span>
+                      <span>Sample Work</span>
                     </div>
                     <span className="italic">{student.featuredWork}</span>
                   </div>
@@ -277,12 +262,12 @@ export function TalentDirectoryPage() {
               <div className="mt-5 peer-divider-fade-t pt-3 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1 text-[#777A72]">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  <span className="font-bold text-[#171916]">{student.rating}</span>
-                  <span>({student.projectsCompleted} projects)</span>
+                  <span className="font-bold text-[#171916]">{student.rating.toFixed(1)}/5</span>
+                  <span>({student.reviewsCount} reviews)</span>
                 </div>
 
                 <Link
-                  to={`/profiles/${student.id === demoStudent.id ? 'sofia-rodriguez' : student.id}`}
+                  to={`/profiles/${student.id}`}
                   className="inline-flex items-center gap-1 text-xs font-bold text-[#123D30] hover:text-[#08A876] transition-colors"
                 >
                   View Profile <ArrowRight className="h-3 w-3" />
