@@ -18,6 +18,7 @@ export function SocialAuthButtons({
 }: SocialAuthButtonsProps) {
   const navigate = useNavigate()
   const { loginWithGithub, completeExternalLogin } = useAuth()
+  const [googleError, setGoogleError] = useState<string | null>(null)
   const [isGithubLoading, setIsGithubLoading] = useState(false)
 
   const handleGoogleSuccess = useCallback((userRole: 'student' | 'client', user?: AuthUser) => {
@@ -33,8 +34,13 @@ export function SocialAuthButtons({
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
       if (event.data?.type === 'GOOGLE_SIGNIN_SUCCESS' && event.data?.user && event.data?.token) {
+        setGoogleError(null)
         completeExternalLogin(event.data.user as AuthUser, event.data.token as string)
         handleGoogleSuccess(event.data.role || role, event.data.user)
+      }
+
+      if (event.data?.type === 'GOOGLE_SIGNIN_ERROR') {
+        setGoogleError(event.data.error || 'Google sign-in could not be completed. Please try again.')
       }
     }
 
@@ -66,7 +72,10 @@ export function SocialAuthButtons({
         {/* Google Sign-In Button */}
         <button
           type="button"
-          onClick={() => startGoogleOAuth(role)}
+          onClick={() => {
+            setGoogleError(null)
+            startGoogleOAuth(role)
+          }}
           className="group flex w-full items-center justify-center gap-3 rounded-2xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-xs font-bold text-[#171916] shadow-2xs transition-all hover:border-[#94A3B8] hover:bg-gray-50/80 hover:shadow-sm sm:text-sm"
         >
           {/* Official Google 4-Color G */}
@@ -90,6 +99,11 @@ export function SocialAuthButtons({
           </svg>
           <span>{labelPrefix} with Google</span>
         </button>
+        {googleError && (
+          <p role="alert" className="rounded-xl border border-[#F4C7C3] bg-[#FEF2F2] px-3 py-2 text-center text-xs font-medium text-[#B42318]">
+            {googleError}
+          </p>
+        )}
 
         {/* GitHub Sign-In Button */}
         <button

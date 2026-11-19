@@ -95,7 +95,7 @@ PeerConnect uses Google's server-side authorization-code flow. This means the ac
 2. Add the exact callback URI to its authorised redirect URIs:
    - Local: `http://localhost:5001/api/auth/google/callback`
    - Production: `https://YOUR-DOMAIN/api/auth/google/callback`
-3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `APP_ORIGIN`, and a strong `JWT_SECRET` in the host's environment variables. See [`.env.example`](.env.example) for the names only—never commit real secrets.
+3. Copy [`.env.example`](.env.example) to a local `.env` file (loaded automatically during local development) or set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `APP_ORIGIN`, and a strong `JWT_SECRET` in the host's environment variables. Never commit real secrets.
 4. Use `APP_ORIGIN` for the browser app's public URL (for example, `https://peerconnect.example`) and ensure `GOOGLE_REDIRECT_URI` matches Google Cloud exactly.
 
 The flow requests only `openid`, `email`, and `profile`. A Google email confirms the Google account email only; it does not mark college, skills, experience, or portfolio verification as complete.
