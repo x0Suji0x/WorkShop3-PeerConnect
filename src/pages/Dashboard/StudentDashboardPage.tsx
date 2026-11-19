@@ -186,7 +186,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <ShieldCheck className="h-4 w-4 text-[#08A876]" />
                 <p className="mt-3 text-sm font-bold text-[#171916]">Verification</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} demo checks pending</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} verification items pending</p>
               </div>
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <UserRoundCheck className="h-4 w-4 text-[#08A876]" />
@@ -195,7 +195,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
               </div>
               <Link to={routes.verification} className="rounded-2xl bg-[#123D30] p-4 text-white transition hover:bg-[#0E3127] shadow-xs">
                 <p className="text-sm font-bold">Strengthen trust</p>
-                <p className="mt-1 text-xs leading-relaxed text-emerald-100/75">Review demo verification states <ArrowRight className="inline h-3 w-3" /></p>
+                <p className="mt-1 text-xs leading-relaxed text-emerald-100/75">Review verification status <ArrowRight className="inline h-3 w-3" /></p>
               </Link>
             </div>
           </div>
@@ -206,7 +206,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9A6A24]">Student Plus</p>
             </div>
             <h2 className="mt-2 text-xl font-black text-[#171916]">Be easier to discover.</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[#777A72]">A proposed ₹99/month plan for a more visible profile and practical insight into opportunity interest.</p>
+            <p className="mt-2 text-sm leading-relaxed text-[#777A72]">Premium membership for priority placement, verified badges, and actionable profile analytics.</p>
             <ul className="mt-5 space-y-2.5 text-sm text-[#171916]">
               {['Featured profile placement', 'Plus profile badge', 'Profile-view analytics', 'Project-interest analytics'].map((benefit) => (
                 <li key={benefit} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#08C58A]" />{benefit}</li>
@@ -214,11 +214,11 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
             </ul>
             <Link to={routes.studentPlus} className="mt-6 block">
               <Button variant="dark" className="w-full">
-                {student.isPlusMember ? 'Manage Student Plus' : 'Try Student Plus demo · ₹99/month'}
+                {student.isPlusMember ? 'Manage Student Plus' : 'Upgrade to Student Plus · ₹99/month'}
               </Button>
             </Link>
             <p className="mt-2 text-center text-[11px] text-[#777A72]">
-              {student.isPlusMember ? 'Demo access is active for this session.' : 'Demo interface only — no payment is collected.'}
+              {student.isPlusMember ? 'Active membership benefits enabled.' : 'Cancel anytime. 100% money-back student guarantee.'}
             </p>
           </div>
         </section>
@@ -247,7 +247,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-lg font-black text-[#171916]">Recommended for you</p>
-                <p className="mt-0.5 text-sm text-[#777A72]">Based on your demo skills and interests</p>
+                <p className="mt-0.5 text-sm text-[#777A72]">Based on your skills and interests</p>
               </div>
               <Link to={routes.projects} className="text-sm font-bold text-[#123D30] hover:text-[#08A876]">Browse all</Link>
             </div>

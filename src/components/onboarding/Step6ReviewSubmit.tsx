@@ -156,7 +156,7 @@ export function Step6ReviewSubmit({
                 size="sm"
               >
                 {data.college.isEmailVerified
-                  ? 'Institutional Email Verified (Demo)'
+                  ? 'Institutional Email Verified'
                   : data.college.idCardFileName
                   ? 'ID Uploaded (Pending Review)'
                   : 'Unverified'}

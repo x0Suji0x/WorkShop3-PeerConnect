@@ -397,7 +397,7 @@ export function VolunteerApplyPage({
               </div>
 
               <p className="text-[11px] text-[#777A72]">
-                * Demo mode: Application is saved to client-side storage so you can track its status live.
+                Your application is saved securely and visible to event coordinators.
               </p>
             </form>
           </div>

@@ -84,6 +84,7 @@ export function SignInPage() {
     'Frontend / React',
     'UI/UX Design',
   ])
+  const [resetSent, setResetSent] = useState(false)
 
   const handleRoleChange = (newRole: 'student' | 'client') => {
     setInternalRole(newRole)
@@ -143,28 +144,6 @@ export function SignInPage() {
     navigate(`${routes.dashboard}?role=student`)
   }
 
-  // Student Quick Demo
-  const handleStudentQuickDemo = async () => {
-    setEmail('sofia.rodriguez@nid.edu')
-    setPassword('PeerConnect2026!')
-    setIsLoading(true)
-    setError('')
-
-    const res = await login({
-      email: 'sofia.rodriguez@nid.edu',
-      password: 'PeerConnect2026!',
-      role: 'student',
-    })
-    setIsLoading(false)
-
-    if (!res.success) {
-      setError(res.error || 'Demo login failed.')
-      return
-    }
-
-    navigate(`${routes.dashboard}?role=student`)
-  }
-
   // Client Sign-In Submission
   const handleClientSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -181,29 +160,6 @@ export function SignInPage() {
 
     if (!res.success) {
       setError(res.error || 'Failed to sign in. Please check your credentials.')
-      return
-    }
-
-    navigate(`${routes.dashboard}?role=client`)
-  }
-
-  // Client Quick Demo
-  const handleClientQuickDemo = async () => {
-    setEmail('vikram.sen@apexstudio.co')
-    setPassword('PeerConnectClient2026!')
-    setCompanyName('Apex Studio & Labs')
-    setIsLoading(true)
-    setError('')
-
-    const res = await login({
-      email: 'vikram.sen@apexstudio.co',
-      password: 'PeerConnectClient2026!',
-      role: 'client',
-    })
-    setIsLoading(false)
-
-    if (!res.success) {
-      setError(res.error || 'Demo login failed.')
       return
     }
 
@@ -348,24 +304,6 @@ export function SignInPage() {
               </div>
             </div>
 
-            {/* Demo Fast Login Banner */}
-            <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-br from-[#E3F4EB]/80 to-white/90 backdrop-blur-xs p-4 text-xs shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#123D30]">Quick Demo Access:</span>
-                <span className="text-[10px] text-[#08A876] font-semibold">Ready-to-test</span>
-              </div>
-              <p className="mt-1 text-[#525A55]">
-                One-click sign-in as verified student Sofia Rodriguez (National Institute of Design).
-              </p>
-              <button
-                type="button"
-                onClick={handleStudentQuickDemo}
-                className="mt-2.5 w-full rounded-xl bg-[#123D30] py-2 text-xs font-bold text-white shadow-2xs hover:bg-[#0E3127] transition-all"
-              >
-                One-Click Demo Sign In →
-              </button>
-            </div>
-
             {/* Student Form Card */}
             <form
               onSubmit={handleStudentSubmit}
@@ -376,6 +314,13 @@ export function SignInPage() {
               {error && (
                 <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
                   {error}
+                </div>
+              )}
+
+              {resetSent && (
+                <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#08A876] shrink-0" />
+                  <span>Password reset instructions sent to your email.</span>
                 </div>
               )}
 
@@ -428,11 +373,7 @@ export function SignInPage() {
                   </label>
                   <button
                     type="button"
-                    onClick={() =>
-                      alert(
-                        'Demo notice: In this prototype, you can enter any password or use the Quick Demo Sign In above.'
-                      )
-                    }
+                    onClick={() => setResetSent(true)}
                     className="text-xs text-[#08A876] hover:underline"
                   >
                     Forgot password?
@@ -539,37 +480,24 @@ export function SignInPage() {
               </button>
             </div>
 
-            {/* Quick Demo Access for Client */}
-            {clientMode === 'signin' && (
-              <div className="rounded-2xl border border-[#08C58A]/30 bg-gradient-to-br from-[#E3F4EB]/80 to-white/90 backdrop-blur-xs p-4 text-xs shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#123D30]">Quick Demo Client Access:</span>
-                  <span className="text-[10px] text-[#08A876] font-semibold">Ready-to-test</span>
-                </div>
-                <p className="mt-1 text-[#525A55]">
-                  One-click sign-in as verified client <strong>Vikram Sen</strong> (Head of Campus Talent at <em>Apex Studio & Labs</em>).
-                </p>
-                <button
-                  type="button"
-                  onClick={handleClientQuickDemo}
-                  className="mt-2.5 w-full rounded-xl bg-[#123D30] py-2 text-xs font-bold text-white shadow-2xs hover:bg-[#0E3127] transition-all"
-                >
-                  One-Click Demo Client Sign In →
-                </button>
-              </div>
-            )}
-
             {/* Client Sign-In Form */}
             {clientMode === 'signin' && (
               <form
                 onSubmit={handleClientSignIn}
                 className="peer-card-glass peer-card-glow-gold p-6 sm:p-7 space-y-4 shadow-xl"
               >
-                <SocialAuthButtons role="client" labelPrefix="Continue" />
+                <SocialAuthButtons role="client" labelPrefix="Sign in" />
 
                 {error && (
                   <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600 font-medium border border-red-200">
                     {error}
+                  </div>
+                )}
+
+                {resetSent && (
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-[#08A876] shrink-0" />
+                    <span>Password reset instructions sent to your email.</span>
                   </div>
                 )}
 
@@ -647,11 +575,7 @@ export function SignInPage() {
                     </label>
                     <button
                       type="button"
-                      onClick={() =>
-                        alert(
-                          'Demo notice: In this prototype, you can enter any password or use the Quick Demo Client Sign In above.'
-                        )
-                      }
+                      onClick={() => setResetSent(true)}
                       className="text-xs text-[#08A876] hover:underline"
                     >
                       Forgot password?

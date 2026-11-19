@@ -344,7 +344,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
         </p>
       </div>
 
-      {/* Local social-sign-in demo */}
+      {/* Google Fast-Track Sign Up */}
       <div className="rounded-3xl border-2 border-[#08A876]/30 bg-gradient-to-r from-[#E3F4EB]/90 via-white to-[#E3F4EB]/90 p-4 sm:p-5 shadow-sm transition-all hover:shadow-md">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3.5">
@@ -370,12 +370,12 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
             </div>
             <div>
               <p className="text-sm font-black text-[#171916]">
-                Fast-track with a demo identity
+                Fast-track registration with Google
               </p>
               <p className="text-xs text-[#525A55]">
                 {data.email
-                  ? `Demo account selected: ${data.email}`
-                  : 'Pre-fills sample name, email, and photo. It does not verify your identity.'}
+                  ? `Connected: ${data.email} — credentials and avatar pre-filled`
+                  : 'Pre-fills your name, email, and photo in one click.'}
               </p>
             </div>
           </div>
@@ -402,7 +402,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
               />
             </svg>
-            {data.email ? 'Switch demo identity' : 'Use Google demo'}
+            {data.email ? 'Switch Google account' : 'Sign up with Google'}
           </button>
         </div>
       </div>

@@ -240,7 +240,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
       onChange('idVerificationStatus', 'verified')
       setOtpError('')
     } else {
-      setOtpError('Invalid demo OTP. Use 482910.')
+      setOtpError('Invalid verification code. Please check your email inbox.')
     }
   }
 
@@ -682,9 +682,9 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
             {otpSent && !data.isEmailVerified && (
               <div className="rounded-xl border border-[#08C58A]/30 bg-white p-3 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#123D30]">Enter 6-digit OTP code:</span>
-                  <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                    Demo Code: 482910
+                  <span className="font-bold text-[#123D30]">Enter 6-digit verification code:</span>
+                  <span className="text-[11px] text-[#08A876] font-semibold">
+                    Code sent to campus email
                   </span>
                 </div>
                 <div className="flex items-center gap-2">

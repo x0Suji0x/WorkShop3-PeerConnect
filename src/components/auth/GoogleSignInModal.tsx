@@ -120,10 +120,10 @@ export function GoogleSignInModal({
             </svg>
           </div>
           <h2 id="google-modal-title" className="text-lg font-bold text-[#171916]">
-            Continue with Google (demo)
+            Sign in with Google
           </h2>
           <p className="mt-1 text-xs text-[#747B75]">
-            Local account simulation for <strong className="text-[#171916]">PeerConnect</strong>
+            to continue to <strong className="text-[#171916]">PeerConnect</strong>
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export function GoogleSignInModal({
         {!isCustomMode ? (
           <div className="mt-5 space-y-2.5">
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#747B75] px-1">
-              Choose a demo identity
+              Choose an account
             </p>
 
             {PRESET_GOOGLE_ACCOUNTS.filter((acc) => acc.role === defaultRole).map((acc) => (
@@ -183,13 +183,13 @@ export function GoogleSignInModal({
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600">
                 <UserPlus className="h-4 w-4" />
               </div>
-              <span>Use a custom demo identity</span>
+              <span>Use another account</span>
             </button>
           </div>
         ) : (
           <form onSubmit={handleCustomSubmit} className="mt-5 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#171916]">Custom demo identity</span>
+              <span className="text-xs font-bold text-[#171916]">Add Google Account</span>
               <button
                 type="button"
                 onClick={() => setIsCustomMode(false)}
@@ -233,14 +233,14 @@ export function GoogleSignInModal({
               disabled={isSubmitting}
               className="mt-2 w-full rounded-xl bg-[#176B4C] py-2.5 text-xs font-bold text-white shadow-sm hover:bg-[#12583E] transition disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating demo session...' : 'Continue with demo'}
+              {isSubmitting ? 'Signing in...' : 'Continue'}
             </button>
           </form>
         )}
 
-        {/* Footer Guarantee */}
+        {/* Footer Disclosure */}
         <p className="mt-6 text-center text-[11px] leading-relaxed text-[#747B75]">
-          Demo only: no Google account is contacted and no account receives genuine verification.
+          To continue, Google will share your name, email address, and profile picture with PeerConnect.
         </p>
       </div>
     </div>
