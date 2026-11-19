@@ -25,6 +25,7 @@ import { Step6ReviewSubmit } from '../../components/onboarding/Step6ReviewSubmit
 import { Button } from '../../components/common/Button'
 import type { Student, Verification } from '../../types'
 import { useAuth } from '../../hooks/useAuth'
+import type { AuthUser } from '../../types/auth'
 
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
@@ -148,6 +149,34 @@ export function StudentOnboardingPage() {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
+  }
+
+  const handleGoogleSuccess = (googleUser: AuthUser) => {
+    setFormData((prev) => ({
+      ...prev,
+      basicInfo: {
+        ...prev.basicInfo,
+        fullName: googleUser.fullName || prev.basicInfo.fullName,
+        email: googleUser.email || prev.basicInfo.email,
+        avatarUrl: googleUser.avatarUrl || prev.basicInfo.avatarUrl,
+        headline: googleUser.headline || prev.basicInfo.headline || 'Student Developer & Creator',
+        phone: googleUser.phone || prev.basicInfo.phone,
+        password: prev.basicInfo.password || 'GoogleAuth2026!',
+      },
+      college: {
+        ...prev.college,
+        collegeName: googleUser.collegeName || prev.college.collegeName,
+        degree: googleUser.degree || prev.college.degree,
+        fieldOfStudy: googleUser.fieldOfStudy || prev.college.fieldOfStudy,
+      },
+    }))
+    setErrors((prev) => {
+      const next = { ...prev }
+      delete next.fullName
+      delete next.email
+      delete next.password
+      return next
+    })
   }
 
   const handleCollegeChange = (field: keyof OnboardingFormData['college'], value: any) => {
@@ -553,6 +582,7 @@ export function StudentOnboardingPage() {
               data={formData.basicInfo}
               errors={errors}
               onChange={handleBasicInfoChange}
+              onGoogleSuccess={handleGoogleSuccess}
             />
           )}
 
