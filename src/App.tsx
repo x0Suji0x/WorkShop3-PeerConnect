@@ -1,37 +1,40 @@
+import { lazy, Suspense, type ReactNode } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { SmoothScrollProvider } from './components/providers/SmoothScrollProvider'
 import { AppShell } from './components/layout/AppShell'
+import { LoadingState } from './components/common/LoadingState'
 import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
-import { StudentDashboardPage } from './pages/Dashboard/StudentDashboardPage'
-import { StudentProfilePage } from './pages/Profiles/StudentProfilePage'
-import { TalentDirectoryPage } from './pages/Profiles/TalentDirectoryPage'
-import { VerificationPage } from './pages/Verification/VerificationPage'
-import { StudentPlusPage } from './pages/StudentPlus/StudentPlusPage'
-import { NotFoundPage } from './pages/Shared/NotFoundPage'
-import { CollegesPage } from './pages/Colleges/CollegesPage'
-import { ClubsPage } from './pages/Clubs/ClubsPage'
-import { EventsPage } from './pages/Events/EventsPage'
-import { ProjectsPage } from './pages/Projects/ProjectsPage'
-import { ProjectDetailPage } from './pages/Projects/ProjectDetailPage'
-import { NewProjectPage } from './pages/Projects/NewProjectPage'
-import { ApplicationsPage } from './pages/Applications/ApplicationsPage'
 import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
 
-// Auth & Onboarding pages
-import { SignUpPage } from './pages/Auth/SignUpPage'
-import { SignInPage } from './pages/Auth/SignInPage'
-import { StudentOnboardingPage } from './pages/Onboarding/StudentOnboardingPage'
-import { OnboardingCompletePage } from './pages/Onboarding/OnboardingCompletePage'
+const StudentDashboardPage = lazy(() => import('./pages/Dashboard/StudentDashboardPage').then(({ StudentDashboardPage: Page }) => ({ default: Page })))
+const StudentProfilePage = lazy(() => import('./pages/Profiles/StudentProfilePage').then(({ StudentProfilePage: Page }) => ({ default: Page })))
+const TalentDirectoryPage = lazy(() => import('./pages/Profiles/TalentDirectoryPage').then(({ TalentDirectoryPage: Page }) => ({ default: Page })))
+const VerificationPage = lazy(() => import('./pages/Verification/VerificationPage').then(({ VerificationPage: Page }) => ({ default: Page })))
+const StudentPlusPage = lazy(() => import('./pages/StudentPlus/StudentPlusPage').then(({ StudentPlusPage: Page }) => ({ default: Page })))
+const NotFoundPage = lazy(() => import('./pages/Shared/NotFoundPage').then(({ NotFoundPage: Page }) => ({ default: Page })))
+const CollegesPage = lazy(() => import('./pages/Colleges/CollegesPage').then(({ CollegesPage: Page }) => ({ default: Page })))
+const ClubsPage = lazy(() => import('./pages/Clubs/ClubsPage').then(({ ClubsPage: Page }) => ({ default: Page })))
+const EventsPage = lazy(() => import('./pages/Events/EventsPage').then(({ EventsPage: Page }) => ({ default: Page })))
+const ProjectsPage = lazy(() => import('./pages/Projects/ProjectsPage').then(({ ProjectsPage: Page }) => ({ default: Page })))
+const ProjectDetailPage = lazy(() => import('./pages/Projects/ProjectDetailPage').then(({ ProjectDetailPage: Page }) => ({ default: Page })))
+const NewProjectPage = lazy(() => import('./pages/Projects/NewProjectPage').then(({ NewProjectPage: Page }) => ({ default: Page })))
+const ApplicationsPage = lazy(() => import('./pages/Applications/ApplicationsPage').then(({ ApplicationsPage: Page }) => ({ default: Page })))
+const SignUpPage = lazy(() => import('./pages/Auth/SignUpPage').then(({ SignUpPage: Page }) => ({ default: Page })))
+const SignInPage = lazy(() => import('./pages/Auth/SignInPage').then(({ SignInPage: Page }) => ({ default: Page })))
+const StudentOnboardingPage = lazy(() => import('./pages/Onboarding/StudentOnboardingPage').then(({ StudentOnboardingPage: Page }) => ({ default: Page })))
+const OnboardingCompletePage = lazy(() => import('./pages/Onboarding/OnboardingCompletePage').then(({ OnboardingCompletePage: Page }) => ({ default: Page })))
+const CommunitiesPage = lazy(() => import('./pages/Communities/CommunitiesPage').then(({ CommunitiesPage: Page }) => ({ default: Page })))
+const CommunityDetailPage = lazy(() => import('./pages/Communities/CommunityDetailPage').then(({ CommunityDetailPage: Page }) => ({ default: Page })))
+const MyCommunitiesPage = lazy(() => import('./pages/Communities/MyCommunitiesPage').then(({ MyCommunitiesPage: Page }) => ({ default: Page })))
+const TeamFinderPage = lazy(() => import('./pages/TeamFinder/TeamFinderPage').then(({ TeamFinderPage: Page }) => ({ default: Page })))
+const TeamDetailPage = lazy(() => import('./pages/TeamFinder/TeamDetailPage').then(({ TeamDetailPage: Page }) => ({ default: Page })))
+const NewTeamPage = lazy(() => import('./pages/TeamFinder/NewTeamPage').then(({ NewTeamPage: Page }) => ({ default: Page })))
+const TeamBuilderPage = lazy(() => import('./pages/TeamFinder/TeamBuilderPage').then(({ TeamBuilderPage: Page }) => ({ default: Page })))
 
-// Communities and Team Finder pages
-import { CommunitiesPage } from './pages/Communities/CommunitiesPage'
-import { CommunityDetailPage } from './pages/Communities/CommunityDetailPage'
-import { MyCommunitiesPage } from './pages/Communities/MyCommunitiesPage'
-import { TeamFinderPage } from './pages/TeamFinder/TeamFinderPage'
-import { TeamDetailPage } from './pages/TeamFinder/TeamDetailPage'
-import { NewTeamPage } from './pages/TeamFinder/NewTeamPage'
-import { TeamBuilderPage } from './pages/TeamFinder/TeamBuilderPage'
+function RouteBoundary({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<LoadingState label="Loading page…" />}>{children}</Suspense>
+}
 
 export default function App() {
   return (
@@ -41,35 +44,35 @@ export default function App() {
           <AppShell>
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
-              <Route path={routes.dashboard} element={<StudentDashboardPage />} />
-              <Route path={routes.profiles} element={<TalentDirectoryPage />} />
-              <Route path="/profiles/:profileId" element={<StudentProfilePage />} />
-              <Route path={routes.verification} element={<VerificationPage />} />
-              <Route path={routes.studentPlus} element={<StudentPlusPage />} />
-              <Route path={routes.projects} element={<ProjectsPage />} />
-              <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
-              <Route path={routes.newProject} element={<NewProjectPage />} />
-              <Route path={routes.applications} element={<ApplicationsPage />} />
-              <Route path={routes.colleges} element={<CollegesPage />} />
-              <Route path={routes.clubs} element={<ClubsPage />} />
-              <Route path={routes.events} element={<EventsPage />} />
+              <Route path={routes.dashboard} element={<RouteBoundary><StudentDashboardPage /></RouteBoundary>} />
+              <Route path={routes.profiles} element={<RouteBoundary><TalentDirectoryPage /></RouteBoundary>} />
+              <Route path="/profiles/:profileId" element={<RouteBoundary><StudentProfilePage /></RouteBoundary>} />
+              <Route path={routes.verification} element={<RouteBoundary><VerificationPage /></RouteBoundary>} />
+              <Route path={routes.studentPlus} element={<RouteBoundary><StudentPlusPage /></RouteBoundary>} />
+              <Route path={routes.projects} element={<RouteBoundary><ProjectsPage /></RouteBoundary>} />
+              <Route path="/projects/:projectId" element={<RouteBoundary><ProjectDetailPage /></RouteBoundary>} />
+              <Route path={routes.newProject} element={<RouteBoundary><NewProjectPage /></RouteBoundary>} />
+              <Route path={routes.applications} element={<RouteBoundary><ApplicationsPage /></RouteBoundary>} />
+              <Route path={routes.colleges} element={<RouteBoundary><CollegesPage /></RouteBoundary>} />
+              <Route path={routes.clubs} element={<RouteBoundary><ClubsPage /></RouteBoundary>} />
+              <Route path={routes.events} element={<RouteBoundary><EventsPage /></RouteBoundary>} />
 
               {/* Authentication & Onboarding routes */}
-              <Route path={authRoutes.signup} element={<SignUpPage />} />
-              <Route path={authRoutes.signupStudent} element={<StudentOnboardingPage />} />
-              <Route path={authRoutes.signupComplete} element={<OnboardingCompletePage />} />
-              <Route path={authRoutes.signin} element={<SignInPage />} />
+              <Route path={authRoutes.signup} element={<RouteBoundary><SignUpPage /></RouteBoundary>} />
+              <Route path={authRoutes.signupStudent} element={<RouteBoundary><StudentOnboardingPage /></RouteBoundary>} />
+              <Route path={authRoutes.signupComplete} element={<RouteBoundary><OnboardingCompletePage /></RouteBoundary>} />
+              <Route path={authRoutes.signin} element={<RouteBoundary><SignInPage /></RouteBoundary>} />
 
               {/* Communities & Team Finder module routes */}
-              <Route path={communityRoutes.communities} element={<CommunitiesPage />} />
-              <Route path={communityRoutes.communityDetail} element={<CommunityDetailPage />} />
-              <Route path="/my-communities" element={<MyCommunitiesPage />} />
-              <Route path={communityRoutes.teamFinder} element={<TeamFinderPage />} />
-              <Route path={communityRoutes.newTeam} element={<NewTeamPage />} />
-              <Route path={communityRoutes.teamBuilder} element={<TeamBuilderPage />} />
-              <Route path={communityRoutes.teamDetail} element={<TeamDetailPage />} />
+              <Route path={communityRoutes.communities} element={<RouteBoundary><CommunitiesPage /></RouteBoundary>} />
+              <Route path={communityRoutes.communityDetail} element={<RouteBoundary><CommunityDetailPage /></RouteBoundary>} />
+              <Route path="/my-communities" element={<RouteBoundary><MyCommunitiesPage /></RouteBoundary>} />
+              <Route path={communityRoutes.teamFinder} element={<RouteBoundary><TeamFinderPage /></RouteBoundary>} />
+              <Route path={communityRoutes.newTeam} element={<RouteBoundary><NewTeamPage /></RouteBoundary>} />
+              <Route path={communityRoutes.teamBuilder} element={<RouteBoundary><TeamBuilderPage /></RouteBoundary>} />
+              <Route path={communityRoutes.teamDetail} element={<RouteBoundary><TeamDetailPage /></RouteBoundary>} />
 
-              <Route path="*" element={<NotFoundPage />} />
+              <Route path="*" element={<RouteBoundary><NotFoundPage /></RouteBoundary>} />
             </Routes>
           </AppShell>
         </StudentProfileProvider>

@@ -24,6 +24,7 @@ Once the development server is running (`npm run dev`), access PeerConnect local
 | **Employer Workspace** | [http://localhost:5173/dashboard?role=client](http://localhost:5173/dashboard?role=client) | Manage project briefs, proposals, escrow & shortlist talent |
 | **Student Profile** | [http://localhost:5173/profiles/sofia-rodriguez](http://localhost:5173/profiles/sofia-rodriguez) | Public portfolio, skills, experience & verified identity |
 | **Verification Centre** | [http://localhost:5173/verification](http://localhost:5173/verification) | Institutional email, phone, and portfolio verification signals |
+| **Student Plus Demo** | [http://localhost:5173/student-plus](http://localhost:5173/student-plus) | ₹99/month plan preview with a non-chargeable checkout demo |
 | **Communities** | [http://localhost:5173/communities](http://localhost:5173/communities) | 12 student interest circles, filters & AI recommendations |
 | **Community Detail** | [http://localhost:5173/communities/ai-ml](http://localhost:5173/communities/ai-ml) | Discussions feed, member roster, and guidelines |
 | **My Communities** | [http://localhost:5173/my-communities](http://localhost:5173/my-communities) | Joined circles & aggregated discussion stream |
@@ -70,6 +71,11 @@ Once the development server is running (`npm run dev`), access PeerConnect local
 5. **Run Linting:**
    ```bash
    npm run lint
+   ```
+
+6. **Run unit tests:**
+   ```bash
+   npm run test
    ```
 
 ---
