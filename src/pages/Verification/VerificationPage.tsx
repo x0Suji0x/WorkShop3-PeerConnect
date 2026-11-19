@@ -16,8 +16,8 @@ const verificationVisuals: Record<VerificationType, typeof ShieldCheck> = {
 }
 
 const statusDetails: Record<VerificationStatus, { label: string; badge: 'green' | 'peach' | 'neutral'; icon: typeof CheckCircle2 }> = {
-  verified: { label: 'Verified', badge: 'green', icon: CheckCircle2 },
-  pending: { label: 'Pending demo review', badge: 'peach', icon: Clock3 },
+  verified: { label: 'Demo example only', badge: 'neutral', icon: CheckCircle2 },
+  pending: { label: 'Demo placeholder', badge: 'peach', icon: Clock3 },
   unverified: { label: 'Not verified', badge: 'neutral', icon: ShieldCheck },
 }
 

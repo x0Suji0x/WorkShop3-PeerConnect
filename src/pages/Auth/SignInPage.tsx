@@ -96,7 +96,7 @@ export function SignInPage() {
     setSearchParams({ role: 'client', mode: newMode })
   }
 
-  // Student email domain verification (.edu / .ac.in)
+  // This only detects an address format; it does not verify identity or enrollment.
   const isEduEmail =
     email.toLowerCase().endsWith('.edu') ||
     email.toLowerCase().endsWith('.ac.in') ||
@@ -104,7 +104,7 @@ export function SignInPage() {
     email.toLowerCase().endsWith('.ac.uk') ||
     email.toLowerCase().includes('.edu.')
 
-  // Client email business domain verification
+  // This only identifies a non-freemail domain; it does not verify a business.
   const emailDomain = email.split('@')[1]?.toLowerCase().trim() || ''
   const isBusinessEmail =
     emailDomain.length > 3 &&
@@ -179,7 +179,6 @@ export function SignInPage() {
       company: resolvedCompany,
       email: email.trim(),
       role: 'client',
-      isVerifiedEmployer: isBusinessEmail,
     }
 
     try {
@@ -208,7 +207,6 @@ export function SignInPage() {
       company: 'Apex Studio & Labs',
       email: 'vikram.sen@apexstudio.co',
       role: 'client',
-      isVerifiedEmployer: true,
     }
 
     try {
@@ -248,7 +246,6 @@ export function SignInPage() {
       orgType,
       selectedNeeds,
       role: 'client',
-      isVerifiedEmployer: isBusinessEmail,
     }
 
     try {
@@ -297,7 +294,7 @@ export function SignInPage() {
             }`}
           >
             <Briefcase className="h-4 w-4" />
-            <span>Client / Employer</span>
+            <span>Client / Hiring</span>
           </button>
         </div>
 
@@ -305,7 +302,7 @@ export function SignInPage() {
         <div className="text-center">
           <div className="peer-eyebrow-pill mb-3 inline-flex">
             <span className="dot" aria-hidden="true" />
-            {role === 'client' ? 'EMPLOYER WORKSPACE' : 'STUDENT NETWORK'}
+            {role === 'client' ? 'CLIENT WORKSPACE' : 'STUDENT NETWORK'}
           </div>
 
           <div
@@ -332,7 +329,7 @@ export function SignInPage() {
           <p className="mt-1 text-xs text-[#525A55] sm:text-sm">
             {role === 'client'
               ? clientMode === 'register'
-                ? 'Create a verified client account to post briefs and hire top campus talent.'
+                ? 'Create a client account to review applicants and hire student talent.'
                 : 'Sign in to access your company portal, manage project briefs, and hire student talent.'
               : 'Sign in to access your dashboard, squad messages, and project briefs.'}
           </p>
@@ -349,7 +346,7 @@ export function SignInPage() {
                 <span className="text-[10px] text-[#08A876] font-semibold">Ready-to-test</span>
               </div>
               <p className="mt-1 text-[#525A55]">
-                One-click sign-in as verified student Sofia Rodriguez (National Institute of Design).
+                One-click demo access as Sofia Rodriguez (National Institute of Design). This profile is sample data, not verified.
               </p>
               <button
                 type="button"
@@ -379,11 +376,11 @@ export function SignInPage() {
                   {isEduEmail ? (
                     <span className="flex items-center gap-1 text-[11px] font-bold text-[#08A876]">
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                      ✓ Verified Institutional Email
+                      College-style address format
                     </span>
                   ) : email.length > 5 ? (
                     <span className="text-[11px] text-[#777A72]">
-                      Standard Email (No verified tick)
+                      No college-style format detected
                     </span>
                   ) : null}
                 </div>
@@ -406,7 +403,7 @@ export function SignInPage() {
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {isEduEmail ? (
                       <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
-                        <Check className="h-3 w-3 text-[#08A876]" /> Verified
+                        <Check className="h-3 w-3 text-[#08A876]" /> Format match
                       </Badge>
                     ) : null}
                   </div>
@@ -477,7 +474,7 @@ export function SignInPage() {
 
               <div className="flex items-center justify-center gap-1.5 pt-2 text-center text-xs text-[#777A72]">
                 <ShieldCheck className="h-3.5 w-3.5 text-[#08A876]" />
-                <span>Secure student workspace</span>
+                <span>Student demo workspace</span>
               </div>
             </form>
 
@@ -539,7 +536,7 @@ export function SignInPage() {
                   <span className="text-[10px] text-[#08A876] font-semibold">Ready-to-test</span>
                 </div>
                 <p className="mt-1 text-[#525A55]">
-                  One-click sign-in as verified client <strong>Vikram Sen</strong> (Head of Campus Talent at <em>Apex Studio & Labs</em>).
+                One-click demo access as client <strong>Vikram Sen</strong> (Head of Campus Talent at <em>Apex Studio & Labs</em>). This is sample data, not verified.
                 </p>
                 <button
                   type="button"
@@ -572,7 +569,7 @@ export function SignInPage() {
                     {isBusinessEmail ? (
                       <span className="flex items-center gap-1 text-[11px] font-bold text-[#08A876]">
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        ✓ Verified Business Domain
+                        Business-style domain format
                       </span>
                     ) : isFreemail ? (
                       <span className="text-[11px] text-amber-700 font-medium">
@@ -599,14 +596,14 @@ export function SignInPage() {
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       {isBusinessEmail ? (
                         <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
-                          <Check className="h-3 w-3 text-[#08A876]" /> Employer
+                          <Check className="h-3 w-3 text-[#08A876]" /> Format match
                         </Badge>
                       ) : null}
                     </div>
                   </div>
                   {isFreemail && (
                     <p className="mt-1 text-[11px] text-[#777A72]">
-                      Using a corporate domain awards an instant verified employer badge.
+                      A non-freemail domain is only a format hint; no business checks happen in this demo.
                     </p>
                   )}
                 </div>
@@ -694,7 +691,7 @@ export function SignInPage() {
 
                 <div className="flex items-center justify-center gap-1.5 pt-2 text-center text-xs text-[#777A72]">
                   <ShieldCheck className="h-3.5 w-3.5 text-[#08A876]" />
-                  <span>Verified employer workspace · Escrow protection</span>
+                  <span>Client workspace demo · Payments are not handled here</span>
                 </div>
               </form>
             )}
@@ -739,7 +736,7 @@ export function SignInPage() {
                     {isBusinessEmail ? (
                       <span className="flex items-center gap-1 text-[11px] font-bold text-[#08A876]">
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        ✓ Verified Business Domain
+                        Business-style domain format
                       </span>
                     ) : null}
                   </div>
@@ -761,7 +758,7 @@ export function SignInPage() {
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       {isBusinessEmail ? (
                         <Badge variant="green" size="sm" className="font-bold">
-                          Verified
+                          Format match
                         </Badge>
                       ) : null}
                     </div>
@@ -911,7 +908,7 @@ export function SignInPage() {
                   disabled={isLoading}
                   className="w-full mt-2"
                 >
-                  {isLoading ? 'Creating Company Account...' : 'Create Employer Account & Start Hiring'}
+                  {isLoading ? 'Creating Client Account...' : 'Create Client Account & Start Hiring'}
                   <ArrowRight className="h-4 w-4 ml-1.5" />
                 </Button>
               </form>

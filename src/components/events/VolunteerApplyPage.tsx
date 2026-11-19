@@ -7,6 +7,8 @@ import {
   getEventById, getClubById, getCollegeById, saveStoredApplication,
   CATEGORY_COLORS, type VolunteerRoleType,
 } from '../../data/collegeData'
+import { DemoNotice } from '../common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 import { encodeRoute } from '../../lib/collegeRouter'
 
 interface VolunteerApplyPageProps {
@@ -396,9 +398,9 @@ export function VolunteerApplyPage({
                 </button>
               </div>
 
-              <p className="text-[11px] text-[#777A72]">
-                * Demo mode: Application is saved to client-side storage so you can track its status live.
-              </p>
+              <DemoNotice>
+                <strong>Demo application.</strong> {DEMO_COPY.device} This sample will not be reviewed by an event team.
+              </DemoNotice>
             </form>
           </div>
 

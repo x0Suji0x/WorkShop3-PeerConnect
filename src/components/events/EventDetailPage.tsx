@@ -152,7 +152,7 @@ export function EventDetailPage({ eventId, onNavigate }: EventDetailPageProps) {
                     Volunteer Opportunities
                   </h2>
                   <p className="text-xs text-[#777A72] mt-0.5">
-                    Gain hands-on experience and receive verified volunteer credentials
+                    Gain hands-on experience and explore volunteer opportunities
                   </p>
                 </div>
                 <span className="text-xs font-bold text-[#08C58A] bg-[#E3F4EB] border border-[#08C58A]/30 px-3 py-1 rounded-full">
@@ -275,7 +275,7 @@ export function EventDetailPage({ eventId, onNavigate }: EventDetailPageProps) {
               </div>
               <h2 className="font-black text-lg">Join the Organizing Team</h2>
               <p className="text-xs text-white/60 leading-relaxed">
-                Volunteering offers verified certificates, networking with industry mentors, and
+                Volunteering can offer certificates, networking with industry mentors, and
                 leadership experience.
               </p>
 

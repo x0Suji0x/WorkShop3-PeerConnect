@@ -388,7 +388,7 @@ export function CommunityDetailPage() {
               <h3 className="text-base font-bold text-[#171916]">
                 Member Directory ({members.length})
               </h3>
-              <span className="text-xs text-[#777A72]">Showing verified student members</span>
+              <span className="text-xs text-[#777A72]">Showing sample student members</span>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

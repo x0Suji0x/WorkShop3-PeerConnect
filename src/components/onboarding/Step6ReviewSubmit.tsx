@@ -146,20 +146,10 @@ export function Step6ReviewSubmit({
               <span className="text-[#777A72]">Graduation: Class of {data.college.graduationYear}</span>
               <span>•</span>
               <Badge
-                variant={
-                  data.college.isEmailVerified
-                    ? 'green'
-                    : data.college.idCardFileName
-                    ? 'peach'
-                    : 'neutral'
-                }
+                variant={data.college.idCardFileName ? 'peach' : 'neutral'}
                 size="sm"
               >
-                {data.college.isEmailVerified
-                  ? 'Institutional Email Verified (Demo)'
-                  : data.college.idCardFileName
-                  ? 'ID Uploaded (Pending Review)'
-                  : 'Unverified'}
+                {data.college.idCardFileName ? 'File selected (no review)' : 'Not verified in demo'}
               </Badge>
             </div>
           </div>
@@ -303,7 +293,7 @@ export function Step6ReviewSubmit({
               I accept the PeerConnect Terms of Service and Privacy Policy. *
             </span>
             <p className="mt-0.5 text-[11px] text-[#777A72]">
-              I confirm that my academic and skills details are accurate and acknowledge that PeerConnect keeps my phone number and verification documents private.
+              I confirm that my academic and skills details are accurate. This demo does not verify these details; do not submit sensitive identity documents.
             </p>
           </div>
         </label>

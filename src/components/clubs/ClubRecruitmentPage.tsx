@@ -8,6 +8,7 @@ import {
   getStoredApplications, type ClubOpening, type SubmittedApplication,
 } from '../../data/collegeData'
 import { encodeRoute } from '../../lib/collegeRouter'
+import { DemoNotice } from '../common/DemoNotice'
 
 interface ClubRecruitmentPageProps {
   clubId: string
@@ -178,6 +179,10 @@ export function ClubRecruitmentPage({
               <span>Campus Affiliation: {college.name} ({college.shortName})</span>
             </div>
           )}
+        </div>
+
+        <div className="mb-6">
+          <DemoNotice>Club and event applications are stored only in this browser/device. They are not sent to a real club or event team.</DemoNotice>
         </div>
 
         {/* TAB 1: OPENINGS LISTING */}

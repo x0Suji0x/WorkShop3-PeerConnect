@@ -67,7 +67,7 @@ export function ApplicationsPage() {
         <PageHeading
           eyebrow="Your activity"
           title="Applications in progress."
-          description="Track your proposals, client shortlist notifications, and project interviews."
+          description="Review your demo applications and sample status updates."
         />
         <DemoNotice><strong>Submitted applications and status changes.</strong> {DEMO_COPY.device}</DemoNotice>
 

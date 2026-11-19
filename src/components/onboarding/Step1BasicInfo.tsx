@@ -143,15 +143,15 @@ const PERSONAL_EMAIL_DOMAINS = [
   'zoho.com',
 ]
 
-// Check if email ends with .edu or .ac.in
-function checkIsEduEmail(emailStr: string): boolean {
+// Detect a common academic email format only; this does not verify a student.
+function hasAcademicEmailFormat(emailStr: string): boolean {
   const trimmed = emailStr.trim().toLowerCase()
   if (!trimmed.includes('@')) return false
   const parts = trimmed.split('@')
   if (parts.length !== 2 || !parts[1]) return false
   const domain = parts[1]
 
-  // Personal emails cannot have the verified student tick
+  // Exclude common personal email domains from the format hint.
   if (PERSONAL_EMAIL_DOMAINS.some((d) => domain === d || domain.endsWith('.' + d))) {
     return false
   }
@@ -191,14 +191,13 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
 
   const passwordStrength = evaluatePasswordStrength(data.password)
 
-  // Check if current email has verified .edu / .ac.in domain
-  const isEduVerified = checkIsEduEmail(data.email)
+  // This is only a format hint, not an identity or enrollment check.
+  const hasAcademicFormat = hasAcademicEmailFormat(data.email)
 
-  // When email changes, automatically sync verified status
+  // Email text alone never marks a profile as verified.
   const handleEmailChange = (val: string) => {
     onChange('email', val)
-    const isEdu = checkIsEduEmail(val)
-    onChange('isEmailVerified', isEdu)
+    onChange('isEmailVerified', false)
   }
 
   // Phone number handler: limit strictly to 10 digits
@@ -752,33 +751,32 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
             <p className="mt-1 text-xs text-red-600 font-medium">{errors.phone}</p>
           ) : (
             <p className="mt-1 text-[11px] text-[#777A72]">
-              Strictly 10-digit Indian mobile number. Kept private by default.
+              Enter a 10-digit Indian mobile number. This demo has no connected privacy controls.
             </p>
           )}
         </div>
       </div>
 
-      {/* Institutional Email Address Verification */}
+      {/* Institutional email format hint; no verification is performed. */}
       <div className="rounded-2xl border border-[#E7E8E1] bg-white p-5 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
           <div>
             <label htmlFor="reg-email" className="block text-xs font-bold text-[#171916]">
-              Institutional College Email (.edu / .ac.in) *
+              College Email Address *
             </label>
             <p className="text-[11px] text-[#777A72]">
-              Ending with .edu or .ac.in instantly earns the verified student checkmark
+              A college-style domain can be recognized as a format hint. It does not verify enrollment.
             </p>
           </div>
 
-          {/* Green Tick verified badge if .edu / .ac.in */}
-          {isEduVerified ? (
+          {hasAcademicFormat ? (
             <span className="flex items-center gap-1.5 rounded-full bg-[#E3F4EB] px-3 py-1 text-xs font-bold text-[#08A876] border border-[#08C58A]/40 shrink-0">
               <CheckCircle2 className="h-4 w-4 text-[#08C58A]" />
-              ✓ Verified Institutional Email
+              College-style format
             </span>
           ) : (
             <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200 shrink-0">
-              Not verified (Needs .edu / .ac.in)
+              Format not recognized
             </span>
           )}
         </div>
@@ -793,7 +791,7 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
             value={data.email}
             onChange={(e) => handleEmailChange(e.target.value)}
             className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-24 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
-              isEduVerified
+              hasAcademicFormat
                 ? 'border-[#08C58A] bg-[#E3F4EB]/20 text-[#123D30] font-medium'
                 : data.email.length > 5
                 ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-100'
@@ -802,9 +800,9 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
           />
 
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            {isEduVerified ? (
+            {hasAcademicFormat ? (
               <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
-                <Check className="h-3 w-3 text-[#08A876]" /> Verified
+                <Check className="h-3 w-3 text-[#08A876]" /> Format match
               </Badge>
             ) : (
               <span className="text-[11px] text-[#777A72] font-mono">
@@ -815,25 +813,25 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
         </div>
 
         {/* Dynamic status feedback */}
-        {isEduVerified ? (
+        {hasAcademicFormat ? (
           <div className="flex items-center gap-2 rounded-xl bg-[#E3F4EB] p-2.5 text-xs font-bold text-[#123D30] border border-[#08C58A]/30">
             <CheckCircle2 className="h-4 w-4 text-[#08A876] shrink-0" />
             <span>
-              Official educational domain detected ({data.email}) — your student badge is verified!
+              Academic-style email domain detected. No student identity or enrollment check happens in this demo.
             </span>
           </div>
         ) : data.email.length > 4 ? (
           <div className="flex items-start gap-1.5 pt-0.5 text-xs text-amber-700">
             <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600" />
             <span>
-              Personal email providers (e.g. @gmail.com) do not qualify for the verified student tick. Enter an email ending in <strong>.edu</strong> or <strong>.ac.in</strong> to show as verified.
+              Use your college address for this demo form. Email domains are not checked against a school and do not verify enrollment.
             </span>
           </div>
         ) : null}
 
         <p className="text-[11px] text-[#777A72] flex items-center gap-1">
           <ShieldCheck className="h-3.5 w-3.5 text-[#08A876]" />
-          Institutional email is private by default and used only for campus discovery.
+          Email privacy controls are not connected in this demo; do not enter sensitive personal details.
         </p>
       </div>
 

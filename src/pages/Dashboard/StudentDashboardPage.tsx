@@ -113,7 +113,7 @@ function StudentDashboardContent({ onSwitchToClient }: { onSwitchToClient: () =>
             className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
           >
             <Briefcase className="h-3.5 w-3.5 text-[#08C58A]" />
-            Switch to Employer View
+            Switch to Client View
           </button>
         </div>
 
@@ -150,7 +150,7 @@ function StudentDashboardContent({ onSwitchToClient }: { onSwitchToClient: () =>
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <ShieldCheck className="h-4 w-4 text-[#08A876]" />
                 <p className="mt-3 text-sm font-bold text-[#171916]">Verification</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} demo checks pending</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} demo status placeholders</p>
               </div>
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <UserRoundCheck className="h-4 w-4 text-[#08A876]" />

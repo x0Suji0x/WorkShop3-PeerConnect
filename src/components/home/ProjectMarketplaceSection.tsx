@@ -247,8 +247,7 @@ export function ProjectMarketplaceSection() {
           <div ref={rosterRef} className="space-y-4">
             {filteredProjects.map((project) => {
               const isApplied = appliedProjects[project.id]
-              const displayBadge =
-                project.badge === 'Verified Client' ? 'Active Brief' : project.badge
+              const displayBadge = project.badge
 
               return (
                 <div

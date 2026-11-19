@@ -33,7 +33,6 @@ interface ClientAuthData {
   company?: string
   email?: string
   role?: string
-  isVerifiedEmployer?: boolean
 }
 
 interface ClientDashboardViewProps {
@@ -157,7 +156,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
   // New Project Form State
   const [newTitle, setNewTitle] = useState('')
   const [newBudget, setNewBudgetType] = useState('4500')
-  const [newType, setNewType] = useState<'Fixed Escrow' | 'Milestone Escrow'>('Milestone Escrow')
+  const [newType, setNewType] = useState<'Fixed-price' | 'Milestone-based'>('Milestone-based')
   const [newDuration, setNewDuration] = useState('3 Weeks')
   const [newSkills, setNewSkills] = useState('React, TypeScript, Tailwind CSS')
   const [newDescription, setNewDescription] = useState('')
@@ -170,13 +169,13 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
       id: `client-proj-${Date.now()}`,
       title: newTitle.trim(),
       clientName: companyName,
-      clientType: 'Verified Employer Scope',
+      clientType: 'Project owner',
       clientLocation: 'Remote Scope',
       budget: Number(newBudget) || 4000,
       budgetType: newType,
       duration: newDuration,
       hoursPerWeek: '15-20 hrs/wk',
-      description: newDescription.trim() || 'Custom brief posted by verified employer.',
+      description: newDescription.trim() || 'Custom project brief.',
       skillsRequired: newSkills.split(',').map((s) => s.trim()).filter(Boolean),
       badge: 'New',
       applicantsCount: 0,
@@ -187,7 +186,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
     setIsModalOpen(false)
     setNewTitle('')
     setNewDescription('')
-    setToastMessage('Your new project brief is now live! Student talent will be notified.')
+    setToastMessage('Demo brief added to this dashboard. It resets on reload; no students are notified.')
     setTimeout(() => setToastMessage(null), 5000)
   }
 
@@ -206,8 +205,8 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
 
     setToastMessage(
       nextState
-        ? `Shortlisted candidate ${target?.name || ''}! Student status updated.`
-        : `Removed candidate ${target?.name || ''} from shortlist.`
+        ? `Shortlisted candidate ${target?.name || ''} on this device.`
+        : `Removed candidate ${target?.name || ''} from the local shortlist.`
     )
     setTimeout(() => setToastMessage(null), 4000)
   }
@@ -227,7 +226,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
         <div className="flex flex-wrap items-center justify-between gap-3 peer-divider-fade pb-4">
           <div className="flex items-center gap-2">
             <Badge variant="green" size="md" className="font-bold flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5" /> Employer Workspace
+              <Building2 className="h-3.5 w-3.5" /> Client Workspace
             </Badge>
             <span className="text-xs text-[#777A72]">
               Signed in as <strong className="text-[#171916]">{clientName}</strong> ({companyName})
@@ -263,9 +262,9 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
 
         {/* Page Heading */}
         <PageHeading
-          eyebrow="Employer & Recruiter Portal"
+          eyebrow="Client & Hiring Dashboard"
           title={`Welcome back, ${clientName.split(' ')[0]}.`}
-          description={`Manage your active project briefs for ${companyName}, review student proposals, and scout verified talent.`}
+          description={`Manage your demo project briefs for ${companyName}, review sample proposals, and browse student talent.`}
           actions={
             <div className="flex items-center gap-2">
               <Button size="sm" variant="primary" onClick={() => setIsModalOpen(true)}>
@@ -307,7 +306,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{shortlistedCount}</p>
             <p className="mt-1 text-sm font-bold text-[#171916]">Shortlisted Candidates</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Ready for interviews / escrow</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Applicants to review</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-mint p-5 hover:-translate-y-1 transition-all duration-200">
@@ -315,8 +314,8 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
               <DollarSign className="h-4.5 w-4.5" />
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">₹1,85,000</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Escrow Protected</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Milestone guarantee active</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Sample budgets</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Example amounts only</p>
           </div>
         </section>
 
@@ -389,12 +388,12 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
           </div>
         </section>
 
-        {/* Right Column: Recent Verified Applicants */}
+        {/* Right Column: Recent Applicants */}
         <section className="space-y-4 lg:col-span-5">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-black text-[#171916]">Student Proposals</h2>
-              <p className="text-xs text-[#777A72]">Pre-vetted students from top colleges</p>
+              <p className="text-xs text-[#777A72]">Sample student profiles from the demo directory</p>
             </div>
             <span className="text-xs font-semibold text-[#08A876] bg-[#E3F4EB] px-2.5 py-1 rounded-full">
               {shortlistedCount} shortlisted
@@ -495,6 +494,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
               </button>
             </div>
 
+            <DemoNotice>{DEMO_COPY.session} This brief is only a local preview and will not be published or notify students.</DemoNotice>
             <form onSubmit={handlePostBrief} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-[#171916]">Project Title</label>
@@ -520,14 +520,14 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-[#171916]">Escrow Model</label>
+                  <label className="block font-bold text-[#171916]">Budget structure</label>
                   <select
                     value={newType}
-                    onChange={(e) => setNewType(e.target.value as 'Fixed Escrow' | 'Milestone Escrow')}
+                    onChange={(e) => setNewType(e.target.value as 'Fixed-price' | 'Milestone-based')}
                     className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] py-2.5 px-3 text-xs outline-none focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20"
                   >
-                    <option value="Milestone Escrow">Milestone Escrow</option>
-                    <option value="Fixed Escrow">Fixed Escrow</option>
+                    <option value="Milestone-based">Milestone-based</option>
+                    <option value="Fixed-price">Fixed-price</option>
                   </select>
                 </div>
               </div>

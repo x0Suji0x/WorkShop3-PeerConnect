@@ -35,7 +35,7 @@ export function NewProjectPage() {
             <h1 className="mt-5 text-2xl font-black text-[#171916]">Project draft created</h1>
             <div className="mx-auto mt-4 max-w-lg"><DemoNotice>{DEMO_COPY.session}</DemoNotice></div>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[#777A72]">
-              This is a frontend demo, so the draft only exists in this screen and has not been published.
+              This frontend demo does not publish the draft or notify project owners.
             </p>
             <Link to={routes.projects} className="mt-6 inline-flex">
               <Button>Back to marketplace</Button>

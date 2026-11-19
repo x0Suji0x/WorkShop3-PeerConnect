@@ -6,6 +6,7 @@ import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { EmptyState } from '../../components/common/EmptyState'
+import { DemoNotice } from '../../components/common/DemoNotice'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { marketplaceProjects } from '../../data/projectMarketplaceMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
@@ -90,11 +91,6 @@ export function ProjectDetailPage() {
                   {project.badge}
                 </Badge>
               )}
-              {project.clientVerified && (
-                <Badge variant="neutral">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Verified client
-                </Badge>
-              )}
             </div>
 
             <h1 className="mt-4 text-3xl font-black tracking-tight text-[#171916] sm:text-4xl">
@@ -137,7 +133,7 @@ export function ProjectDetailPage() {
               Project terms
             </p>
             <dl className="mt-5 space-y-4 text-sm">
-              <Term icon={Wallet} label="Budget (Milestone Escrow)" value={formatBudget(project.budget)} />
+              <Term icon={Wallet} label="Budget schedule" value={formatBudget(project.budget)} />
               <Term icon={Clock3} label="Commitment" value={`${project.duration} · ${project.hoursPerWeek}`} />
               <Term icon={MapPin} label="Work mode" value={project.workMode ?? 'Remote'} />
             </dl>
@@ -150,7 +146,7 @@ export function ProjectDetailPage() {
                     <span>Proposal Submitted!</span>
                   </div>
                   <p className="text-[#525A55]">
-                    Your application is live and visible to the client in their Employer Workspace.
+                    Your application is visible in the client demo dashboard on this device.
                   </p>
                   <Link
                     to={routes.applications}
@@ -170,6 +166,9 @@ export function ProjectDetailPage() {
                   <Send className="h-4 w-4 mr-1.5" /> Apply to project
                 </Button>
               )}
+              <div className="mt-4">
+                <DemoNotice>Applications are stored only in this browser/device. They are not sent to a real client account.</DemoNotice>
+              </div>
             </div>
           </Card>
         </aside>

@@ -1,4 +1,4 @@
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, MapPin, Plus, Wallet } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, MapPin, Plus, Wallet } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { projectRoute, routes } from '../../app/routes'
@@ -119,12 +119,6 @@ function ProjectCard({ project }: { project: (typeof marketplaceProjects)[number
                   size="sm"
                 >
                   {project.badge}
-                </Badge>
-              )}
-              {project.clientVerified && (
-                <Badge variant="neutral" size="sm">
-                  <CheckCircle2 className="h-3 w-3" />
-                  Verified client
                 </Badge>
               )}
             </div>

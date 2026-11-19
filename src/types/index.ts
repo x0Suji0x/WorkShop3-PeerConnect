@@ -131,7 +131,6 @@ export interface College {
   city: string
   state: string
   logoUrl?: string
-  verified: boolean
   description?: string
   studentCount?: number
   clubCount?: number
@@ -160,19 +159,18 @@ export interface ProjectOpportunity {
   clientLocation: string
   clientLogo?: string
   budget: number
-  budgetType: 'Fixed Escrow' | 'Milestone Escrow' | 'Hourly'
+  budgetType: 'Fixed-price' | 'Milestone-based' | 'Hourly'
   duration: string
   hoursPerWeek: string
   description: string
   skillsRequired: string[]
-  badge?: 'High Urgency' | 'Featured' | 'New' | 'Verified Client'
+  badge?: 'High Urgency' | 'Featured' | 'New' | 'Active Client'
   applicantsCount: number
   postedTimeAgo: string
   category?: string
   workMode?: 'Remote' | 'Hybrid' | 'On-site'
   deadline?: string
   deliverables?: string[]
-  clientVerified?: boolean
 }
 
 export interface Project extends ProjectOpportunity {

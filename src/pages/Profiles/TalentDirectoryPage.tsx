@@ -2,17 +2,16 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Search,
-  ShieldCheck,
   Star,
   ArrowRight,
   Briefcase,
-  CheckCircle2,
   FolderGit2,
 } from 'lucide-react'
 import { PageHeading } from '../../components/common/PageHeading'
 import { Button } from '../../components/common/Button'
 import { mockStudents } from '../../data/mockData'
 import { demoStudent } from '../../data/studentMockData'
+import { DemoNotice } from '../../components/common/DemoNotice'
 import type { SkillCategory, StudentProfile } from '../../types'
 
 const CATEGORY_TABS: { id: SkillCategory | 'all'; label: string }[] = [
@@ -104,7 +103,7 @@ export function TalentDirectoryPage() {
         {/* Page Heading */}
         <PageHeading
           eyebrow="Student Talent Directory"
-          title="Discover pre-vetted campus builders."
+          title="Discover student builders."
           description="Connect with top engineering, design, and AI students from leading universities across India. Ready for internships, hackathon squads, and client work."
           actions={
             <div className="flex items-center gap-2">
@@ -197,12 +196,10 @@ export function TalentDirectoryPage() {
       {/* Results Count */}
       <div className="flex items-center justify-between text-xs text-[#777A72]">
         <span>
-          Showing <strong className="text-[#171916]">{filteredStudents.length}</strong> verified student builders
-        </span>
-        <span className="flex items-center gap-1 text-[#08A876] font-semibold">
-          <ShieldCheck className="h-4 w-4" /> 100% Institutional Verified Credentials
+          Showing <strong className="text-[#171916]">{filteredStudents.length}</strong> student builder profiles
         </span>
       </div>
+      <div className="mt-3"><DemoNotice>Demo profiles only. Student identity, enrollment, skills, and work history have not been independently checked.</DemoNotice></div>
 
       {/* Student Cards Grid */}
       {filteredStudents.length > 0 ? (
@@ -213,7 +210,7 @@ export function TalentDirectoryPage() {
               className="peer-card-glass p-5 group flex flex-col justify-between hover:-translate-y-1 transition-all duration-200"
             >
               <div className="space-y-4">
-                {/* Header: Avatar, Name & Verified Badge */}
+                {/* Header: Avatar and name */}
                 <div className="flex items-start gap-3.5">
                   <div className="relative shrink-0">
                     <img
@@ -221,12 +218,6 @@ export function TalentDirectoryPage() {
                       alt={student.name}
                       className="h-14 w-14 rounded-2xl object-cover border-2 border-white shadow-xs"
                     />
-                    <span
-                      className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#123D30] text-[#08C58A]"
-                      title="Verified Student Identity"
-                    >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    </span>
                   </div>
 
                   <div className="min-w-0 flex-1">

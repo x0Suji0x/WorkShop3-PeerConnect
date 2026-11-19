@@ -217,18 +217,18 @@ export function StudentOnboardingPage() {
         {
           id: 'ver-college',
           type: 'college_identity',
-          status: formData.basicInfo.isEmailVerified ? 'verified' : 'pending',
+          status: 'pending',
           label: 'Institutional enrollment',
-          description: formData.basicInfo.isEmailVerified
-            ? `Verified via institutional email (${formData.basicInfo.email})`
-            : 'Institutional email pending verification',
+          description: formData.basicInfo.email
+            ? 'Email format provided; no identity or enrollment checks happen in this demo.'
+            : 'No college identity checks happen in this demo.',
         },
         {
           id: 'ver-phone',
           type: 'phone_number',
-          status: 'verified',
+          status: 'unverified',
           label: 'Mobile phone',
-          description: `Registered mobile: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}`,
+          description: 'Phone number provided; no phone verification happens in this demo.',
         },
       ]
 
@@ -237,7 +237,7 @@ export function StudentOnboardingPage() {
         headline: formData.basicInfo.headline || student.headline,
         avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
         verifications: initialVerifications,
-        profileCompletion: formData.basicInfo.isEmailVerified ? 40 : 30,
+        profileCompletion: formData.basicInfo.email ? 40 : 30,
       })
       setProfileCreated(true)
     }
@@ -298,24 +298,22 @@ export function StudentOnboardingPage() {
       {
         id: 'ver-college',
         type: 'college_identity',
-        status: formData.college.isEmailVerified
-          ? 'verified'
-          : formData.college.idCardFileName
+        status: formData.college.isEmailVerified || formData.college.idCardFileName
           ? 'pending'
           : 'unverified',
         label: 'College enrollment',
         description: formData.college.isEmailVerified
-          ? `Verified via institutional email (${formData.college.collegeEmail})`
+          ? 'Demo code accepted; no email or enrollment verification was performed.'
           : formData.college.idCardFileName
-          ? `College ID document (${formData.college.idCardFileName}) submitted for review`
+          ? `College ID file selected (${formData.college.idCardFileName}); it is not uploaded or reviewed in this demo.`
           : 'Provide a college email or ID document to verify student status.',
       },
       {
         id: 'ver-phone',
         type: 'phone_number',
-        status: 'verified',
+        status: 'unverified',
         label: 'Phone number',
-        description: `Registered mobile number: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}`,
+        description: 'Phone number provided; no phone verification happens in this demo.',
       },
       {
         id: 'ver-exp',
@@ -323,15 +321,15 @@ export function StudentOnboardingPage() {
         status: formData.portfolio.organization ? 'pending' : 'unverified',
         label: 'Experience & roles',
         description: formData.portfolio.organization
-          ? `Self-reported role at ${formData.portfolio.organization}. Pending project owner verification.`
-          : 'Completed verified project reviews contribute to experience credibility.',
+          ? `Self-reported role at ${formData.portfolio.organization}. This demo does not verify it.`
+          : 'Experience review is not available in this demo.',
       },
       {
         id: 'ver-skills',
         type: 'skills',
         status: 'unverified',
         label: 'Skill assessments',
-        description: 'Complete community coding or design challenges to earn verified skill badges.',
+        description: 'Skill checks are not available in this demo.',
       },
       {
         id: 'ver-portfolio',
@@ -339,7 +337,7 @@ export function StudentOnboardingPage() {
         status: formData.portfolio.githubUrl ? 'pending' : 'unverified',
         label: 'Portfolio ownership',
         description: formData.portfolio.githubUrl
-          ? 'GitHub profile linked. Pending repository ownership verification.'
+          ? 'GitHub profile link provided; repository ownership is not checked in this demo.'
           : 'Link your public GitHub or Behance to verify authorship.',
       },
     ]
@@ -467,7 +465,7 @@ export function StudentOnboardingPage() {
               <div>
                 <p className="font-bold">Student Profile Created!</p>
                 <p className="text-[11px] text-[#525A55]">
-                  Step 1 credentials are saved. You can continue filling your university & portfolio details or skip to your dashboard anytime.
+                  Step 1 details are held for this session. Continue filling in your university and portfolio details or skip to your dashboard.
                 </p>
               </div>
             </div>
