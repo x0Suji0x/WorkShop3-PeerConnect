@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Search, Users, ArrowRight, ExternalLink, Filter, Building2, Clock } from 'lucide-react'
 import {
-  mockClubs, mockColleges, CLUB_CATEGORIES, CATEGORY_COLORS,
+  mockClubs, mockColleges, getCollegeById, CLUB_CATEGORIES, CATEGORY_COLORS,
   type Club, type ClubCategory,
 } from '../../data/collegeData'
 import { encodeRoute } from '../../lib/collegeRouter'
@@ -26,7 +26,7 @@ export function ClubDirectoryPage({
 
   const filtered = useMemo(() => {
     return mockClubs.filter((c) => {
-      const college = mockColleges.find((col) => col.id === c.collegeId)
+      const college = getCollegeById(c.collegeId)
       const matchSearch =
         !search ||
         c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -221,7 +221,7 @@ function ClubCard({
   club: Club
   onNavigate: (hash: string) => void
 }) {
-  const college = mockColleges.find((c) => c.id === club.collegeId)
+  const college = getCollegeById(club.collegeId)
   const colors = CATEGORY_COLORS[club.category]
 
   const recruitColors: Record<string, string> = {
@@ -235,8 +235,12 @@ function ClubCard({
       {/* Cover Header */}
       <div className="relative h-36 overflow-hidden bg-[#F7F6F0]">
         <img
-          src={club.coverUrl}
+          src={club.coverUrl || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80'}
           alt={club.name}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80'
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -244,8 +248,12 @@ function ClubCard({
         {/* Club Logo */}
         <div className="absolute bottom-3 left-4 w-12 h-12 rounded-xl bg-white border-2 border-white shadow-md overflow-hidden p-0.5">
           <img
-            src={club.logoUrl}
+            src={club.logoUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'}
             alt={club.name}
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'
+            }}
             className="w-full h-full object-cover rounded-lg"
           />
         </div>

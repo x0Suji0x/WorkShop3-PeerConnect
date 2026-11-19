@@ -9,6 +9,7 @@ import {
   CATEGORY_COLORS, type CollegeStudent,
 } from '../../data/collegeData'
 import { encodeRoute } from '../../lib/collegeRouter'
+import { CollegeCoverImage, CollegeLogoBadge } from './CollegesPage'
 
 interface CollegeDetailPageProps {
   collegeId: string
@@ -67,7 +68,7 @@ export function CollegeDetailPage({ collegeId, onNavigate }: CollegeDetailPagePr
     <div className="min-h-screen bg-[#FAF8F5]">
       {/* Cover Hero Banner */}
       <div className="relative h-64 sm:h-80 bg-[#171916] overflow-hidden">
-        <img
+        <CollegeCoverImage
           src={college.coverUrl}
           alt={college.name}
           className="w-full h-full object-cover opacity-60"
@@ -86,13 +87,11 @@ export function CollegeDetailPage({ collegeId, onNavigate }: CollegeDetailPagePr
 
         {/* College Header Identity */}
         <div className="absolute bottom-6 left-5 sm:left-8 right-5 sm:right-8 flex flex-col sm:flex-row sm:items-end gap-4">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border-2 border-white/90 shadow-xl overflow-hidden shrink-0 p-1">
-            <img
-              src={college.logoUrl}
-              alt={`${college.shortName} official logo`}
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
+          <CollegeLogoBadge
+            logoUrl={college.logoUrl}
+            shortName={college.shortName}
+            className="w-20 h-20 sm:w-24 sm:h-24"
+          />
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[#08C58A] text-xs font-bold uppercase tracking-wider bg-[#08C58A]/20 px-2.5 py-0.5 rounded-full border border-[#08C58A]/30">

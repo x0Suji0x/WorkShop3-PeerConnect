@@ -47,8 +47,11 @@ export function EventDetailPage({ eventId, onNavigate }: EventDetailPageProps) {
       {/* Hero Cover Banner */}
       <div className="relative h-64 sm:h-80 overflow-hidden bg-[#171916]">
         <img
-          src={event.coverUrl}
+          src={event.coverUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'}
           alt={event.title}
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'
+          }}
           className="w-full h-full object-cover opacity-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#171916] via-[#171916]/40 to-transparent" />
@@ -232,8 +235,11 @@ export function EventDetailPage({ eventId, onNavigate }: EventDetailPageProps) {
                   className="w-full text-left flex items-center gap-3 p-3.5 rounded-2xl bg-[#F7F6F0] border border-[#E7E8E1] hover:border-[#08C58A]/50 transition-colors cursor-pointer group"
                 >
                   <img
-                    src={club.logoUrl}
+                    src={club.logoUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'}
                     alt={club.name}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'
+                    }}
                     className="w-12 h-12 rounded-xl object-cover shrink-0 border border-[#E7E8E1] p-0.5 bg-white"
                   />
                   <div className="min-w-0">

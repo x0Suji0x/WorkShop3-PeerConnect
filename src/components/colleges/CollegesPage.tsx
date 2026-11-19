@@ -16,18 +16,91 @@ interface CollegesPageProps {
 const COLLEGE_TYPES = [
   'All',
   'Engineering',
-  'Liberal Arts',
   'Management',
+  'Liberal Arts',
   'Arts & Design',
+  'Science',
+  'Medical',
 ] as const
+
+const DEFAULT_CAMPUS_COVER =
+  'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80'
+
+export function CollegeCoverImage({
+  src,
+  alt,
+  className = 'w-full h-full object-cover',
+}: {
+  src?: string
+  alt: string
+  className?: string
+}) {
+  const [imgSrc, setImgSrc] = useState(src || DEFAULT_CAMPUS_COVER)
+
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      loading="lazy"
+      onError={() => {
+        if (imgSrc !== DEFAULT_CAMPUS_COVER) {
+          setImgSrc(DEFAULT_CAMPUS_COVER)
+        }
+      }}
+      className={className}
+    />
+  )
+}
+
+export function CollegeLogoBadge({
+  logoUrl,
+  shortName,
+  className = 'w-14 h-14',
+}: {
+  logoUrl?: string
+  shortName: string
+  className?: string
+}) {
+  const [hasError, setHasError] = useState(false)
+  const displayLetters =
+    shortName.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() || 'CLG'
+
+  if (!logoUrl || hasError) {
+    return (
+      <div
+        className={`${className} rounded-2xl bg-gradient-to-br from-[#08C58A] to-[#0A261D] text-white border-2 border-white shadow-md flex items-center justify-center font-black text-xs tracking-tight select-none p-1`}
+        title={shortName}
+      >
+        <span className="truncate">{displayLetters}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={`${className} rounded-2xl bg-white border-2 border-white shadow-md overflow-hidden p-0.5 flex items-center justify-center`}
+    >
+      <img
+        src={logoUrl}
+        alt={`${shortName} official logo`}
+        loading="lazy"
+        onError={() => setHasError(true)}
+        className="w-full h-full object-cover rounded-xl"
+      />
+    </div>
+  )
+}
 
 export function CollegesPage({ onNavigate }: CollegesPageProps) {
   const [search, setSearch] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('All')
+  const [displayLimit, setDisplayLimit] = useState(24)
 
   const locations = useMemo(() => {
-    const cities = [...new Set(mockColleges.map((c) => c.city))]
+    const cities = [...new Set(mockColleges.map((c) => c.city))].sort((a, b) =>
+      a.localeCompare(b)
+    )
     return ['All Cities', ...cities]
   }, [])
 
@@ -80,7 +153,10 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
               type="text"
               placeholder="Search colleges by name, shortform, or location (e.g. IIT Bombay, Mumbai, Manipal)…"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setDisplayLimit(24)
+              }}
               className="w-full pl-10 pr-4 py-3 rounded-2xl border border-[#E7E8E1] bg-[#F7F6F0] text-sm text-[#171916] placeholder:text-[#777A72] focus:outline-none focus:ring-2 focus:ring-[#08C58A]/30 focus:border-[#08C58A] transition-colors"
             />
           </div>
@@ -95,7 +171,10 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
               <select
                 id="city-filter"
                 value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
+                onChange={(e) => {
+                  setLocationFilter(e.target.value)
+                  setDisplayLimit(24)
+                }}
                 className="text-xs font-semibold border border-[#E7E8E1] rounded-xl px-3 py-2 bg-[#F7F6F0] text-[#171916] focus:outline-none focus:ring-2 focus:ring-[#08C58A]/30 cursor-pointer"
               >
                 {locations.map((loc) => (
@@ -115,7 +194,10 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setTypeFilter(t)}
+                  onClick={() => {
+                    setTypeFilter(t)
+                    setDisplayLimit(24)
+                  }}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                     typeFilter === t
                       ? 'bg-[#171916] text-white'
@@ -167,6 +249,7 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
                 setSearch('')
                 setLocationFilter('')
                 setTypeFilter('All')
+                setDisplayLimit(24)
               }}
               className="mt-4 px-5 py-2 rounded-full text-xs font-semibold bg-[#171916] text-white cursor-pointer hover:bg-[#242723]"
             >
@@ -174,15 +257,34 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((college) => (
-              <CollegeCard
-                key={college.id}
-                college={college}
-                onNavigate={onNavigate}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.slice(0, displayLimit).map((college) => (
+                <CollegeCard
+                  key={college.id}
+                  college={college}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
+
+            {filtered.length > displayLimit && (
+              <div className="flex flex-col items-center justify-center pt-10 pb-4 space-y-3">
+                <p className="text-xs text-[#777A72]">
+                  Showing <strong className="text-[#171916]">{Math.min(displayLimit, filtered.length)}</strong> of{' '}
+                  <strong className="text-[#171916]">{filtered.length}</strong> colleges
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setDisplayLimit((prev) => prev + 24)}
+                  className="px-7 py-3 rounded-full text-xs font-bold bg-[#171916] text-white hover:bg-[#242723] hover:shadow-lg transition-all cursor-pointer flex items-center gap-2 group"
+                >
+                  <span>Load More Colleges</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
@@ -191,6 +293,7 @@ export function CollegesPage({ onNavigate }: CollegesPageProps) {
 
 function CollegeCard({
   college,
+  onNavigate,
 }: {
   college: College
   onNavigate?: (hash: string) => void
@@ -203,7 +306,7 @@ function CollegeCard({
     <article className="peer-card-glass overflow-hidden hover:border-[#08C58A]/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col">
       {/* College Logo / Cover Image */}
       <div className="relative h-44 overflow-hidden bg-[#F7F6F0]">
-        <img
+        <CollegeCoverImage
           src={college.coverUrl}
           alt={college.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -212,13 +315,10 @@ function CollegeCard({
 
         {/* Logo Badge */}
         <div className="absolute bottom-3 left-4">
-          <div className="w-14 h-14 rounded-2xl bg-white border-2 border-white shadow-md overflow-hidden p-0.5">
-            <img
-              src={college.logoUrl}
-              alt={`${college.shortName} official logo`}
-              className="w-full h-full object-cover rounded-xl"
-            />
-          </div>
+          <CollegeLogoBadge
+            logoUrl={college.logoUrl}
+            shortName={college.shortName}
+          />
         </div>
 
         {/* College Type Badge */}
@@ -321,10 +421,13 @@ function CollegeCard({
           <button
             type="button"
             onClick={() => {
-            const hash = encodeRoute({ page: 'college-detail', collegeId: college.id });
-            const url = `${window.location.origin}${window.location.pathname}${hash}`;
-            window.open(url, '_blank');
-          }}
+              const hash = encodeRoute({ page: 'college-detail', collegeId: college.id })
+              if (onNavigate) {
+                onNavigate(hash)
+              } else {
+                window.location.hash = hash.slice(1)
+              }
+            }}
             className="w-full py-2.5 rounded-xl bg-[#F7F6F0] hover:bg-[#08C58A] text-[#171916] hover:text-[#0A261D] text-sm font-semibold border border-[#E7E8E1] hover:border-[#08C58A] transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group/btn"
           >
             <span>Explore College Details</span>

@@ -49,8 +49,11 @@ export function ClubProfilePage({ clubId, onNavigate }: ClubProfilePageProps) {
       {/* Cover Banner */}
       <div className="relative h-64 sm:h-80 bg-[#171916] overflow-hidden">
         <img
-          src={club.coverUrl}
+          src={club.coverUrl || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80'}
           alt={club.name}
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80'
+          }}
           className="w-full h-full object-cover opacity-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#171916] via-[#171916]/40 to-transparent" />
@@ -69,8 +72,11 @@ export function ClubProfilePage({ clubId, onNavigate }: ClubProfilePageProps) {
         <div className="absolute bottom-6 left-5 sm:left-8 right-5 sm:right-8 flex flex-col sm:flex-row sm:items-end gap-4">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white border-2 border-white/90 shadow-xl overflow-hidden shrink-0 p-1">
             <img
-              src={club.logoUrl}
+              src={club.logoUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'}
               alt={club.name}
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'
+              }}
               className="w-full h-full object-cover rounded-xl"
             />
           </div>

@@ -1,6 +1,6 @@
 import { Code2, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { routes } from '../../app/routes'
+import { routes, communityRoutes } from '../../app/routes'
 
 export function Footer() {
   return (
@@ -39,8 +39,18 @@ export function Footer() {
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
-                  Discover Talent
+                <Link to={routes.colleges} className="hover:text-[#08C58A] transition-colors">
+                  Explore Colleges
+                </Link>
+              </li>
+              <li>
+                <Link to={routes.clubs} className="hover:text-[#08C58A] transition-colors">
+                  Student Clubs
+                </Link>
+              </li>
+              <li>
+                <Link to={routes.events} className="hover:text-[#08C58A] transition-colors">
+                  Campus Events
                 </Link>
               </li>
               <li>
@@ -49,8 +59,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to={`${routes.home}#how-it-works`} className="hover:text-[#08C58A] transition-colors">
-                  How It Works
+                <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
+                  Discover Talent
                 </Link>
               </li>
             </ul>
@@ -69,12 +79,22 @@ export function Footer() {
               </li>
               <li>
                 <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
-                  Discover Talent
+                  Browse Student Talent
+                </Link>
+              </li>
+              <li>
+                <Link to={communityRoutes.teamFinder} className="hover:text-[#08C58A] transition-colors">
+                  Find a Team
+                </Link>
+              </li>
+              <li>
+                <Link to={communityRoutes.teamBuilder} className="hover:text-[#08C58A] transition-colors">
+                  Team Builder
                 </Link>
               </li>
               <li>
                 <Link to={`${routes.home}#how-it-works`} className="hover:text-[#08C58A] transition-colors">
-                  How It Works
+                  Collaboration Guide
                 </Link>
               </li>
             </ul>
@@ -113,6 +133,9 @@ export function Footer() {
           <div className="flex items-center gap-6">
             <Link to={routes.home} className="hover:text-[#08C58A] transition-colors">
               Back to Top
+            </Link>
+            <Link to={routes.colleges} className="hover:text-[#08C58A] transition-colors">
+              Colleges Directory
             </Link>
             <Link to={routes.profiles} className="hover:text-[#08C58A] transition-colors">
               Talent Directory

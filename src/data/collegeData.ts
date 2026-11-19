@@ -459,6 +459,106 @@ export const mockClubs: Club[] = [
     ],
     upcomingEvents: [],
   },
+  {
+    id: 'club-adypu-innovation',
+    collegeId: 'col-adypu-pune',
+    name: 'ADYPU Design Thinking & AI Guild',
+    logoUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=200&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+    description: "ADYPU's premier cross-disciplinary guild bringing together product designers, AI engineers, and automotive innovators building tangible future-tech prototypes.",
+    category: 'Design',
+    memberCount: 140,
+    foundedYear: 2018,
+    recruitmentStatus: 'Open',
+    openings: 5,
+    socialLinks: {
+      instagram: 'https://instagram.com/adypu_guild',
+      linkedin: 'https://linkedin.com',
+      website: 'https://adypu.edu.in',
+    },
+    coreTeam: [
+      { name: 'Sameer Joshi', role: 'President', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
+      { name: 'Aanya Patil', role: 'Design Lead', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
+    ],
+    previousActivities: [
+      { title: 'Future Mobility Sprint', description: '48-hour electric vehicle UI/UX hackathon.', date: 'September 2026', attendees: 120 },
+    ],
+    upcomingEvents: ['evt-adypu-1'],
+  },
+  {
+    id: 'club-mastersunion-vc',
+    collegeId: 'col-masters-union-gurugram',
+    name: "Masters' Union Venture & PE Club",
+    logoUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=200&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    description: "Masters' Union student-run venture syndicate where students analyze real tech startups, conduct investment due diligence, and shadow partner VCs in Gurugram.",
+    category: 'Entrepreneurship',
+    memberCount: 95,
+    foundedYear: 2021,
+    recruitmentStatus: 'Open',
+    openings: 4,
+    socialLinks: {
+      linkedin: 'https://linkedin.com',
+      website: 'https://mastersunion.org',
+    },
+    coreTeam: [
+      { name: 'Kabir Singhania', role: 'Managing Partner', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' },
+      { name: 'Mehak Chawla', role: 'Research Lead', avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' },
+    ],
+    previousActivities: [
+      { title: 'Cyber City Angel Pitch', description: 'Live deal-room pitching with 15 venture funds.', date: 'October 2026', attendees: 160 },
+    ],
+    upcomingEvents: ['evt-mu-1'],
+  },
+  {
+    id: 'club-upgrad-pune-devs',
+    collegeId: 'col-upgrad-tech-pune',
+    name: 'upGrad Pune Code & Cloud Collective',
+    logoUrl: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&w=200&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80',
+    description: 'Hands-on developer group building open-source projects, high-throughput microservices, and micro-frontend architectures in Pune.',
+    category: 'Technical',
+    memberCount: 88,
+    foundedYear: 2023,
+    recruitmentStatus: 'Open',
+    openings: 6,
+    socialLinks: {
+      instagram: 'https://instagram.com/upgradtech_pune',
+      website: 'https://upgrad.com',
+    },
+    coreTeam: [
+      { name: 'Aditya Deshpande', role: 'Lead Architect', avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80' },
+    ],
+    previousActivities: [
+      { title: 'Cloud Deploy 101', description: 'Zero-downtime Kubernetes CI/CD workshop.', date: 'August 2026', attendees: 75 },
+    ],
+    upcomingEvents: ['evt-upgrad-pune-1'],
+  },
+  {
+    id: 'club-upgrad-blr-ai',
+    collegeId: 'col-upgrad-tech-bengaluru',
+    name: 'upGrad BLR Agentic AI & Robotics Society',
+    logoUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=200&q=80',
+    coverUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80',
+    description: "Bengaluru's flagship student AI society building autonomous agent swarms, fine-tuned SLMs, and spatial compute experiments in Electronic City.",
+    category: 'Technical',
+    memberCount: 110,
+    foundedYear: 2023,
+    recruitmentStatus: 'Open',
+    openings: 8,
+    socialLinks: {
+      instagram: 'https://instagram.com/upgradtech_blr',
+      website: 'https://upgrad.com',
+    },
+    coreTeam: [
+      { name: 'Siddharth Iyer', role: 'AI Lead', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
+      { name: 'Pooja Hegde', role: 'Hackathon Director', avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80' },
+    ],
+    previousActivities: [
+      { title: 'Electronic City AI Sprint', description: '36-hour hackathon with 40 builder teams.', date: 'September 2026', attendees: 140 },
+    ],
+    upcomingEvents: ['evt-upgrad-blr-1'],
+  },
 ]
 
 // ----------------------------------------------------------------
@@ -927,6 +1027,117 @@ export const mockEvents: Event[] = [
     tags: ['Sports', 'Football', 'Basketball', 'Athletics', 'RevelsCup', 'Tournament'],
     attendeesCount: 520,
   },
+  {
+    id: 'evt-adypu-1',
+    title: 'ADYPU Design Conclave & Future Hack',
+    clubId: 'club-adypu-innovation',
+    collegeId: 'col-adypu-pune',
+    date: '2026-11-28',
+    time: '10:00 AM - 6:00 PM',
+    location: 'ADYPU Innovation Dome, Lohegaon, Pune',
+    locationType: 'On-Campus',
+    description: 'Annual inter-college showcase of speculative design, generative AI UI, and sustainable industrial products with automotive leaders.',
+    category: 'Design',
+    coverUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+    registrationOpen: true,
+    volunteersNeeded: 6,
+    volunteerRoles: [
+      {
+        id: 'vr-adypu-1',
+        title: 'Event Coordination',
+        count: 4,
+        description: 'Coordinate visiting design leads and student showcase booths.',
+        skills: ['Team Coordination', 'Communication'],
+      },
+      {
+        id: 'vr-adypu-2',
+        title: 'Design',
+        count: 2,
+        description: 'Assist with live display badges and digital projections.',
+        skills: ['Figma', 'Graphic Design'],
+      },
+    ],
+    tags: ['Design', 'Hackathon', 'AI', 'Automotive'],
+    attendeesCount: 220,
+  },
+  {
+    id: 'evt-mu-1',
+    title: "Masters' Union Cyber City Demo Day",
+    clubId: 'club-mastersunion-vc',
+    collegeId: 'col-masters-union-gurugram',
+    date: '2026-12-05',
+    time: '2:00 PM - 7:30 PM',
+    location: 'DLF Cyber City Auditorium, Tower 10, Gurugram',
+    locationType: 'On-Campus',
+    description: 'High-stakes student startup demo day pitching before 20+ Tier-1 seed venture capital funds and angel syndicates.',
+    category: 'Entrepreneurship',
+    coverUrl: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80',
+    registrationOpen: true,
+    volunteersNeeded: 4,
+    volunteerRoles: [
+      {
+        id: 'vr-mu-1',
+        title: 'Event Coordination',
+        count: 4,
+        description: 'Manage investor check-in and stage mic handling.',
+        skills: ['Professionalism', 'Event Ops'],
+      },
+    ],
+    tags: ['Startups', 'Venture Capital', 'Pitch', 'Founders'],
+    attendeesCount: 180,
+  },
+  {
+    id: 'evt-upgrad-pune-1',
+    title: 'upGrad Pune Full-Stack & DevRel Summit',
+    clubId: 'club-upgrad-pune-devs',
+    collegeId: 'col-upgrad-tech-pune',
+    date: '2026-12-02',
+    time: '11:00 AM - 5:00 PM',
+    location: 'Tech Hub Arena, upGrad Campus, Lohegaon, Pune',
+    locationType: 'On-Campus',
+    description: 'Deep dive into modern web architecture, edge compute, and building high-performance dev communities.',
+    category: 'Technical',
+    coverUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
+    registrationOpen: true,
+    volunteersNeeded: 5,
+    volunteerRoles: [
+      {
+        id: 'vr-ugp-1',
+        title: 'Technical Support',
+        count: 3,
+        description: 'Set up audio-visual, live stream, and WiFi debugging for coders.',
+        skills: ['AV Setup', 'Linux / Networking'],
+      },
+    ],
+    tags: ['FullStack', 'WebDev', 'PuneTech', 'OpenSource'],
+    attendeesCount: 150,
+  },
+  {
+    id: 'evt-upgrad-blr-1',
+    title: 'Bengaluru Agent Hack 2026',
+    clubId: 'club-upgrad-blr-ai',
+    collegeId: 'col-upgrad-tech-bengaluru',
+    date: '2026-12-12',
+    time: '9:00 AM - 9:00 PM',
+    location: 'AI Sandbox, Electronic City, Bengaluru',
+    locationType: 'Hybrid',
+    description: '36-hour hackathon building autonomous LLM agents and computer-use bots with ₹2L prizes and fast-track hiring interviews.',
+    category: 'Technical',
+    coverUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
+    registrationOpen: true,
+    volunteersNeeded: 8,
+    volunteerRoles: [
+      {
+        id: 'vr-ugb-1',
+        title: 'Technical Support',
+        count: 4,
+        description: 'Mentor novice teams on agent frameworks and API integrations.',
+        skills: ['Python', 'LangChain', 'APIs'],
+      },
+    ],
+    tags: ['AI Agents', 'HackBLR', 'ElectronicCity', 'BTech'],
+    attendeesCount: 300,
+  },
 ]
 
 // ----------------------------------------------------------------
@@ -1139,20 +1350,266 @@ export function saveStoredApplication(
 // ----------------------------------------------------------------
 // QUERY HELPERS
 // ----------------------------------------------------------------
+function normalizeCollegeIds(collegeId: string): string[] {
+  const ids = [collegeId]
+  if (collegeId === 'col-iit-bombay' || collegeId === 'col1') ids.push('col1', 'col-iit-bombay')
+  if (collegeId === 'col-dca-delhi' || collegeId === 'col2') ids.push('col2', 'col-dca-delhi')
+  if (collegeId === 'col-iim-ahmedabad' || collegeId === 'col3') ids.push('col3', 'col-iim-ahmedabad')
+  if (collegeId === 'col-manipal-mit' || collegeId === 'col4') ids.push('col4', 'col-manipal-mit')
+  if (collegeId === 'col-sid-pune' || collegeId === 'col5') ids.push('col5', 'col-sid-pune')
+  if (collegeId === 'col-ashoka-univ' || collegeId === 'col6') ids.push('col6', 'col-ashoka-univ')
+  return ids
+}
+
+function generateFallbackClubs(college: College): Club[] {
+  const short = college.shortName || college.name
+  const baseId = college.id
+
+  if (college.type === 'Management') {
+    return [
+      {
+        id: `club-${baseId}-consulting`,
+        collegeId: college.id,
+        name: `${short} Consulting & Strategy Guild`,
+        logoUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=200&q=80',
+        coverUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+        description: `${short}'s premier student consulting group preparing future business analysts for global strategy and venture roles.`,
+        category: 'Entrepreneurship',
+        memberCount: 88,
+        foundedYear: Math.max(college.established, 2012),
+        recruitmentStatus: 'Open',
+        openings: 3,
+        socialLinks: { website: college.website },
+        coreTeam: [{ name: 'Aarav Mehta', role: 'President', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' }],
+        previousActivities: [{ title: 'Case Sprint 2026', description: 'Live case competition with industry mentors.', date: 'September 2026', attendees: 120 }],
+        upcomingEvents: [`evt-${baseId}-1`],
+      },
+      {
+        id: `club-${baseId}-marketing`,
+        collegeId: college.id,
+        name: `${short} Product & Marketing Club`,
+        logoUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=200&q=80',
+        coverUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+        description: 'Student community mastering product positioning, digital growth marketing, and corporate communication.',
+        category: 'Marketing',
+        memberCount: 72,
+        foundedYear: Math.max(college.established, 2015),
+        recruitmentStatus: 'Open',
+        openings: 2,
+        socialLinks: { website: college.website },
+        coreTeam: [{ name: 'Tanvi Shah', role: 'Convenor', avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' }],
+        previousActivities: [{ title: 'Brand Hackathon', description: 'Interactive brand positioning sprint.', date: 'August 2026', attendees: 85 }],
+        upcomingEvents: [],
+      },
+    ]
+  }
+
+  if (college.type === 'Arts & Design' || college.type === 'Liberal Arts') {
+    return [
+      {
+        id: `club-${baseId}-design`,
+        collegeId: college.id,
+        name: `${short} Creative Studio & UI Lab`,
+        logoUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=200&q=80',
+        coverUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80',
+        description: `${short}'s design collective exploring visual identity, human-computer interaction, typography, and motion design.`,
+        category: 'Design',
+        memberCount: 95,
+        foundedYear: Math.max(college.established, 2014),
+        recruitmentStatus: 'Open',
+        openings: 4,
+        socialLinks: { website: college.website },
+        coreTeam: [{ name: 'Maya Sen', role: 'Creative Lead', avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80' }],
+        previousActivities: [{ title: 'Annual Design Expo', description: 'Curated showcase of student portfolio projects.', date: 'October 2026', attendees: 180 }],
+        upcomingEvents: [`evt-${baseId}-1`],
+      },
+      {
+        id: `club-${baseId}-photo`,
+        collegeId: college.id,
+        name: `${short} Shutter & Documentary Club`,
+        logoUrl: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=200&q=80',
+        coverUrl: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=1200&q=80',
+        description: 'Visual storytelling, documentary photography, and campus archive projects.',
+        category: 'Photography',
+        memberCount: 65,
+        foundedYear: Math.max(college.established, 2016),
+        recruitmentStatus: 'Open',
+        openings: 2,
+        socialLinks: { website: college.website },
+        coreTeam: [{ name: 'Rohan Roy', role: 'Lead Photographer', avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' }],
+        previousActivities: [{ title: 'Monsoon Photo Walk', description: 'City exploration through the lens.', date: 'July 2026', attendees: 60 }],
+        upcomingEvents: [],
+      },
+    ]
+  }
+
+  // Default / Engineering / Science / Medical
+  return [
+    {
+      id: `club-${baseId}-tech`,
+      collegeId: college.id,
+      name: `${short} Code & AI Collective`,
+      logoUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80',
+      coverUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80',
+      description: `${short}'s central developer society building open-source web apps, autonomous AI agents, and competitive programming teams.`,
+      category: 'Technical',
+      memberCount: 160,
+      foundedYear: Math.max(college.established, 2010),
+      recruitmentStatus: 'Open',
+      openings: 5,
+      socialLinks: { website: college.website },
+      coreTeam: [{ name: 'Karan Patel', role: 'President', avatarUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80' }],
+      previousActivities: [{ title: 'Campus Hackathon 24H', description: 'Flagship 24-hour hackathon with cash prizes.', date: 'August 2026', attendees: 220 }],
+      upcomingEvents: [`evt-${baseId}-1`],
+    },
+    {
+      id: `club-${baseId}-ecell`,
+      collegeId: college.id,
+      name: `${short} E-Cell & Venture Studio`,
+      logoUrl: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=200&q=80',
+      coverUrl: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=1200&q=80',
+      description: 'Empowering student founders, hosting startup pitch days, and connecting student ventures with mentors and seed capital.',
+      category: 'Entrepreneurship',
+      memberCount: 115,
+      foundedYear: Math.max(college.established, 2012),
+      recruitmentStatus: 'Open',
+      openings: 4,
+      socialLinks: { website: college.website },
+      coreTeam: [{ name: 'Nisha Verma', role: 'Operations Lead', avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' }],
+      previousActivities: [{ title: 'Founders Mixer', description: 'Alumni founders sharing playbook lessons.', date: 'September 2026', attendees: 130 }],
+      upcomingEvents: [],
+    },
+    {
+      id: `club-${baseId}-robotics`,
+      collegeId: college.id,
+      name: `${short} Robotics & IoT Hub`,
+      logoUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=200&q=80',
+      coverUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
+      description: 'Hardware prototyping, robotic combat arenas, drone mechanics, and embedded micro-controller labs.',
+      category: 'Technical',
+      memberCount: 90,
+      foundedYear: Math.max(college.established, 2015),
+      recruitmentStatus: 'Open',
+      openings: 3,
+      socialLinks: { website: college.website },
+      coreTeam: [{ name: 'Vikram Nair', role: 'Tech Lead', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' }],
+      previousActivities: [{ title: 'RoboRace Challenge', description: 'Autonomous obstacle course race.', date: 'July 2026', attendees: 105 }],
+      upcomingEvents: [],
+    },
+  ]
+}
+
+function generateFallbackEvents(college: College): Event[] {
+  const short = college.shortName || college.name
+  const baseId = college.id
+  return [
+    {
+      id: `evt-${baseId}-1`,
+      title: `${short} Annual Tech & Innovation Hackathon`,
+      clubId: `club-${baseId}-tech`,
+      collegeId: college.id,
+      date: '2026-12-08',
+      time: '10:00 AM - 6:00 PM',
+      location: `${college.location}`,
+      locationType: 'On-Campus',
+      description: '36-hour inter-collegiate coding sprint, open hardware showcases, and mentorship from startup tech leads.',
+      category: college.type === 'Management' ? 'Entrepreneurship' : 'Technical',
+      coverUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+      registrationOpen: true,
+      volunteersNeeded: 6,
+      volunteerRoles: [
+        {
+          id: `vr-${baseId}-1`,
+          title: 'Event Coordination',
+          count: 4,
+          description: 'Help coordinate participant registrations and demo room tracks.',
+          skills: ['Communication', 'Event Logistics'],
+        },
+        {
+          id: `vr-${baseId}-2`,
+          title: 'Technical Support',
+          count: 2,
+          description: 'Assist teams with WiFi access and hardware table kits.',
+          skills: ['Troubleshooting', 'Git'],
+        },
+      ],
+      tags: ['Hackathon', 'Innovation', 'StudentBuilders', 'TechSprint'],
+      attendeesCount: 240,
+    },
+  ]
+}
+
+function generateFallbackStudents(college: College): CollegeStudent[] {
+  const short = college.shortName || college.name
+  const baseId = college.id
+  return [
+    {
+      id: `stud-${baseId}-1`,
+      collegeId: college.id,
+      name: `${short} Peer Ambassador`,
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      major: college.type === 'Management' ? 'Business Analytics & Finance' : 'Computer Science & AI',
+      year: '3rd Year Student',
+      skills: ['FullStack', 'Python', 'Leadership', 'Hackathons'],
+      clubAffiliation: `${short} Student Council`,
+      bio: `Enthusiastic builder and campus community lead at ${short}. Always open to collaborate on projects.`,
+      availability: 'Open for collaborations',
+    },
+    {
+      id: `stud-${baseId}-2`,
+      collegeId: college.id,
+      name: `Lead Dev @ ${short}`,
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+      major: college.type === 'Arts & Design' ? 'Interaction & Motion Design' : 'Software Engineering',
+      year: '4th Year Student',
+      skills: ['TypeScript', 'Cloud Systems', 'OpenSource', 'UI/UX'],
+      clubAffiliation: `${short} Tech Guild`,
+      bio: 'Final-year student working on high-performance web tooling and scalable architectures.',
+      availability: 'Available for freelance & clubs',
+    },
+  ]
+}
+
 export function getCollegeById(id: string): College | undefined {
-  return mockColleges.find((c) => c.id === id)
+  const found = mockColleges.find((c) => c.id === id)
+  if (found) return found
+  if (id === 'col1') return mockColleges.find((c) => c.id === 'col-iit-bombay')
+  if (id === 'col2') return mockColleges.find((c) => c.id === 'col-dca-delhi')
+  if (id === 'col3') return mockColleges.find((c) => c.id === 'col-iim-ahmedabad')
+  if (id === 'col4') return mockColleges.find((c) => c.id === 'col-manipal-mit')
+  if (id === 'col5') return mockColleges.find((c) => c.id === 'col-sid-pune')
+  if (id === 'col6') return mockColleges.find((c) => c.id === 'col-ashoka-univ')
+  return undefined
 }
 
 export function getClubById(id: string): Club | undefined {
-  return mockClubs.find((c) => c.id === id)
+  const found = mockClubs.find((c) => c.id === id)
+  if (found) return found
+  for (const college of mockColleges) {
+    const fallbackClubs = generateFallbackClubs(college)
+    const match = fallbackClubs.find((c) => c.id === id)
+    if (match) return match
+  }
+  return undefined
 }
 
 export function getEventById(id: string): Event | undefined {
-  return mockEvents.find((e) => e.id === id)
+  const found = mockEvents.find((e) => e.id === id)
+  if (found) return found
+  for (const college of mockColleges) {
+    const fallbackEvents = generateFallbackEvents(college)
+    const match = fallbackEvents.find((e) => e.id === id)
+    if (match) return match
+  }
+  return undefined
 }
 
 export function getClubsByCollege(collegeId: string): Club[] {
-  return mockClubs.filter((c) => c.collegeId === collegeId)
+  const targetIds = normalizeCollegeIds(collegeId)
+  const matches = mockClubs.filter((c) => targetIds.includes(c.collegeId))
+  if (matches.length > 0) return matches
+  const college = getCollegeById(collegeId)
+  return college ? generateFallbackClubs(college) : []
 }
 
 export function getEventsByClub(clubId: string): Event[] {
@@ -1160,7 +1617,11 @@ export function getEventsByClub(clubId: string): Event[] {
 }
 
 export function getEventsByCollege(collegeId: string): Event[] {
-  return mockEvents.filter((e) => e.collegeId === collegeId)
+  const targetIds = normalizeCollegeIds(collegeId)
+  const matches = mockEvents.filter((e) => targetIds.includes(e.collegeId))
+  if (matches.length > 0) return matches
+  const college = getCollegeById(collegeId)
+  return college ? generateFallbackEvents(college) : []
 }
 
 export function getOpeningsByClub(clubId: string): ClubOpening[] {
@@ -1168,7 +1629,11 @@ export function getOpeningsByClub(clubId: string): ClubOpening[] {
 }
 
 export function getStudentsByCollege(collegeId: string): CollegeStudent[] {
-  return mockCollegeStudents.filter((s) => s.collegeId === collegeId)
+  const targetIds = normalizeCollegeIds(collegeId)
+  const matches = mockCollegeStudents.filter((s) => targetIds.includes(s.collegeId))
+  if (matches.length > 0) return matches
+  const college = getCollegeById(collegeId)
+  return college ? generateFallbackStudents(college) : []
 }
 
 // ----------------------------------------------------------------

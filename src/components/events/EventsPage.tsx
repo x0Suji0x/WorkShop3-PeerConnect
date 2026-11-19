@@ -4,7 +4,7 @@ import {
   Building2, Clock,
 } from 'lucide-react'
 import {
-  mockEvents, mockClubs, mockColleges,
+  mockEvents, mockClubs, mockColleges, getCollegeById,
   CLUB_CATEGORIES, CATEGORY_COLORS, type ClubCategory,
 } from '../../data/collegeData'
 import { encodeRoute } from '../../lib/collegeRouter'
@@ -32,7 +32,7 @@ export function EventsPage({
   const filtered = useMemo(() => {
     return mockEvents.filter((e) => {
       const club = mockClubs.find((c) => c.id === e.clubId)
-      const college = mockColleges.find((col) => col.id === e.collegeId)
+      const college = getCollegeById(e.collegeId)
       const matchSearch =
         !search ||
         e.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -232,7 +232,7 @@ function EventDiscoveryCard({
   onNavigate: (hash: string) => void
 }) {
   const club = mockClubs.find((c) => c.id === event.clubId)
-  const college = mockColleges.find((c) => c.id === event.collegeId)
+  const college = getCollegeById(event.collegeId)
   const colors =
     CATEGORY_COLORS[event.category as keyof typeof CATEGORY_COLORS] ??
     CATEGORY_COLORS['Technical']
@@ -242,8 +242,12 @@ function EventDiscoveryCard({
       {/* Cover Banner */}
       <div className="relative h-44 overflow-hidden bg-[#F7F6F0]">
         <img
-          src={event.coverUrl}
+          src={event.coverUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'}
           alt={event.title}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80'
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -285,8 +289,12 @@ function EventDiscoveryCard({
           {club && (
             <div className="flex items-center gap-2 text-xs text-[#171916] font-semibold">
               <img
-                src={club.logoUrl}
+                src={club.logoUrl || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'}
                 alt={club.name}
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80'
+                }}
                 className="w-4 h-4 rounded-md object-cover shrink-0"
               />
               <span className="truncate">Organised by {club.name}</span>
