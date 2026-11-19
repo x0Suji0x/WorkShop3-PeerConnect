@@ -135,7 +135,7 @@ export function ProjectMarketplaceSection() {
     <section
       id="projects"
       ref={sectionRef}
-      className="scroll-mt-20 pt-10 pb-18 sm:pt-12 sm:pb-24 lg:pt-14 lg:pb-28 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
+      className="scroll-mt-24 pt-20 pb-18 sm:pt-24 sm:pb-24 lg:pt-24 lg:pb-28 bg-[#F7F6F0] text-[#171916] border-b border-[#E7E8E1] transition-colors relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ============================================================== */}

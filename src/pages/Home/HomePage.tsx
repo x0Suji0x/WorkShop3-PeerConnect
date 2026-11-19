@@ -1,6 +1,5 @@
 import { HeroSection } from '../../components/home/HeroSection'
 import { PeerConnectIntroSection } from '../../components/home/PeerConnectIntroSection'
-import { ProjectMarketplaceSection } from '../../components/home/ProjectMarketplaceSection'
 import { HowItWorksSection } from '../../components/home/HowItWorksSection'
 import { DarkCtaSection } from '../../components/home/DarkCtaSection'
 
@@ -13,10 +12,7 @@ export function HomePage() {
       {/* About PeerConnect and its interactive feature cards. */}
       <PeerConnectIntroSection />
 
-      {/* Keep the landing page focused on finding and building projects. */}
-      <ProjectMarketplaceSection />
-
-      {/* Explain the project collaboration flow. */}
+      {/* Keep the homepage about the product and how people collaborate. */}
       <HowItWorksSection />
 
       {/* High-contrast invitation for builders and project owners. */}

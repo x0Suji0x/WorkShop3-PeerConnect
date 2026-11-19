@@ -45,7 +45,7 @@ export function PeerConnectIntroSection() {
     <section
       ref={sectionRef}
       id="about"
-      className="about-section scroll-mt-20 pt-16 pb-7 text-[#171916] sm:pt-20 sm:pb-10 lg:pt-24 lg:pb-12"
+      className="about-section scroll-mt-24 pt-20 pb-7 text-[#171916] sm:pt-24 sm:pb-10 lg:pt-24 lg:pb-12"
     >
       <div className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6">
         <div className="mx-auto max-w-4xl text-center">

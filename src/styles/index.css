@@ -97,7 +97,7 @@ body {
   animation: heroGlowDrift 20s ease-in-out infinite alternate;
 }
 
-/* Hero scroll story defaults keep the first beat readable before GSAP mounts. */
+/* Keep the opening beat readable before the automatic hero sequence starts. */
 .hero-copy-stage-0 {
   visibility: visible;
   opacity: 1;
@@ -243,20 +243,29 @@ body {
 
 /* Full viewport campus story. All people share one fixed photographic stage. */
 .home-page-surface {
+  position: relative;
+  isolation: isolate;
   background-color: #faf8f5;
-  background-image:
-    radial-gradient(ellipse 92vw 112vh at 0% 48%, rgba(241, 190, 112, 0.23) 0%, transparent 78%),
-    radial-gradient(ellipse 92vw 112vh at 100% 52%, rgba(211, 157, 173, 0.27) 0%, transparent 78%);
-  /* Fixed full-page gradients force repaints while scrolling on several
-     browsers. Normal attachment preserves the look without the scroll cost. */
-  background-attachment: scroll, scroll;
-  background-repeat: no-repeat;
+  background-image: linear-gradient(108deg, rgba(241, 190, 112, 0.19) 0%, rgba(250, 248, 245, 0.015) 48%, rgba(211, 157, 173, 0.19) 100%);
+}
+.home-page-surface::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 240svh;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 48%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 48%, transparent 100%);
+  background:
+    radial-gradient(ellipse 70vw 120vh at 0% 48%, rgba(241, 190, 112, 0.58) 0%, transparent 78%),
+    radial-gradient(ellipse 70vw 120vh at 100% 52%, rgba(211, 157, 173, 0.54) 0%, transparent 78%);
+  content: '';
+  pointer-events: none;
 }
 .home-page-surface #projects {
   background-color: transparent;
   border-color: transparent;
 }
-.hero-scroll-track { position: relative; height: 220svh; background: transparent; }
+.hero-scroll-track { position: relative; height: 100svh; background: transparent; }
 .hero-story-stage {
   position: sticky;
   top: 80px;
@@ -271,7 +280,14 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  --hero-fade-start: 100%;
+  --hero-fade-mid: 100%;
+  --hero-fade-soft: 100%;
   transform: translateZ(0);
+}
+.hero-cinematic-scene.is-transition-active {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 var(--hero-fade-start), rgba(0, 0, 0, 0.9) var(--hero-fade-mid), rgba(0, 0, 0, 0.48) var(--hero-fade-soft), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 var(--hero-fade-start), rgba(0, 0, 0, 0.9) var(--hero-fade-mid), rgba(0, 0, 0, 0.48) var(--hero-fade-soft), transparent 100%);
 }
 .hero-campus-plate {
   width: 100%;
@@ -284,14 +300,14 @@ body {
 .hero-photo-light { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(250,248,245,.42),rgba(250,248,245,.14) 37%,transparent 65%); transform: translateZ(0); }
 .hero-transition-glow {
   position: absolute;
-  z-index: 4;
+  z-index: 1;
   inset: 0;
   pointer-events: none;
-  opacity: 0.62;
+  opacity: 0;
   transform: translateZ(0);
   background:
-    radial-gradient(ellipse 78% 48% at 88% 110%, rgba(216, 147, 163, 0.7) 0%, rgba(216, 147, 163, 0.3) 42%, transparent 100%),
-    radial-gradient(ellipse 80% 48% at 10% 110%, rgba(241, 185, 100, 0.72) 0%, rgba(241, 185, 100, 0.32) 42%, transparent 100%);
+    radial-gradient(ellipse 70% 48% at 74% 110%, rgba(216, 147, 163, 0.58) 0%, rgba(216, 147, 163, 0.24) 42%, transparent 100%),
+    radial-gradient(ellipse 70% 48% at 26% 110%, rgba(241, 185, 100, 0.6) 0%, rgba(241, 185, 100, 0.25) 42%, transparent 100%);
 }
 .hero-cast {
   position: absolute;
@@ -373,7 +389,7 @@ body {
 }
 /* Navigation and copy sit on the same photograph as the cast. */
 header[data-over-hero="true"] { background: transparent; border-color: transparent; backdrop-filter: none; }
-.hero-scroll-track { margin-top: -80px; }
+.hero-scroll-track { margin-top: -80px; height: 100svh; }
 .hero-story-stage { top: 0; height: 100svh; }
 .hero-editorial-copy { padding-top: clamp(88px,10vh,110px); }
 .hero-final-cta { visibility: visible; opacity: 1; }
