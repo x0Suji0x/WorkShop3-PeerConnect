@@ -106,12 +106,6 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
     data.fieldOfStudy && !BRANCH_OPTIONS.includes(data.fieldOfStudy) ? data.fieldOfStudy : ''
   )
 
-  // OTP Demo state
-  const [isSendingOtp, setIsSendingOtp] = useState(false)
-  const [otpSent, setOtpSent] = useState(false)
-  const [otpValue, setOtpValue] = useState(data.otpCode || '')
-  const [otpError, setOtpError] = useState('')
-
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Filter colleges from mockColleges (from collegeData.ts)
@@ -182,11 +176,6 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
 
   const handleCollegeEmailInput = (val: string) => {
     onChange('collegeEmail', val)
-    const validEdu = validateCollegeEmail(val).valid
-    onChange('isEmailVerified', validEdu)
-    if (validEdu) {
-      onChange('idVerificationStatus', 'pending')
-    }
   }
 
   const handleSelectCollege = (college: College) => {
@@ -223,35 +212,10 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
     }
   }
 
-  const handleSendOtp = () => {
-    if (!emailValidation.valid) return
-    setIsSendingOtp(true)
-    setTimeout(() => {
-      setIsSendingOtp(false)
-      setOtpSent(true)
-      setOtpValue('482910')
-      onChange('otpCode', '482910')
-    }, 500)
-  }
-
-  const handleVerifyOtp = () => {
-    if (otpValue === '482910') {
-      onChange('isEmailVerified', true)
-      onChange('idVerificationStatus', 'pending')
-      setOtpError('')
-    } else {
-      setOtpError('Invalid demo OTP. Use 482910.')
-    }
-  }
-
   const handleSimulateIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       onChange('idCardFileName', file.name)
-      onChange('idVerificationStatus', 'pending')
-    } else {
-      onChange('idCardFileName', 'student_id_card_front.jpg')
-      onChange('idVerificationStatus', 'pending')
     }
   }
 
@@ -655,76 +619,26 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
                 {isEduDomain ? (
                   <span className="rounded-md bg-[#E3F4EB] px-2 py-1 text-[10px] font-bold text-[#176B4C]">Format match</span>
                 ) : (
-                  <button
-                    type="button"
-                    disabled={!emailValidation.valid || isSendingOtp}
-                    onClick={handleSendOtp}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                      emailValidation.valid
-                        ? 'bg-[#123D30] text-white hover:bg-[#0E3127]'
-                        : 'bg-gray-100 text-[#777A72] opacity-60 cursor-not-allowed'
-                    }`}
-                  >
-                    {isSendingOtp ? 'Preparing...' : 'Try demo code'}
-                  </button>
+                  <span className="rounded-md bg-white px-2 py-1 text-[10px] font-semibold text-[#777A72]">Optional</span>
                 )}
               </div>
             </div>
 
-            {/* Error message */}
-            {!data.isEmailVerified && !emailValidation.valid && data.collegeEmail.length > 4 && (
+            {data.collegeEmail.length > 4 && !emailValidation.valid && (
               <p className="text-xs text-red-600 font-medium">{emailValidation.reason}</p>
             )}
-
-            {/* Simulated code only; no email is sent or checked. */}
-            {otpSent && !data.isEmailVerified && (
-              <div className="rounded-xl border border-[#08C58A]/30 bg-white p-3 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#123D30]">Try the simulated 6-digit code:</span>
-                  <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                    Demo Code: 482910
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={otpValue}
-                    onChange={(e) => setOtpValue(e.target.value)}
-                    className="w-32 rounded-lg border border-[#E7E8E1] p-1.5 text-center font-mono text-xs font-bold tracking-widest outline-none focus:border-[#08C58A]"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerifyOtp}
-                    className="rounded-lg bg-[#08C58A] px-3 py-1.5 text-xs font-bold text-[#123D30]"
-                  >
-                    Try code
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOtpValue('482910')}
-                    className="text-[11px] text-[#525A55] underline hover:text-[#171916]"
-                  >
-                    Auto-fill
-                  </button>
-                </div>
-                {otpError && <p className="text-xs text-red-600 font-medium">{otpError}</p>}
-              </div>
-            )}
-            {otpSent && data.isEmailVerified && (
-              <p className="rounded-xl border border-[#E9D9B7] bg-[#FBF5E8] p-3 text-xs leading-relaxed text-[#765820]">
-                Demo code accepted. No email was sent and no identity or enrollment was verified.
-              </p>
-            )}
+            <p className="text-[11px] leading-relaxed text-[#777A72]">
+              The address format is only a hint. No email is sent and no student identity or enrollment is checked.
+            </p>
           </div>
         ) : (
           /* Method B: College ID Card Upload */
           <div className="rounded-2xl border border-dashed border-[#E7E8E1] bg-[#FAF8F5] p-5 text-center space-y-3">
             <UploadCloud className="mx-auto h-8 w-8 text-[#08C58A]" />
             <div>
-              <p className="text-xs font-bold text-[#171916]">Upload Student ID Card Document</p>
+              <p className="text-xs font-bold text-[#171916]">Choose a student ID file (optional)</p>
               <p className="mt-0.5 text-[11px] text-[#777A72]">
-                Supports JPG, PNG, or PDF of your university ID card
+                Supports JPG, PNG, or PDF. The file stays in this form and is not uploaded or reviewed.
               </p>
             </div>
             <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#123D30] px-4 py-2 text-xs font-bold text-white hover:bg-[#0E3127]">

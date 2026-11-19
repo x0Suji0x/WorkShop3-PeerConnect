@@ -1,8 +1,7 @@
 export const DEMO_COPY = {
-  banner: 'Demo mode: changes may reset on reload and are not tied to a real account. Avoid real passwords or sensitive details.',
-  signIn: "Demo sign-in: any password is accepted. Don't enter a real password.",
-  session: 'Demo changes reset when you reload this page.',
-  device: "Saved on this device only. These changes aren't synced to an account or server.",
+  banner: 'Account sign-in is provided by Supabase. Projects, profile details beyond your name, applications, shortlists, and verification are still prototype features and may reset on reload.',
+  session: 'These changes are held in memory and reset when you reload this page.',
+  device: 'Applications and shortlists are saved only in this browser on this device. They are not synced to an account or server.',
   verification:
     'Coming soon: real verification will use consent, secure evidence checks, review status, and an audit trail. No checks happen in this demo.',
   verificationNotPerformed:

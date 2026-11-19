@@ -35,6 +35,7 @@ type AuthState = {
   profileError: string | null
   refreshProfile: () => Promise<void>
   signInWithPassword: (email: string, password: string) => Promise<void>
+  resendSignupConfirmation: (email: string) => Promise<void>
   signUp: (
     email: string,
     password: string,
@@ -46,10 +47,11 @@ type AuthState = {
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updatePassword: (password: string) => Promise<void>
+  updateProfileName: (fullName: string) => Promise<void>
   chooseRole: (role: AccountRole) => Promise<void>
 }
 
-const AuthContext = createContext<AuthState | null>(null)
+const AuthStateContext = createContext<AuthState | null>(null)
 
 function requireSupabase() {
   if (!supabase) throw new Error("Sign-in isn't configured.")
@@ -196,6 +198,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(mapAuthError(error, 'signin'))
   }, [])
 
+  const resendSignupConfirmation = useCallback(async (email: string) => {
+    const { error } = await requireSupabase().auth.resend({
+      type: 'signup',
+      email,
+    })
+    if (error) throw new Error(mapAuthError(error))
+  }, [])
+
   const signUp = useCallback(async (
     email: string,
     password: string,
@@ -208,6 +218,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          role === 'student' ? '/signup/student' : '/dashboard',
+        )}`,
         data: {
           role,
           full_name: fullName,
@@ -247,6 +260,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(mapAuthError(error))
   }, [])
 
+  const updateProfileName = useCallback(async (fullName: string) => {
+    const client = requireSupabase()
+    if (!session?.user) throw new Error('Sign in to update your profile name.')
+
+    const { error } = await client
+      .from('profiles')
+      .update({ full_name: fullName })
+      .eq('id', session.user.id)
+
+    if (error) throw new Error(mapAuthError(error))
+    await refreshProfile()
+  }, [refreshProfile, session])
+
   const chooseRole = useCallback(async (role: AccountRole) => {
     const { error } = await requireSupabase().rpc('choose_role', { new_role: role })
     if (error) throw new Error(mapAuthError(error))
@@ -261,11 +287,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profileError,
     refreshProfile,
     signInWithPassword,
+    resendSignupConfirmation,
     signUp,
     signInWithGoogle,
     signOut,
     resetPassword,
     updatePassword,
+    updateProfileName,
     chooseRole,
   }), [
     session,
@@ -274,19 +302,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profileError,
     refreshProfile,
     signInWithPassword,
+    resendSignupConfirmation,
     signUp,
     signInWithGoogle,
     signOut,
     resetPassword,
     updatePassword,
+    updateProfileName,
     chooseRole,
   ])
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthStateContext.Provider value={value}>{children}</AuthStateContext.Provider>
 }
 
 export function useAuth() {
-  const value = useContext(AuthContext)
+  const value = useContext(AuthStateContext)
   if (!value) throw new Error('useAuth must be used inside AuthProvider')
   return value
 }

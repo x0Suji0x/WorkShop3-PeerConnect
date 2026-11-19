@@ -13,7 +13,8 @@ const homeLinks = [
 ]
 
 export function Navbar() {
-  const { status, profile, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
+  const isAuthenticated = Boolean(user)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { pathname } = useLocation()
   const isHome = pathname === routes.home
@@ -69,7 +70,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          {status === 'signedIn' ? (
+          {isAuthenticated ? (
             <>
               <Link to={routes.dashboard} className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D]">Dashboard</Link>
               <button type="button" onClick={() => void signOut()} className="rounded-full border border-[#CBD5E1] px-5 py-2 text-sm font-medium">Sign out</button>
@@ -93,10 +94,10 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <Link to={status === 'signedIn' ? routes.dashboard : routes.getStarted} onClick={closeMenu}
+          <Link to={isAuthenticated ? routes.dashboard : routes.getStarted} onClick={closeMenu}
             className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
           >
-            {status === 'signedIn' ? 'Dashboard' : 'Get Started'}
+            {isAuthenticated ? 'Dashboard' : 'Get Started'}
           </Link>
           <button
             type="button"
@@ -135,13 +136,22 @@ export function Navbar() {
             )}
           </nav>
           <div className="mt-3 peer-divider-fade-t pt-3">
-            {status === 'signedIn' ? <button type="button" onClick={() => { closeMenu(); void signOut() }} className="mb-2 block w-full rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]">Sign out{profile?.full_name ? ` · ${profile.full_name}` : ''}</button> : null}
+            {isAuthenticated ? <button type="button" onClick={() => { closeMenu(); void signOut() }} className="mb-2 block w-full rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]">Sign out{profile?.full_name ? ` · ${profile.full_name}` : ''}</button> : null}
+            {!isAuthenticated && (
+              <Link
+                to={authRoutes.signin}
+                onClick={closeMenu}
+                className="mb-2 block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]"
+              >
+                Sign in
+              </Link>
+            )}
             <Link
-              to={status === 'signedIn' ? routes.dashboard : routes.getStarted}
+              to={isAuthenticated ? routes.dashboard : routes.getStarted}
               onClick={closeMenu}
               className="block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]"
             >
-              {status === 'signedIn' ? 'Open dashboard' : 'Get Started'}
+              {isAuthenticated ? 'Open dashboard' : 'Get Started'}
             </Link>
           </div>
         </div>

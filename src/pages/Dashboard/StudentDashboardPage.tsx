@@ -33,7 +33,31 @@ export function StudentDashboardPage() {
 }
 
 function StudentDashboardContent() {
-  const { student } = useStudentProfile()
+  const { student, needsProfileCompletion } = useStudentProfile()
+
+  if (needsProfileCompletion) {
+    return (
+      <main className="peer-page-surface relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-4 py-12">
+        <div className="peer-ambient-glow peer-glow-gold -left-24 -top-24 h-96 w-96" />
+        <section className="peer-card-glass relative z-10 w-full max-w-2xl p-8 text-center sm:p-12">
+          <p className="peer-eyebrow-pill mx-auto">STUDENT DASHBOARD</p>
+          <h1 className="mt-5 text-3xl font-black text-[#171916]">
+            Let’s complete your profile, {student.name.split(' ')[0]}.
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#525A55]">
+            Add your education, skills, and work samples so project owners can understand what you bring to a team.
+          </p>
+          <Link to="/signup/student" className="mt-6 inline-flex rounded-full bg-[#123D30] px-6 py-3 text-sm font-bold text-white">
+            Complete your profile <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+          <p className="mt-5 text-xs text-[#777A72]">
+            Only your account name is saved to your profile. Other onboarding details are temporary and reset on reload.
+          </p>
+        </section>
+      </main>
+    )
+  }
+
   const completionReport = calculateProfileCompletion(student)
   const firstName = student.name.split(' ')[0]
   const stats = [

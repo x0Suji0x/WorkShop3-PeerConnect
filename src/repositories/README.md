@@ -1,5 +1,7 @@
-# Frontend repository contracts
+# Student profile repository boundary
 
-Pages should access student data through `StudentRepository`, rather than importing a data source directly. The current implementation is intentionally in-memory and seeded by `studentMockData.ts`; it does not persist through a browser reload.
+Student-facing pages use the `StudentRepository` contract instead of reading profile data sources directly.
 
-When a backend is selected, replace `MockStudentRepository` with an API-backed implementation that honours the same `getById` and `update` contract. This keeps the dashboard, profile, and verification UI independent from a specific backend provider.
+`MockStudentRepository` is the active implementation for public sample browsing. Its edits live in memory and reset on reload. A signed-in student gets a separate, blank account draft in `StudentProfileProvider`; that draft is also in memory. Only the account `full_name` is currently written to the Supabase `profiles` row.
+
+When profile persistence is implemented, add a `SupabaseStudentRepository` that uses the existing Supabase client and approved profile tables. Keep the current contract so page components do not depend on a backend-specific API. Do not add an Express server or treat sample profiles as signed-in users' data.

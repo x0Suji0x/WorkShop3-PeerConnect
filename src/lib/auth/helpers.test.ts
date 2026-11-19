@@ -53,4 +53,10 @@ describe('mapAuthError', () => {
     expect(mapAuthError(new Error('Rate limit exceeded'))).toMatch(/too many/i)
     expect(mapAuthError(new Error('custom failure'))).toBe('custom failure')
   })
+
+  it('does not reveal whether an account exists for an unknown sign-in error', () => {
+    expect(mapAuthError(new Error('No account exists for that email.'), 'signin')).toBe(
+      'Unable to sign in. Check your details and try again.',
+    )
+  })
 })

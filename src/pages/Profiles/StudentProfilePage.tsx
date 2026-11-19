@@ -20,7 +20,7 @@ const availabilityLabels: { key: keyof AvailabilityPreferences; label: string; d
 
 export function StudentProfilePage() {
   const { profileId } = useParams()
-  const { student, isSaving, updateStudent } = useStudentProfile()
+  const { student, isSaving, updateStudent, profileMode, needsProfileCompletion } = useStudentProfile()
   const [isEditing, setIsEditing] = useState(false)
   const [newSkill, setNewSkill] = useState('')
   const [newExperience, setNewExperience] = useState({ role: '', organization: '' })
@@ -48,6 +48,25 @@ export function StudentProfilePage() {
   const removeExperience = (experienceId: string) => void updateStudent({ experiences: student.experiences.filter((experience) => experience.id !== experienceId) })
 
   const pendingCount = student.verifications.filter((verification) => verification.status !== 'verified').length
+
+  if (profileMode === 'account' && profileId === student.id && needsProfileCompletion) {
+    return (
+      <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12">
+        <section className="peer-card-glass w-full max-w-2xl p-8 text-center sm:p-12">
+          <h1 className="text-3xl font-black text-[#171916]">Complete your profile, {student.name}.</h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#525A55]">
+            Add your education, skills, and portfolio details to introduce yourself to project owners.
+          </p>
+          <Link to="/signup/student" className="mt-6 inline-flex rounded-full bg-[#123D30] px-6 py-3 text-sm font-bold text-white">
+            Continue profile setup
+          </Link>
+          <p className="mt-5 text-xs text-[#777A72]">
+            Only your account name is saved. Profile details entered here are temporary and reset on reload.
+          </p>
+        </section>
+      </main>
+    )
+  }
 
   return (
     <div className="peer-page-surface min-h-screen pb-12 relative overflow-hidden">

@@ -197,7 +197,6 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
   // Email text alone never marks a profile as verified.
   const handleEmailChange = (val: string) => {
     onChange('email', val)
-    onChange('isEmailVerified', false)
   }
 
   // Phone number handler: limit strictly to 10 digits

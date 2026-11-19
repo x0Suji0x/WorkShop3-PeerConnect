@@ -46,5 +46,9 @@ export function mapAuthError(
     return 'Too many attempts. Wait a little and try again.'
   }
 
+  if (context === 'signin') {
+    return 'Unable to sign in. Check your details and try again.'
+  }
+
   return error instanceof Error ? error.message : 'Something went wrong. Please try again.'
 }

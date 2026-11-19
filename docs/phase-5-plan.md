@@ -53,7 +53,7 @@ Write policy tests for anonymous access, cross-user reads, forged IDs, ownership
 4. **Shortlisting and client review**: query applications by owned project and persist shortlist decisions; then remove local shortlist derivation and local review state. Do not migrate client review until employer authorization is enforced server-side.
 5. **Verification last**: select a real provider and consent/data-retention model; persist server-authoritative status and audit events; then remove demo verification states and any local status simulation.
 
-For each migration, ship the server-backed path, verify it, and only then delete the old browser-storage path. Current keys found in the repo include `peerconnect_applications_v1`, `peerconnect_active_role`, `peerconnect_client_auth`, and `peerconnect_submitted_applications`; remove each only when its corresponding source of truth has migrated. `peerconnect_demo_banner_dismissed_v1` is a session-only presentation preference and can remain or be removed independently.
+For each migration, ship the Supabase-backed path, verify it, and only then delete the corresponding browser-storage path. Account roles are read from the authenticated profile and never from a URL query or browser storage. Application and shortlist records remain browser-local until their Supabase tables and access policies are implemented. The demo-banner dismissal value is a session-only presentation preference and is not an account credential.
 
 ## Security checklist
 
