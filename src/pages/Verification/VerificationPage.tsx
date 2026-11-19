@@ -2,6 +2,8 @@ import { Building2, CheckCircle2, Clock3, FileCheck2, GraduationCap, Phone, Shie
 import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { PageHeading } from '../../components/common/PageHeading'
+import { DemoNotice } from '../../components/common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
 import type { Verification, VerificationStatus, VerificationType } from '../../types'
 
@@ -31,9 +33,9 @@ export function VerificationPage() {
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <PageHeading eyebrow="Student profile" title="Verification centre" description="Verification signals will help collaborators make informed decisions. Until a backend service is connected, every status below is explicitly a demo state." />
-        <div className="mt-7 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-950"><div className="flex gap-3"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" /><div><p className="font-bold">No genuine verification is represented here.</p><p className="mt-1 text-sm leading-relaxed">Actions are disabled placeholders. They do not upload documents, send an OTP, or confirm identity, experience, skills, or portfolio ownership.</p></div></div></div>
+        <div className="mt-7"><DemoNotice><strong>{DEMO_COPY.verification}</strong><span className="mt-1 block">{DEMO_COPY.verificationNotPerformed}</span></DemoNotice></div>
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{student.verifications.map((verification) => <VerificationCard key={verification.id} verification={verification} />)}</div>
-        <div className="peer-card-glass mt-6 border-[rgba(8,197,138,0.3)] bg-gradient-to-r from-[#123D30] via-[#0D2D24] to-[#171916] p-6 text-white shadow-md sm:p-8 rounded-3xl"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08C58A]">Future integration</p><h2 className="mt-2 text-xl font-black">What a real verification flow needs</h2><p className="mt-2 max-w-2xl text-sm leading-relaxed text-emerald-100/75">Consent, evidence storage, provider responses, review timestamps, and a visible audit trail. Keep status changes server-authoritative when authentication is introduced.</p></div><Button variant="secondary" className="shrink-0">Verification requirements</Button></div></div>
+        <div className="peer-card-glass mt-6 border-[rgba(8,197,138,0.3)] bg-gradient-to-r from-[#123D30] via-[#0D2D24] to-[#171916] p-6 text-white shadow-md sm:p-8 rounded-3xl"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08C58A]">Future integration</p><h2 className="mt-2 text-xl font-black">What a real verification flow needs</h2><p className="mt-2 max-w-2xl text-sm leading-relaxed text-emerald-100/75">Consent, evidence storage, provider responses, review timestamps, and a visible audit trail. Keep status changes server-authoritative when authentication is introduced.</p></div><Button disabled variant="secondary" className="shrink-0">Coming soon</Button></div></div>
       </div>
     </div>
   )
@@ -57,7 +59,7 @@ function VerificationCard({ verification }: { verification: Verification }) {
       <h2 className="mt-5 text-base font-black text-[#171916]">{verification.label}</h2>
       <p className="mt-2 min-h-12 text-sm leading-relaxed text-[#777A72]">{verification.description}</p>
       <Button disabled variant="outline" size="sm" className="mt-5 w-full">
-        Verification unavailable in demo
+        Coming soon
       </Button>
     </div>
   )

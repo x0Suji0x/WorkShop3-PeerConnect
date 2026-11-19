@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
+import { DemoModeBanner } from './DemoModeBanner'
 
 export interface AppShellProps {
   children: ReactNode
@@ -13,6 +14,7 @@ export function AppShell({ children }: AppShellProps) {
         Skip to content
       </a>
       <Navbar />
+      <DemoModeBanner />
       <main id="main-content" className="flex-1 w-full" tabIndex={-1}>
         {children}
       </main>

@@ -20,6 +20,8 @@ import {
 import { routes } from '../../app/routes'
 import { Button } from '../../components/common/Button'
 import { Badge } from '../../components/common/Badge'
+import { DemoNotice } from '../../components/common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 
 const FREEMAIL_DOMAINS = [
   'gmail.com',
@@ -335,6 +337,7 @@ export function SignInPage() {
               : 'Sign in to access your dashboard, squad messages, and project briefs.'}
           </p>
         </div>
+        <DemoNotice>{DEMO_COPY.signIn}</DemoNotice>
 
         {/* -------------------- STUDENT SIGN IN -------------------- */}
         {role === 'student' && (

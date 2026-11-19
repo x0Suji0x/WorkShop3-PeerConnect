@@ -18,6 +18,8 @@ import {
 import { Button } from '../common/Button'
 import { Badge } from '../common/Badge'
 import { PageHeading } from '../common/PageHeading'
+import { DemoNotice } from '../common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 import { mockProjects } from '../../data/mockData'
 import type { ProjectOpportunity } from '../../types'
 import {
@@ -277,6 +279,7 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
             </div>
           }
         />
+        <DemoNotice><strong>Applicant review and shortlists.</strong> {DEMO_COPY.device}</DemoNotice>
 
         {/* Overview Cards with signature tones */}
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">

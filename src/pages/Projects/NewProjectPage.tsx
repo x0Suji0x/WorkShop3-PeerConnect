@@ -5,6 +5,8 @@ import { routes } from '../../app/routes'
 import { Button } from '../../components/common/Button'
 import { Input } from '../../components/common/Input'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
+import { DemoNotice } from '../../components/common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 
 export function NewProjectPage() {
   const [submitted, setSubmitted] = useState(false)
@@ -31,6 +33,7 @@ export function NewProjectPage() {
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h1 className="mt-5 text-2xl font-black text-[#171916]">Project draft created</h1>
+            <div className="mx-auto mt-4 max-w-lg"><DemoNotice>{DEMO_COPY.session}</DemoNotice></div>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[#777A72]">
               This is a frontend demo, so the draft only exists in this screen and has not been published.
             </p>
@@ -61,6 +64,7 @@ export function NewProjectPage() {
               <p className="mt-2 text-sm leading-relaxed text-[#777A72]">
                 Clear outcomes, time expectations, and budget details help the right people find you.
               </p>
+              <div className="mt-4"><DemoNotice>{DEMO_COPY.session}</DemoNotice></div>
               <form className="mt-7 space-y-5" onSubmit={submitProject}>
                 <Input
                   label="Project title"

@@ -6,6 +6,8 @@ import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { Input } from '../../components/common/Input'
+import { DemoNotice } from '../../components/common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
 import type { AvailabilityPreferences, Experience } from '../../types'
 
@@ -114,6 +116,8 @@ export function StudentProfilePage() {
             </Button>
           </div>
         </div>
+
+        {isEditing && <div className="mt-4"><DemoNotice>{DEMO_COPY.session}</DemoNotice></div>}
 
         {profileId !== student.id && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">Showing a local demo profile while profile data is not connected. Requested profile: {profileId}</p>}
 
