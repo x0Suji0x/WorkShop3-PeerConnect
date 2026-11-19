@@ -30,7 +30,7 @@ import type { AuthUser } from '../../types/auth'
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
   const { student, updateStudent } = useStudentProfile()
-  const { signupStudent } = useAuth()
+  const { signupStudent, user } = useAuth()
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1)
   const [highestStepVisited, setHighestStepVisited] = useState<number>(1)
@@ -161,7 +161,7 @@ export function StudentOnboardingPage() {
         avatarUrl: googleUser.avatarUrl || prev.basicInfo.avatarUrl,
         headline: googleUser.headline || prev.basicInfo.headline || 'Student Developer & Creator',
         phone: googleUser.phone || prev.basicInfo.phone,
-        password: prev.basicInfo.password || 'GoogleAuth2026!',
+        password: prev.basicInfo.password,
       },
       college: {
         ...prev.college,
@@ -224,6 +224,10 @@ export function StudentOnboardingPage() {
     let stepErrors: FormValidationErrors = {}
     if (currentStep === 1) {
       stepErrors = validateStep1(formData.basicInfo)
+      if (user?.role === 'student' && user.email === formData.basicInfo.email) {
+        delete stepErrors.password
+        delete stepErrors.confirmPassword
+      }
     } else if (currentStep === 2) {
       stepErrors = validateStep2(formData.college)
     } else if (currentStep === 3) {
@@ -466,7 +470,8 @@ export function StudentOnboardingPage() {
     }
 
     try {
-      if (formData.basicInfo.email && formData.basicInfo.password) {
+      const isSignedInStudent = user?.role === 'student' && user.email === formData.basicInfo.email
+      if (formData.basicInfo.email && formData.basicInfo.password && !isSignedInStudent) {
         const signupResult = await signupStudent({
           fullName: formData.basicInfo.fullName,
           email: formData.basicInfo.email,

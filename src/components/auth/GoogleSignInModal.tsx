@@ -44,7 +44,6 @@ export function GoogleSignInModal({
   const [isCustomMode, setIsCustomMode] = useState(false)
   const [customName, setCustomName] = useState('')
   const [customEmail, setCustomEmail] = useState('')
-  const [customRole, setCustomRole] = useState<'student' | 'client'>(defaultRole)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,7 +74,7 @@ export function GoogleSignInModal({
     await handleSelectAccount({
       email: customEmail.trim(),
       fullName: customName.trim() || customEmail.split('@')[0],
-      role: customRole,
+      role: defaultRole,
     })
   }
 
@@ -121,10 +120,10 @@ export function GoogleSignInModal({
             </svg>
           </div>
           <h2 id="google-modal-title" className="text-lg font-bold text-[#171916]">
-            Sign in with Google
+            Continue with Google (demo)
           </h2>
           <p className="mt-1 text-xs text-[#747B75]">
-            to continue to <strong className="text-[#171916]">PeerConnect</strong>
+            Local account simulation for <strong className="text-[#171916]">PeerConnect</strong>
           </p>
         </div>
 
@@ -138,10 +137,10 @@ export function GoogleSignInModal({
         {!isCustomMode ? (
           <div className="mt-5 space-y-2.5">
             <p className="text-[11px] font-bold uppercase tracking-wider text-[#747B75] px-1">
-              Choose an account
+              Choose a demo identity
             </p>
 
-            {PRESET_GOOGLE_ACCOUNTS.map((acc) => (
+            {PRESET_GOOGLE_ACCOUNTS.filter((acc) => acc.role === defaultRole).map((acc) => (
               <button
                 key={acc.email}
                 type="button"
@@ -184,13 +183,13 @@ export function GoogleSignInModal({
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600">
                 <UserPlus className="h-4 w-4" />
               </div>
-              <span>Use another Google account</span>
+              <span>Use a custom demo identity</span>
             </button>
           </div>
         ) : (
           <form onSubmit={handleCustomSubmit} className="mt-5 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#171916]">Custom Google Account</span>
+              <span className="text-xs font-bold text-[#171916]">Custom demo identity</span>
               <button
                 type="button"
                 onClick={() => setIsCustomMode(false)}
@@ -202,7 +201,7 @@ export function GoogleSignInModal({
 
             <div>
               <label htmlFor="custom-google-email" className="block text-xs font-medium text-[#525A55]">
-                Google Email Address
+                Email address
               </label>
               <input
                 id="custom-google-email"
@@ -229,47 +228,19 @@ export function GoogleSignInModal({
               />
             </div>
 
-            <div>
-              <span className="block text-xs font-medium text-[#525A55]">Join PeerConnect as</span>
-              <div className="mt-1.5 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCustomRole('student')}
-                  className={`rounded-xl border py-2 text-xs font-bold transition-all ${
-                    customRole === 'student'
-                      ? 'border-[#176B4C] bg-[#E8F3EA] text-[#176B4C]'
-                      : 'border-[#E8E1D8] text-[#525A55] hover:bg-gray-50'
-                  }`}
-                >
-                  Student / Creator
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCustomRole('client')}
-                  className={`rounded-xl border py-2 text-xs font-bold transition-all ${
-                    customRole === 'client'
-                      ? 'border-[#176B4C] bg-[#E8F3EA] text-[#176B4C]'
-                      : 'border-[#E8E1D8] text-[#525A55] hover:bg-gray-50'
-                  }`}
-                >
-                  Client / Employer
-                </button>
-              </div>
-            </div>
-
             <button
               type="submit"
               disabled={isSubmitting}
               className="mt-2 w-full rounded-xl bg-[#176B4C] py-2.5 text-xs font-bold text-white shadow-sm hover:bg-[#12583E] transition disabled:opacity-50"
             >
-              {isSubmitting ? 'Authenticating with Google...' : 'Continue with Google'}
+              {isSubmitting ? 'Creating demo session...' : 'Continue with demo'}
             </button>
           </form>
         )}
 
         {/* Footer Guarantee */}
         <p className="mt-6 text-center text-[11px] leading-relaxed text-[#747B75]">
-          To continue, Google will share your name, email address, language preference, and profile picture with PeerConnect.
+          Demo only: no Google account is contacted and no account receives genuine verification.
         </p>
       </div>
     </div>
