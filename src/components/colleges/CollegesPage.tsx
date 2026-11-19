@@ -352,7 +352,7 @@ function CollegeCard({
           {college.description}
         </p>
 
-        {/* Number of Registered Students (Demo Data) */}
+        {/* Number of Registered Students */}
         <div className="p-3 rounded-2xl bg-[#F7F6F0] border border-[#E7E8E1] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-[#08C58A]" />

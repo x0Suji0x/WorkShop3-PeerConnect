@@ -21,8 +21,8 @@ export function StudentProfileProvider({ children }: { children: ReactNode }) {
   const student = useMemo<Student>(() => {
     if (!user || user.role !== 'student') return baseStudent
 
-    const isSeededDemoAccount = user.email === 'sofia.rodriguez@nid.edu'
-    const accountDefaults: Student = isSeededDemoAccount
+    const isSeededAccount = user.email === 'sofia.rodriguez@nid.edu'
+    const accountDefaults: Student = isSeededAccount
       ? baseStudent
       : {
           ...baseStudent,

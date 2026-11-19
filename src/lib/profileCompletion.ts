@@ -15,42 +15,42 @@ export function calculateProfileCompletion(student: Partial<Student>): ProfileCo
       label: 'Full Name and Headline',
       completed: Boolean(student.name?.trim() && student.headline?.trim()),
       impact: 15,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'avatar',
       label: 'Profile Photo',
       completed: Boolean(student.avatarUrl && !student.avatarUrl.includes('placeholder')),
       impact: 10,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'college',
       label: 'College and Degree Information',
       completed: Boolean(student.college?.trim() && student.degree?.trim()),
       impact: 15,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'about',
       label: 'About / Bio Statement',
       completed: Boolean((student.about?.trim() || student.bio?.trim()) && (student.about?.length || student.bio?.length || 0) > 30),
       impact: 10,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'skills',
       label: 'Skills (at least 3 skills)',
       completed: Boolean(student.skills && student.skills.length >= 3),
       impact: 15,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'interests',
       label: 'Areas of Interest',
       completed: Boolean(student.interests && student.interests.length >= 1),
       impact: 10,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'availability',
@@ -61,7 +61,7 @@ export function calculateProfileCompletion(student: Partial<Student>): ProfileCo
         Object.values(student.availabilityPreferences).some(Boolean)
       ),
       impact: 10,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'social_links',
@@ -71,14 +71,14 @@ export function calculateProfileCompletion(student: Partial<Student>): ProfileCo
         (student.socialLinks.github || student.socialLinks.linkedin || student.socialLinks.portfolio)
       ),
       impact: 8,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
     {
       key: 'projects',
       label: 'Portfolio Project or Sample Work',
       completed: Boolean(student.portfolioProjects && student.portfolioProjects.length > 0),
       impact: 7,
-      route: '/profiles/' + (student.id || 'demo'),
+      route: '/profiles/' + (student.id || 'me'),
     },
   ]
 

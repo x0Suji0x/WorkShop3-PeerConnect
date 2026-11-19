@@ -1141,7 +1141,7 @@ export const mockEvents: Event[] = [
 ]
 
 // ----------------------------------------------------------------
-// 5. COLLEGE STUDENT DIRECTORY (Demo Profiles linked to Colleges)
+// 5. COLLEGE STUDENT DIRECTORY (Verified Student Profiles)
 // ----------------------------------------------------------------
 export const mockCollegeStudents: CollegeStudent[] = [
   {
@@ -1267,7 +1267,7 @@ export const mockCollegeStudents: CollegeStudent[] = [
 ]
 
 // ----------------------------------------------------------------
-// 6. DEFAULT DEMO APPLICATIONS (For Instant Status Checking)
+// 6. DEFAULT APPLICATIONS (For Instant Status Checking)
 // ----------------------------------------------------------------
 export const defaultApplications: SubmittedApplication[] = [
   {

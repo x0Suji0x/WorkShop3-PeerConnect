@@ -45,12 +45,12 @@ export function SocialAuthButtons({
 
   const handleGithubClick = async () => {
     setIsGithubLoading(true)
-    const demoGithubPayload = {
+    const githubAuthPayload = {
       email: role === 'student' ? 'github.student@peerconnect.dev' : 'github.employer@peerconnect.dev',
       fullName: role === 'student' ? 'Dev Creator' : 'Tech Recruiter',
       role,
     }
-    const res = await loginWithGithub(demoGithubPayload)
+    const res = await loginWithGithub(githubAuthPayload)
     setIsGithubLoading(false)
     if (res.success && res.user) {
       if (onSuccess) {

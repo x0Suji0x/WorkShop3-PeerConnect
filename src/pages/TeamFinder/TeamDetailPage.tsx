@@ -32,7 +32,7 @@ export function TeamDetailPage() {
   // Local applications list
   const [applications, setApplications] = useState<TeamApplication[]>([
     {
-      id: 'app-demo-1',
+      id: 'app-applied-1',
       teamPostId: teamId || '',
       applicantId: 's-kavita',
       applicantName: 'Kavita Sundaram',

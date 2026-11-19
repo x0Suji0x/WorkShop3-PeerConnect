@@ -106,7 +106,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
     data.fieldOfStudy && !BRANCH_OPTIONS.includes(data.fieldOfStudy) ? data.fieldOfStudy : ''
   )
 
-  // OTP Demo state
+  // OTP verification state
   const [isSendingOtp, setIsSendingOtp] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const [otpValue, setOtpValue] = useState(data.otpCode || '')

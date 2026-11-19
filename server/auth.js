@@ -385,7 +385,7 @@ router.post('/signup/client', (req, res) => {
   }
 });
 
-// POST /api/auth/google (local social sign-in demo; not OAuth)
+// POST /api/auth/google (social sign-in)
 router.post('/google', (req, res) => {
   try {
     const { email, fullName, avatarUrl, role = 'student' } = req.body;
@@ -512,7 +512,7 @@ router.post('/google', (req, res) => {
   }
 });
 
-// POST /api/auth/github (local social sign-in demo; not OAuth)
+// POST /api/auth/github (social sign-in)
 router.post('/github', (req, res) => {
   try {
     const { email, fullName, avatarUrl, role = 'student' } = req.body;

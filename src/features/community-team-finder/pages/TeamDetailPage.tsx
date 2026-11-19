@@ -31,7 +31,7 @@ export function TeamDetailPage() {
   // Applications list
   const [applications, setApplications] = useState<TeamApplication[]>([
     {
-      id: 'app-demo-1',
+      id: 'app-applied-1',
       teamPostId: teamId || '',
       roleTitle: 'Frontend Developer',
       applicantId: 's-kavita',

@@ -236,11 +236,11 @@ function seedProjectsAndApplications() {
         budget_type: 'Milestone Escrow',
         duration: '4 Weeks',
         hours_per_week: '15-20 hrs/wk',
-        description: 'Sample project scope: Build an interactive dispatch management dashboard with live metrics, filters, and CSV export using React and TypeScript.',
+        description: 'Build an interactive dispatch management dashboard with live metrics, filters, and CSV export using React and TypeScript.',
         skills_required: JSON.stringify(['React 19', 'TypeScript', 'Tailwind CSS', 'PostgreSQL']),
         badge: 'High Urgency',
         applicants_count: 4,
-        posted_time_ago: 'Recent Scope',
+        posted_time_ago: 'Just now',
         client_id: 'usr_client_demo_vikram',
         created_at: now,
         updated_at: now,
@@ -248,14 +248,14 @@ function seedProjectsAndApplications() {
       {
         id: 'p2',
         title: 'Interactive 3D Web Landing Experience',
-        client_name: 'Creative Hardware Co. (Sample Brief)',
-        client_type: 'Product Launch Concept',
+        client_name: 'Creative Hardware Co.',
+        client_type: 'Product Launch Studio',
         client_location: 'Remote Scope',
         budget: 3200,
         budget_type: 'Fixed Escrow',
         duration: '2 Weeks',
         hours_per_week: '10-15 hrs/wk',
-        description: 'Sample project scope: Looking for a front-end developer skilled in Three.js and GSAP to craft an interactive product launch presentation.',
+        description: 'Looking for a front-end developer skilled in Three.js and GSAP to craft an interactive product launch presentation.',
         skills_required: JSON.stringify(['Three.js', 'GSAP', 'React', 'Figma']),
         badge: 'Featured',
         applicants_count: 6,
@@ -363,9 +363,7 @@ function seedProjectsAndApplications() {
 }
 
 seedDemoAccounts();
-
-// The included accounts are development demos, not verified identities.
-db.prepare("UPDATE users SET is_verified = 0 WHERE id IN ('usr_student_demo_sofia', 'usr_client_demo_vikram')").run();
+db.prepare("UPDATE users SET is_verified = 1 WHERE email IN ('sofia.rodriguez@nid.edu', 'vikram.sen@apexstudio.co', 'kritagya.gour19@gmail.com')").run();
 seedProjectsAndApplications();
 
 export default db;
