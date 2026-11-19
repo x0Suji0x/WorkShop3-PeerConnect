@@ -1,4 +1,10 @@
-# PeerConnect – Student Communities & Team Finder Module
+# Archived: PeerConnect Student Communities & Team Finder Module
+
+This guide describes an earlier isolated implementation in `src/features/community-team-finder/`. That directory was removed because the running application uses the active pages under `src/pages/Communities` and `src/pages/TeamFinder`. The import paths and integration steps below are historical and are not usable with the current codebase.
+
+---
+
+## Historical Integration Guide
 ## Integration Guide & Module Specification for Kritagya
 
 This document outlines the architecture, routes, recommendation logic, components, and integration steps for the **AI-powered Student Communities and Team Finder** module.
