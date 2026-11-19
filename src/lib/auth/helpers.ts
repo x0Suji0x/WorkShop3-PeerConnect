@@ -2,7 +2,7 @@ export type AccountRole = 'student' | 'client'
 export const parseRole = (value: unknown): AccountRole | null => value === 'student' || value === 'client' ? value : null
 
 export function sanitizeReturnPath(value: string | null | undefined): string | null {
-  if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return null
+  if (!value || /[\\\u0000-\u001f\u007f]/.test(value) || !value.startsWith('/') || value.startsWith('//')) return null
   try { const url = new URL(value, 'https://peerconnect.invalid'); return url.origin === 'https://peerconnect.invalid' ? `${url.pathname}${url.search}${url.hash}` : null } catch { return null }
 }
 

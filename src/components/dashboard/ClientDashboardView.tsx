@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   Building2,
   DollarSign,
-  GraduationCap,
   Sparkles,
   Star,
   ExternalLink,
@@ -22,22 +21,12 @@ import { DemoNotice } from '../common/DemoNotice'
 import { DEMO_COPY } from '../../config/demoCopy'
 import { mockProjects } from '../../data/mockData'
 import type { ProjectOpportunity } from '../../types'
+import { useAuth } from '../../lib/auth/AuthProvider'
 import {
   getStoredApplications,
   updateApplicationStatus,
   type ExtendedApplication,
 } from '../../lib/applicationStorage'
-
-interface ClientAuthData {
-  name?: string
-  company?: string
-  email?: string
-  role?: string
-}
-
-interface ClientDashboardViewProps {
-  onSwitchToStudent: () => void
-}
 
 interface ApplicantItem {
   id: string
@@ -124,19 +113,10 @@ function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
   return [...dynamicItems, ...remainingInitial]
 }
 
-export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewProps) {
-  // Load saved client auth
-  const [clientData] = useState<ClientAuthData>(() => {
-    try {
-      const stored = localStorage.getItem('peerconnect_client_auth')
-      return stored ? (JSON.parse(stored) as ClientAuthData) : {}
-    } catch {
-      return {}
-    }
-  })
-
-  const clientName = clientData.name || 'Vikram Sen'
-  const companyName = clientData.company || 'Apex Studio & Labs'
+export function ClientDashboardView() {
+  const { profile } = useAuth()
+  const clientName = profile?.full_name || 'Client'
+  const companyName = profile?.company_name || 'Your company'
 
   const [projects, setProjects] = useState<ProjectOpportunity[]>(mockProjects)
   const [applicants, setApplicants] = useState<ApplicantItem[]>(() =>
@@ -233,14 +213,6 @@ export function ClientDashboardView({ onSwitchToStudent }: ClientDashboardViewPr
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={onSwitchToStudent}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
-          >
-            <GraduationCap className="h-3.5 w-3.5 text-[#08C58A]" />
-            Switch to Student View
-          </button>
         </div>
 
         {/* Success Toast */}
