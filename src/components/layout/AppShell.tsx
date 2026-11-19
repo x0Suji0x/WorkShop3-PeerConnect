@@ -10,7 +10,7 @@ export interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const location = useLocation()
 
-  if (location.pathname === '/auth/google-popup') {
+  if (location.pathname === '/auth/callback') {
     return (
       <main id="main-content" className="w-full min-h-screen bg-[#1F1F1F]" tabIndex={-1}>
         {children}

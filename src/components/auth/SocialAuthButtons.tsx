@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { routes } from '../../app/routes'
 import { useAuth } from '../../hooks/useAuth'
-import { GoogleSignInModal } from './GoogleSignInModal'
+import { startGoogleOAuth } from '../../lib/googleOAuth'
 import type { AuthUser } from '../../types/auth'
 
 interface SocialAuthButtonsProps {
@@ -17,8 +17,7 @@ export function SocialAuthButtons({
   onSuccess,
 }: SocialAuthButtonsProps) {
   const navigate = useNavigate()
-  const { loginWithGithub, refreshUser } = useAuth()
-  const [googleModalOpen, setGoogleModalOpen] = useState(false)
+  const { loginWithGithub, completeExternalLogin } = useAuth()
   const [isGithubLoading, setIsGithubLoading] = useState(false)
 
   const handleGoogleSuccess = useCallback((userRole: 'student' | 'client', user?: AuthUser) => {
@@ -33,15 +32,15 @@ export function SocialAuthButtons({
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
-      if (event.data?.type === 'GOOGLE_SIGNIN_SUCCESS' && event.data?.user) {
-        void refreshUser?.()
+      if (event.data?.type === 'GOOGLE_SIGNIN_SUCCESS' && event.data?.user && event.data?.token) {
+        completeExternalLogin(event.data.user as AuthUser, event.data.token as string)
         handleGoogleSuccess(event.data.role || role, event.data.user)
       }
     }
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [role, handleGoogleSuccess, refreshUser])
+  }, [role, handleGoogleSuccess, completeExternalLogin])
 
   const handleGithubClick = async () => {
     setIsGithubLoading(true)
@@ -67,7 +66,7 @@ export function SocialAuthButtons({
         {/* Google Sign-In Button */}
         <button
           type="button"
-          onClick={() => setGoogleModalOpen(true)}
+          onClick={() => startGoogleOAuth(role)}
           className="group flex w-full items-center justify-center gap-3 rounded-2xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-xs font-bold text-[#171916] shadow-2xs transition-all hover:border-[#94A3B8] hover:bg-gray-50/80 hover:shadow-sm sm:text-sm"
         >
           {/* Official Google 4-Color G */}
@@ -124,14 +123,6 @@ export function SocialAuthButtons({
           Fast, secure authentication for students and project clients.
         </p>
       </div>
-
-      {/* Google Sign-In Dialog Modal */}
-      <GoogleSignInModal
-        isOpen={googleModalOpen}
-        onClose={() => setGoogleModalOpen(false)}
-        onSuccess={handleGoogleSuccess}
-        defaultRole={role}
-      />
     </>
   )
 }

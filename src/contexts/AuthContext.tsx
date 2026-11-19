@@ -75,6 +75,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = Boolean(user && token)
 
+  const completeExternalLogin = useCallback((nextUser: AuthUser, nextToken: string) => {
+    setToken(nextToken)
+    setUser(nextUser)
+    setIsLoading(false)
+
+    try {
+      localStorage.setItem(TOKEN_KEY, nextToken)
+      localStorage.setItem(ROLE_KEY, nextUser.role)
+      localStorage.setItem(USER_KEY, JSON.stringify(nextUser))
+      syncClientAuth(nextUser)
+    } catch {
+      // The session cookie still permits authenticated API requests.
+    }
+  }, [])
+
   // Asynchronous token verification on mount
   useEffect(() => {
     const savedToken = localStorage.getItem(TOKEN_KEY)
@@ -309,58 +324,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     []
   )
 
-  // Google OAuth action
-  const loginWithGoogle = useCallback(
-    async (payload: SocialAuthPayload): Promise<AuthResponse> => {
-      try {
-        const response = await fetch('/api/auth/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
-
-        const data = (await response.json()) as {
-          message?: string
-          error?: string
-          token?: string
-          user?: AuthUser
-        }
-
-        if (!response.ok) {
-          return {
-            success: false,
-            error: data.error || 'Failed to authenticate with Google.',
-          }
-        }
-
-        if (data.token && data.user) {
-          setToken(data.token)
-          setUser(data.user)
-
-          try {
-            localStorage.setItem(TOKEN_KEY, data.token)
-            localStorage.setItem(ROLE_KEY, data.user.role)
-            localStorage.setItem(USER_KEY, JSON.stringify(data.user))
-            syncClientAuth(data.user)
-          } catch {
-            // ignore
-          }
-
-          return { success: true, user: data.user, token: data.token }
-        }
-
-        return { success: false, error: 'Unexpected response from server.' }
-      } catch (err) {
-        console.error('[Google Auth Error]:', err)
-        return {
-          success: false,
-          error: 'Cannot connect to authentication server. Please check your connection.',
-        }
-      }
-    },
-    []
-  )
-
   // GitHub OAuth action
   const loginWithGithub = useCallback(
     async (payload: SocialAuthPayload): Promise<AuthResponse> => {
@@ -447,8 +410,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       signupStudent,
       signupClient,
-      loginWithGoogle,
       loginWithGithub,
+      completeExternalLogin,
       logout,
       refreshUser,
     }),
@@ -461,8 +424,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       signupStudent,
       signupClient,
-      loginWithGoogle,
       loginWithGithub,
+      completeExternalLogin,
       logout,
       refreshUser,
     ]

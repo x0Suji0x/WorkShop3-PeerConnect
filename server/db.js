@@ -41,6 +41,7 @@ db.exec(`
     selected_needs TEXT DEFAULT '[]',
     profile_data TEXT DEFAULT '{}',
     last_login_at TEXT,
+    google_subject TEXT UNIQUE,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
@@ -107,6 +108,8 @@ function ensureColumn(tableName, columnName, definition) {
 
 ensureColumn('users', 'profile_data', "TEXT DEFAULT '{}'");
 ensureColumn('users', 'last_login_at', 'TEXT');
+ensureColumn('users', 'google_subject', 'TEXT');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_subject ON users(google_subject)');
 ensureColumn('projects', 'category', 'TEXT');
 ensureColumn('projects', 'work_mode', 'TEXT');
 

@@ -1,10 +1,18 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomBytes } from 'node:crypto';
 import db from './db.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'peerconnect_jwt_secret_dev_2026_super_secure';
+const APP_ORIGIN = (process.env.APP_ORIGIN || 'http://localhost:5173').replace(/\/$/, '');
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI =
+  process.env.GOOGLE_REDIRECT_URI || `http://localhost:${process.env.PORT || 5001}/api/auth/google/callback`;
+const SESSION_COOKIE = 'peerconnect_session';
+const GOOGLE_STATE_COOKIE = 'peerconnect_google_state';
 
 if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
   throw new Error('JWT_SECRET must be configured in production.');
@@ -58,6 +66,136 @@ function cleanStudentProfile(input) {
   }
 
   return result;
+}
+
+function readCookie(req, name) {
+  const cookies = req.headers.cookie;
+  if (!cookies) return null;
+
+  const pair = cookies.split(';').map((item) => item.trim()).find((item) => item.startsWith(`${name}=`));
+  return pair ? decodeURIComponent(pair.slice(name.length + 1)) : null;
+}
+
+function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: '/',
+  };
+}
+
+function signInUser(res, rawUser, message, status = 200) {
+  const signedInAt = new Date().toISOString();
+  db.prepare('UPDATE users SET last_login_at = ?, updated_at = ? WHERE id = ?').run(signedInAt, signedInAt, rawUser.id);
+  const signedInUser = db.prepare('SELECT * FROM users WHERE id = ?').get(rawUser.id);
+  const token = generateToken(signedInUser);
+  res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
+
+  return res.status(status).json({
+    message,
+    token,
+    user: sanitizeUser(signedInUser),
+  });
+}
+
+function redirectToOAuthResult(res, params = {}) {
+  const query = new URLSearchParams(params);
+  const suffix = query.toString() ? `?${query}` : '';
+  return res.redirect(`${APP_ORIGIN}/auth/callback${suffix}`);
+}
+
+function createGoogleUser(profile, requestedRole) {
+  const cleanEmail = profile.email.toLowerCase().trim();
+  const existingBySubject = db.prepare('SELECT * FROM users WHERE google_subject = ?').get(profile.sub);
+  const existingByEmail = db.prepare('SELECT * FROM users WHERE LOWER(email) = ?').get(cleanEmail);
+
+  if (existingBySubject) return existingBySubject;
+  if (existingByEmail) {
+    db.prepare('UPDATE users SET google_subject = ?, updated_at = ? WHERE id = ?').run(profile.sub, new Date().toISOString(), existingByEmail.id);
+    return db.prepare('SELECT * FROM users WHERE id = ?').get(existingByEmail.id);
+  }
+
+  const now = new Date().toISOString();
+  const userId = `usr_google_${Date.now()}_${randomBytes(3).toString('hex')}`;
+  const passwordHash = bcrypt.hashSync(randomBytes(32).toString('hex'), 10);
+  const fullName = typeof profile.name === 'string' && profile.name.trim() ? profile.name.trim() : cleanEmail.split('@')[0];
+  const avatarUrl = typeof profile.picture === 'string' ? profile.picture : '';
+
+  if (requestedRole === 'client') {
+    const domain = cleanEmail.split('@')[1]?.split('.')[0] || 'My Organization';
+    const organization = domain.charAt(0).toUpperCase() + domain.slice(1);
+    db.prepare(`
+      INSERT INTO users (
+        id, role, email, password_hash, full_name, avatar_url, headline, phone,
+        company_name, contact_name, designation, website, org_type, selected_needs,
+        is_verified, google_subject, created_at, updated_at
+      ) VALUES (
+        @id, @role, @email, @password_hash, @full_name, @avatar_url, @headline, @phone,
+        @company_name, @contact_name, @designation, @website, @org_type, @selected_needs,
+        @is_verified, @google_subject, @created_at, @updated_at
+      )
+    `).run({
+      id: userId,
+      role: 'client',
+      email: cleanEmail,
+      password_hash: passwordHash,
+      full_name: fullName,
+      avatar_url: avatarUrl,
+      headline: `Hiring lead at ${organization}`,
+      phone: '',
+      company_name: organization,
+      contact_name: fullName,
+      designation: 'Hiring lead',
+      website: '',
+      org_type: 'Organization',
+      selected_needs: '[]',
+      is_verified: 0,
+      google_subject: profile.sub,
+      created_at: now,
+      updated_at: now,
+    });
+  } else {
+    db.prepare(`
+      INSERT INTO users (
+        id, role, email, password_hash, full_name, avatar_url, headline, phone,
+        college_name, degree, field_of_study, academic_year, graduation_year,
+        college_email, is_verified, skills, interests, portfolio, profile_data,
+        google_subject, created_at, updated_at
+      ) VALUES (
+        @id, @role, @email, @password_hash, @full_name, @avatar_url, @headline, @phone,
+        @college_name, @degree, @field_of_study, @academic_year, @graduation_year,
+        @college_email, @is_verified, @skills, @interests, @portfolio, @profile_data,
+        @google_subject, @created_at, @updated_at
+      )
+    `).run({
+      id: userId,
+      role: 'student',
+      email: cleanEmail,
+      password_hash: passwordHash,
+      full_name: fullName,
+      avatar_url: avatarUrl,
+      headline: 'Student & creator on PeerConnect',
+      phone: '',
+      college_name: '',
+      degree: '',
+      field_of_study: '',
+      academic_year: '',
+      graduation_year: '',
+      college_email: '',
+      is_verified: 0,
+      skills: '[]',
+      interests: '[]',
+      portfolio: '{}',
+      profile_data: '{}',
+      google_subject: profile.sub,
+      created_at: now,
+      updated_at: now,
+    });
+  }
+
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
 }
 
 // Helper to sanitize user object for client response
@@ -116,7 +254,9 @@ export function generateToken(user) {
 // Authentication middleware for protected endpoints
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const token =
+    (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null) ||
+    readCookie(req, SESSION_COOKIE);
 
   if (!token) {
     return res.status(401).json({ error: 'Authentication token required' });
@@ -133,6 +273,7 @@ export function authenticateToken(req, res, next) {
 
     req.user = sanitizeUser(user);
     req.userId = user.id;
+    req.authToken = token;
     next();
   } catch {
     return res.status(403).json({ error: 'Invalid or expired authentication token' });
@@ -170,17 +311,7 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ error: 'Invalid password. Please try again.' });
     }
 
-    const signedInAt = new Date().toISOString();
-    db.prepare('UPDATE users SET last_login_at = ?, updated_at = ? WHERE id = ?').run(signedInAt, signedInAt, user.id);
-    const signedInUser = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
-    const token = generateToken(signedInUser);
-    const sanitized = sanitizeUser(signedInUser);
-
-    return res.status(200).json({
-      message: 'Signed in successfully',
-      token,
-      user: sanitized,
-    });
+    return signInUser(res, user, 'Signed in successfully');
   } catch (error) {
     console.error('[Auth Error /login]:', error);
     return res.status(500).json({ error: 'Internal server error during login' });
@@ -280,14 +411,7 @@ router.post('/signup/student', (req, res) => {
 
     const getStmt = db.prepare('SELECT * FROM users WHERE id = ?');
     const createdUser = getStmt.get(userId);
-    const token = generateToken(createdUser);
-    const sanitized = sanitizeUser(createdUser);
-
-    return res.status(201).json({
-      message: 'Student account created successfully',
-      token,
-      user: sanitized,
-    });
+    return signInUser(res, createdUser, 'Student account created successfully', 201);
   } catch (error) {
     console.error('[Auth Error /signup/student]:', error);
     return res.status(500).json({ error: 'Internal server error while creating student account' });
@@ -371,144 +495,94 @@ router.post('/signup/client', (req, res) => {
 
     const getStmt = db.prepare('SELECT * FROM users WHERE id = ?');
     const createdUser = getStmt.get(userId);
-    const token = generateToken(createdUser);
-    const sanitized = sanitizeUser(createdUser);
-
-    return res.status(201).json({
-      message: 'Client account registered successfully',
-      token,
-      user: sanitized,
-    });
+    return signInUser(res, createdUser, 'Client account registered successfully', 201);
   } catch (error) {
     console.error('[Auth Error /signup/client]:', error);
     return res.status(500).json({ error: 'Internal server error while registering client account' });
   }
 });
 
-// POST /api/auth/google (social sign-in)
-router.post('/google', (req, res) => {
-  try {
-    const { email, fullName, avatarUrl, role = 'student' } = req.body;
-
-    if (!email || !email.trim()) {
-      return res.status(400).json({ error: 'Google email address is required' });
-    }
-
-    const cleanEmail = email.trim().toLowerCase();
-    const checkStmt = db.prepare('SELECT * FROM users WHERE LOWER(email) = ?');
-    const existingUser = checkStmt.get(cleanEmail);
-
-    if (existingUser) {
-      // Existing user: generate token and sign in directly
-      const token = generateToken(existingUser);
-      return res.status(200).json({
-        message: 'Signed in with Google successfully',
-        token,
-        user: sanitizeUser(existingUser),
-      });
-    }
-
-    // New user signing up via Google
-    const userId = `usr_g_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const randomPassword = bcrypt.hashSync(`google_oauth_${Date.now()}_${Math.random()}`, 10);
-    const now = new Date().toISOString();
-    const resolvedName = fullName?.trim() || cleanEmail.split('@')[0];
-    const resolvedAvatar =
-      avatarUrl?.trim() ||
-      `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80`;
-    const targetRole = role === 'client' ? 'client' : 'student';
-
-    const isEdu =
-      cleanEmail.endsWith('.edu') ||
-      cleanEmail.endsWith('.ac.in') ||
-      cleanEmail.endsWith('.edu.in') ||
-      cleanEmail.endsWith('.ac.uk');
-
-    if (targetRole === 'client') {
-      const company = cleanEmail.split('@')[1]?.split('.')[0] || 'My Company';
-      const companyCapitalized = company.charAt(0).toUpperCase() + company.slice(1);
-      const insertStmt = db.prepare(`
-        INSERT INTO users (
-          id, role, email, password_hash, full_name, avatar_url, headline, phone,
-          company_name, contact_name, designation, website, org_type, selected_needs,
-          is_verified, created_at, updated_at
-        ) VALUES (
-          @id, @role, @email, @password_hash, @full_name, @avatar_url, @headline, @phone,
-          @company_name, @contact_name, @designation, @website, @org_type, @selected_needs,
-          @is_verified, @created_at, @updated_at
-        )
-      `);
-
-      insertStmt.run({
-        id: userId,
-        role: 'client',
-        email: cleanEmail,
-        password_hash: randomPassword,
-        full_name: resolvedName,
-        avatar_url: resolvedAvatar,
-        headline: `Talent Partner at ${companyCapitalized}`,
-        phone: '',
-        company_name: companyCapitalized,
-        contact_name: resolvedName,
-        designation: 'Hiring Lead',
-        website: '',
-        org_type: 'Seed / Early-stage Startup',
-        selected_needs: JSON.stringify(['Frontend / React', 'UI/UX Design']),
-        is_verified: 0,
-        created_at: now,
-        updated_at: now,
-      });
-    } else {
-      const insertStmt = db.prepare(`
-        INSERT INTO users (
-          id, role, email, password_hash, full_name, avatar_url, headline, phone,
-          college_name, degree, field_of_study, academic_year, graduation_year,
-          college_email, is_verified, skills, interests, portfolio, created_at, updated_at
-        ) VALUES (
-          @id, @role, @email, @password_hash, @full_name, @avatar_url, @headline, @phone,
-          @college_name, @degree, @field_of_study, @academic_year, @graduation_year,
-          @college_email, @is_verified, @skills, @interests, @portfolio, @created_at, @updated_at
-        )
-      `);
-
-      insertStmt.run({
-        id: userId,
-        role: 'student',
-        email: cleanEmail,
-        password_hash: randomPassword,
-        full_name: resolvedName,
-        avatar_url: resolvedAvatar,
-        headline: 'Student & Creator on PeerConnect',
-        phone: '',
-        college_name: isEdu ? 'Verified University' : 'University Student',
-        degree: 'Undergraduate Program',
-        field_of_study: 'Computer Science & Design',
-        academic_year: '3rd Year',
-        graduation_year: '2027',
-        college_email: isEdu ? cleanEmail : '',
-        is_verified: 0,
-        skills: JSON.stringify([
-          { name: 'React', category: 'dev' },
-          { name: 'UI/UX Design', category: 'design' },
-        ]),
-        interests: JSON.stringify(['UI/UX & Product Design', 'AI & Machine Learning']),
-        portfolio: JSON.stringify({}),
-        created_at: now,
-        updated_at: now,
-      });
-    }
-
-    const createdUser = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
-    const token = generateToken(createdUser);
-
-    return res.status(201).json({
-      message: 'Account created with Google successfully',
-      token,
-      user: sanitizeUser(createdUser),
+// GET /api/auth/google (real Google OAuth account chooser)
+router.get('/google', (req, res) => {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    return redirectToOAuthResult(res, {
+      error: 'Google sign-in is not configured for this environment yet.',
     });
+  }
+
+  const role = req.query.role === 'client' ? 'client' : 'student';
+  const state = randomBytes(24).toString('hex');
+  res.cookie(GOOGLE_STATE_COOKIE, `${state}.${role}`, {
+    ...sessionCookieOptions(),
+    maxAge: 10 * 60 * 1000,
+    path: '/api/auth/google',
+  });
+
+  const authorizationUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  authorizationUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID);
+  authorizationUrl.searchParams.set('redirect_uri', GOOGLE_REDIRECT_URI);
+  authorizationUrl.searchParams.set('response_type', 'code');
+  authorizationUrl.searchParams.set('scope', 'openid email profile');
+  authorizationUrl.searchParams.set('state', state);
+  authorizationUrl.searchParams.set('prompt', 'select_account');
+  authorizationUrl.searchParams.set('access_type', 'offline');
+
+  return res.redirect(authorizationUrl.toString());
+});
+
+// GET /api/auth/google/callback (Google OAuth callback)
+router.get('/google/callback', async (req, res) => {
+  const storedState = readCookie(req, GOOGLE_STATE_COOKIE);
+  res.clearCookie(GOOGLE_STATE_COOKIE, { path: '/api/auth/google' });
+
+  if (req.query.error) {
+    return redirectToOAuthResult(res, { error: 'Google sign-in was cancelled.' });
+  }
+
+  const [expectedState, requestedRole] = (storedState || '').split('.');
+  if (!expectedState || !req.query.state || req.query.state !== expectedState || !req.query.code) {
+    return redirectToOAuthResult(res, { error: 'Google sign-in could not be verified. Please try again.' });
+  }
+
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    return redirectToOAuthResult(res, { error: 'Google sign-in is not configured for this environment yet.' });
+  }
+
+  try {
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code: String(req.query.code),
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        grant_type: 'authorization_code',
+      }),
+    });
+    const tokenData = await tokenResponse.json();
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      throw new Error('Google did not return a usable access token.');
+    }
+
+    const profileResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const profile = await profileResponse.json();
+    if (!profileResponse.ok || !profile.sub || !profile.email || !profile.email_verified) {
+      throw new Error('Google did not return a verified email address.');
+    }
+
+    const account = createGoogleUser(profile, requestedRole === 'client' ? 'client' : 'student');
+    const signedInAt = new Date().toISOString();
+    db.prepare('UPDATE users SET last_login_at = ?, updated_at = ? WHERE id = ?').run(signedInAt, signedInAt, account.id);
+    const token = generateToken(account);
+    res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
+
+    return redirectToOAuthResult(res, { provider: 'google' });
   } catch (error) {
-    console.error('[Auth Error /google]:', error);
-    return res.status(500).json({ error: 'Internal server error during Google sign-in' });
+    console.error('[Auth Error /google/callback]:', error);
+    return redirectToOAuthResult(res, { error: 'Google sign-in failed. Please try again.' });
   }
 });
 
@@ -597,7 +671,7 @@ router.post('/github', (req, res) => {
 
 // GET /api/auth/me (Protected)
 router.get('/me', authenticateToken, (req, res) => {
-  return res.status(200).json({ user: req.user });
+  return res.status(200).json({ user: req.user, token: req.authToken });
 });
 
 // GET /api/auth/profile (Protected, student only)
@@ -709,6 +783,7 @@ router.patch('/profile', authenticateToken, (req, res) => {
 
 // POST /api/auth/logout
 router.post('/logout', (req, res) => {
+  res.clearCookie(SESSION_COOKIE, { path: '/' });
   return res.status(200).json({ message: 'Logged out successfully' });
 });
 

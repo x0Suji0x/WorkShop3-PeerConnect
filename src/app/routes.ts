@@ -33,4 +33,5 @@ export const authRoutes = {
   signupStudent: '/signup/student',
   signupComplete: '/signup/student/complete',
   signin: '/signin',
+  googleCallback: '/auth/callback',
 } as const

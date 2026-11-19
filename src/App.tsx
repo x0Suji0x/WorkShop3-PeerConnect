@@ -24,7 +24,7 @@ const GetStartedPage = lazy(() => import('./pages/Shared/GetStartedPage').then((
 const ApplicationsPage = lazy(() => import('./pages/Applications/ApplicationsPage').then(({ ApplicationsPage: Page }) => ({ default: Page })))
 const SignUpPage = lazy(() => import('./pages/Auth/SignUpPage').then(({ SignUpPage: Page }) => ({ default: Page })))
 const SignInPage = lazy(() => import('./pages/Auth/SignInPage').then(({ SignInPage: Page }) => ({ default: Page })))
-const GooglePopupPage = lazy(() => import('./pages/Auth/GooglePopupPage').then(({ GooglePopupPage: Page }) => ({ default: Page })))
+const OAuthCallbackPage = lazy(() => import('./pages/Auth/OAuthCallbackPage').then(({ OAuthCallbackPage: Page }) => ({ default: Page })))
 const StudentOnboardingPage = lazy(() => import('./pages/Onboarding/StudentOnboardingPage').then(({ StudentOnboardingPage: Page }) => ({ default: Page })))
 const OnboardingCompletePage = lazy(() => import('./pages/Onboarding/OnboardingCompletePage').then(({ OnboardingCompletePage: Page }) => ({ default: Page })))
 const CommunitiesPage = lazy(() => import('./pages/Communities/CommunitiesPage').then(({ CommunitiesPage: Page }) => ({ default: Page })))
@@ -63,7 +63,7 @@ export default function App() {
               <Route path={routes.events} element={<RouteBoundary><EventsPage /></RouteBoundary>} />
 
               {/* Authentication & Onboarding routes */}
-              <Route path="/auth/google-popup" element={<RouteBoundary><GooglePopupPage /></RouteBoundary>} />
+              <Route path={authRoutes.googleCallback} element={<RouteBoundary><OAuthCallbackPage /></RouteBoundary>} />
               <Route path={authRoutes.signup} element={<RouteBoundary><SignUpPage /></RouteBoundary>} />
               <Route path={authRoutes.signupStudent} element={<RouteBoundary><StudentOnboardingPage /></RouteBoundary>} />
               <Route path={authRoutes.signupComplete} element={<RouteBoundary><OnboardingCompletePage /></RouteBoundary>} />

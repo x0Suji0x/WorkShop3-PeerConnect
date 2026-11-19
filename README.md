@@ -84,8 +84,21 @@ Email/password accounts, student-profile edits, project briefs, and applications
 
 - Use **`npm run dev`** to start both services, or **`npm run dev:server`** and **`npm run dev:client`** separately.
 - The seeded accounts are development demos only; their verification badges are not genuine verification.
-- Google and GitHub buttons are clearly marked local demos. They are not OAuth integrations.
+- GitHub sign-in is still a local demo. Google sign-in uses the real Google-hosted account chooser once the OAuth environment variables below are configured.
 - For a deployed environment, provide a strong `JWT_SECRET` and use managed database, upload, notification, payment, and verification services.
+
+### Google sign-in configuration
+
+PeerConnect uses Google's server-side authorization-code flow. This means the account chooser and password entry happen at `accounts.google.com`, not inside PeerConnect.
+
+1. In Google Cloud Console, create an OAuth 2.0 **Web application** client and configure the consent screen.
+2. Add the exact callback URI to its authorised redirect URIs:
+   - Local: `http://localhost:5001/api/auth/google/callback`
+   - Production: `https://YOUR-DOMAIN/api/auth/google/callback`
+3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `APP_ORIGIN`, and a strong `JWT_SECRET` in the host's environment variables. See [`.env.example`](.env.example) for the names only—never commit real secrets.
+4. Use `APP_ORIGIN` for the browser app's public URL (for example, `https://peerconnect.example`) and ensure `GOOGLE_REDIRECT_URI` matches Google Cloud exactly.
+
+The flow requests only `openid`, `email`, and `profile`. A Google email confirms the Google account email only; it does not mark college, skills, experience, or portfolio verification as complete.
 
 ---
 

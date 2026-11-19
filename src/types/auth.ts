@@ -94,8 +94,8 @@ export interface AuthContextType {
   login: (credentials: { email: string; password: string; role?: 'student' | 'client' }) => Promise<AuthResponse>
   signupStudent: (payload: StudentSignupPayload) => Promise<AuthResponse>
   signupClient: (payload: ClientSignupPayload) => Promise<AuthResponse>
-  loginWithGoogle: (payload: SocialAuthPayload) => Promise<AuthResponse>
   loginWithGithub: (payload: SocialAuthPayload) => Promise<AuthResponse>
+  completeExternalLogin: (user: AuthUser, token: string) => void
   logout: () => void
   refreshUser: () => Promise<void>
 }
