@@ -19,6 +19,7 @@ const EventsPage = lazy(() => import('./pages/Events/EventsPage').then(({ Events
 const ProjectsPage = lazy(() => import('./pages/Projects/ProjectsPage').then(({ ProjectsPage: Page }) => ({ default: Page })))
 const ProjectDetailPage = lazy(() => import('./pages/Projects/ProjectDetailPage').then(({ ProjectDetailPage: Page }) => ({ default: Page })))
 const NewProjectPage = lazy(() => import('./pages/Projects/NewProjectPage').then(({ NewProjectPage: Page }) => ({ default: Page })))
+const GetStartedPage = lazy(() => import('./pages/Shared/GetStartedPage').then(({ GetStartedPage: Page }) => ({ default: Page })))
 const ApplicationsPage = lazy(() => import('./pages/Applications/ApplicationsPage').then(({ ApplicationsPage: Page }) => ({ default: Page })))
 const SignUpPage = lazy(() => import('./pages/Auth/SignUpPage').then(({ SignUpPage: Page }) => ({ default: Page })))
 const SignInPage = lazy(() => import('./pages/Auth/SignInPage').then(({ SignInPage: Page }) => ({ default: Page })))
@@ -44,6 +45,7 @@ export default function App() {
           <AppShell>
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
+              <Route path={routes.getStarted} element={<RouteBoundary><GetStartedPage /></RouteBoundary>} />
               <Route path={routes.dashboard} element={<RouteBoundary><StudentDashboardPage /></RouteBoundary>} />
               <Route path={routes.profiles} element={<RouteBoundary><TalentDirectoryPage /></RouteBoundary>} />
               <Route path="/profiles/:profileId" element={<RouteBoundary><StudentProfilePage /></RouteBoundary>} />

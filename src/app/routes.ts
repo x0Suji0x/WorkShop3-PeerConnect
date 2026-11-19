@@ -1,5 +1,6 @@
 export const routes = {
   home: '/',
+  getStarted: '/get-started',
   dashboard: '/dashboard',
   profiles: '/profiles',
   verification: '/verification',

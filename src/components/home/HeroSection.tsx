@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { routes } from '../../app/routes'
 import { gsap, ScrollTrigger, useGSAP } from '../../lib/gsap'
-import { useSmoothScroll } from '../../hooks/useSmoothScroll'
 import { HeroHeadline } from './hero/HeroHeadline'
 import { HeroConnectionScene } from './hero/HeroConnectionScene'
 
 export function HeroSection() {
   const trackRef = useRef<HTMLElement>(null)
-  const { scrollTo } = useSmoothScroll()
+  const navigate = useNavigate()
   const [activeStage, setActiveStage] = useState(0)
 
   useGSAP(() => {
@@ -111,7 +112,7 @@ export function HeroSection() {
     <section id="hero" ref={trackRef} className="hero-scroll-track" aria-label="PeerConnect introduction">
       <div className="hero-story-stage">
         <HeroConnectionScene />
-        <HeroHeadline activeStage={activeStage} onExploreClick={() => scrollTo('#projects')} />
+        <HeroHeadline activeStage={activeStage} onExploreClick={() => navigate(routes.getStarted)} />
       </div>
     </section>
   )
