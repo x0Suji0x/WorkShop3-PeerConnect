@@ -1,129 +1,46 @@
-# PeerConnect – Student Talent Marketplace & Collaboration Network
+# PeerConnect
 
-**PeerConnect** is a modern student talent marketplace and professional networking ecosystem connecting students, campus clubs, hackathons, college directories, startups, and clients.
+PeerConnect is a React + TypeScript student talent and project collaboration prototype, built with Vite, React Router, Tailwind CSS, and Supabase Auth.
 
----
+## Current implementation boundary
 
-## 🚀 Local Development Links
+- **Authentication is real Supabase Auth.** Email/password and Google OAuth use Supabase. The account role is `student` or `client` and comes from the Supabase profile, not a URL or browser setting.
+- **Only the basic account profile is persisted to Supabase:** role, full name, company name, and avatar URL. Student onboarding information beyond the full name is held in memory and resets on reload.
+- **The rest of the product is prototype/browser-only:** projects and drafts, applications, shortlists, verification, and payments are not connected to production data services. Applications and shortlists use this browser/device; other edits may reset on reload.
+- **Verification is not implemented.** Email confirmation and Google sign-in do not establish student enrollment, company identity, skills, or portfolio ownership. Sample talent profiles, ratings, and reviews are illustrative content.
 
-Once the development server is running (`npm run dev`), access PeerConnect locally at:
+The shared demo notice describes these limits in the app. Avoid entering sensitive personal information in prototype features.
 
-- **🏠 Main Application (Localhost):** [http://localhost:5173/](http://localhost:5173/)
+## Local development
 
-### Quick Access Routes
+Requirements: Node.js and npm.
 
-| Route | Local URL | Description |
-|---|---|---|
-| **Landing Page** | [http://localhost:5173/](http://localhost:5173/) | Hero showcase, student talent highlights, marketplace preview |
-| **Sign Up Landing** | [http://localhost:5173/signup](http://localhost:5173/signup) | Student & creator onboarding entry point |
-| **Student Registration** | [http://localhost:5173/signup/student](http://localhost:5173/signup/student) | 6-step multi-step registration flow |
-| **Sign In (Student / Client)** | [http://localhost:5173/signin](http://localhost:5173/signin) | Role-aware authentication for students & employers |
-| **Client Sign In** | [http://localhost:5173/signin?role=client](http://localhost:5173/signin?role=client) | Employer & Recruiter sign-in with corporate domain check |
-| **Client Register** | [http://localhost:5173/signin?role=client&mode=register](http://localhost:5173/signin?role=client&mode=register) | Register a company account and hiring scope; verification remains pending |
-| **Student Dashboard** | [http://localhost:5173/dashboard](http://localhost:5173/dashboard) | Active metrics, verification status & momentum score |
-| **Client Workspace** | [http://localhost:5173/dashboard](http://localhost:5173/dashboard) | Client dashboard access follows the signed-in Supabase profile role |
-| **Student Profile** | [http://localhost:5173/profiles/sofia-rodriguez](http://localhost:5173/profiles/sofia-rodriguez) | Portfolio, skills, experience, and clearly labelled verification states |
-| **Verification Centre** | [http://localhost:5173/verification](http://localhost:5173/verification) | Institutional email, phone, and portfolio verification signals |
-| **Student Plus Demo** | [http://localhost:5173/student-plus](http://localhost:5173/student-plus) | ₹99/month plan preview with a non-chargeable checkout demo |
-| **Communities** | [http://localhost:5173/communities](http://localhost:5173/communities) | 12 student interest circles, filters & AI recommendations |
-| **Community Detail** | [http://localhost:5173/communities/ai-ml](http://localhost:5173/communities/ai-ml) | Discussions feed, member roster, and guidelines |
-| **My Communities** | [http://localhost:5173/my-communities](http://localhost:5173/my-communities) | Joined circles & aggregated discussion stream |
-| **Team Finder** | [http://localhost:5173/team-finder](http://localhost:5173/team-finder) | Hackathon squads, research capstones & startup projects |
-| **AI Team Builder** | [http://localhost:5173/team-finder/builder](http://localhost:5173/team-finder/builder) | AI-powered squad architect decomposing project ideas into roles |
-| **Create Collaboration** | [http://localhost:5173/team-finder/new](http://localhost:5173/team-finder/new) | Create a team recruitment post with custom role requirements |
-| **Colleges Directory** | [http://localhost:5173/colleges](http://localhost:5173/colleges) | Campus directory across leading institutions |
-| **Campus Clubs** | [http://localhost:5173/clubs](http://localhost:5173/clubs) | College clubs, technical societies, and recruitment |
-| **Campus Events** | [http://localhost:5173/events](http://localhost:5173/events) | Hackathons, workshops, conferences, and volunteering |
+```bash
+npm ci
+cp .env.example .env.local
+# Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local.
+npm run dev
+```
 
----
+The dev server is available at [http://localhost:5173](http://localhost:5173). Supabase project setup, migrations, email, Google OAuth, and smoke checks are documented in [docs/supabase-setup.md](docs/supabase-setup.md).
 
-## 🛠️ Getting Started
+Useful routes:
 
-### Prerequisites
+- `/` — public landing page
+- `/get-started` — browse-first student/client chooser
+- `/profiles` — sample talent directory
+- `/projects` — prototype project browser
+- `/signup/student` — student account and onboarding flow
+- `/signin` — sign in or register a client account
+- `/dashboard` — authenticated student or client dashboard
+- `/terms` and `/privacy` — draft policies pending legal review
 
-- Node.js (v18 or higher recommended)
-- npm or pnpm
+## Checks
 
-### Installation & Setup
+```bash
+npm run build
+npm test
+npm run lint
+```
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/x0Suji0x/WorkShop3-PeerConnect.git
-   cd WorkShop3-PeerConnect
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the local Vite dev server:**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:5173/](http://localhost:5173/) in your browser. Configure Supabase using `docs/supabase-setup.md` for authentication.
-
-4. **Run TypeScript build check:**
-   ```bash
-   npm run build
-   ```
-
-5. **Run Linting:**
-   ```bash
-   npm run lint
-   ```
-
-6. **Run unit tests:**
-   ```bash
-   npm run test
-   ```
-
-### Prototype storage and verification
-
-Supabase Auth handles account sessions and the basic account profile. Student profile edits, project drafts, applications, and shortlists are prototype features that use browser or session storage and may reset on reload or remain only on this device. Email confirmation is not student, company, identity, or portfolio verification. The verification area is illustrative and performs no checks. Projects and payments are not backed by production services.
-
----
-
-## 🌟 Core Features & Modules
-
-### 1. Student Sign-Up & Multi-Step Onboarding (`/signup`)
-- **Step 1 – Basic Credentials:** Name, headline, password with live strength evaluation, avatar presets, and phone privacy protections.
-- **Step 2 – University Identity:** College autocomplete, degree, branch, year, and verification request states. Real OTP, document upload, and manual review integrations are still pending.
-- **Step 3 – Skills & Interests:** Searchable skill tags, custom tag input, and interest domain selection.
-- **Step 4 – Goals & Availability:** Multi-select opportunity cards (Paid projects, Internships, Hackathons, Co-founders) and working availability selector.
-- **Step 5 – Portfolio & Craft (Skippable):** GitHub, LinkedIn, Behance, and portfolio links, short bio, and featured project summary.
-- **Step 6 – Review & Launch:** Section-by-section review with edit shortcuts, Terms & Privacy consent, and real-time profile completion score calculation.
-
-### 2. AI-Powered Student Communities (`/communities`)
-- 12 Interest circles (AI/ML, Web Dev, Mobile App, Competitive Programming, Robotics, Entrepreneurship, Graphic Design, Photography, Space Tech, UI/UX, Blockchain, Cybersecurity).
-- Real-time search, category filters, and live join/leave states.
-- Discussions feed with Latest vs Popular sorting, likes, comments, and pinned announcements.
-- Rule-based AI community recommendations matching student skills and interests with clear reasoning.
-
-### 3. AI Team Finder & Teammate Matching (`/team-finder`)
-- Categorized team recruitment posts for Hackathons, Startups, College Capstones, Research, and Open Source.
-- Filter by collaboration format (Remote, On-Campus, Hybrid) and status.
-- Role-specific application workflow with project lead review (accept/decline applications and squad roster management).
-- Intelligent teammate recommendation system calculating deterministic match scores ($\text{score} = \frac{|\text{matchedSkills}|}{|\text{requiredSkills}|} \times 100$) with candidate profile cards.
-
-### 4. AI Project Team Builder (`/team-finder/builder`)
-- Natural language project concept input (or preset example idea prompts).
-- Rule-based squad architecture decomposition: identifies core and optional roles, required tech stacks, and relevant communities for finding collaborators.
-- Direct "Post Project Now" conversion workflow.
-
-### 5. Campus Ecosystem & Student Dashboard
-- **Student Dashboard (`/dashboard`):** Profile momentum bar with live completion percentage, pending verification status, and recommended project opportunities.
-- **Student Profile (`/profiles/:id`):** Public-facing student portfolio, sample verification states, and availability details.
-- **Colleges, Clubs & Events (`/colleges`, `/clubs`, `/events`):** Campus discovery and student society recruitment.
-
----
-
-## 📦 Tech Stack
-
-- **Framework:** React 19 + TypeScript
-- **Authentication:** Supabase Auth (configure through `.env.local`; see setup guide)
-- **Bundler & Dev Server:** Vite
-- **Styling:** Tailwind CSS v4
-- **Routing:** React Router v7
-- **Icons:** Lucide React
-- **Linter:** Oxlint
+The app handles missing Supabase environment variables without crashing; protected routes show a clear configuration message. Do not add the Supabase `service_role` key to client code or any `VITE_*` variable.
