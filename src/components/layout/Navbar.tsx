@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { routes, communityRoutes, authRoutes } from '../../app/routes'
+import { useAuth } from '../../lib/auth/AuthProvider'
 
 const homeLinks = [
   { label: 'Projects', to: routes.projects },
@@ -12,6 +13,7 @@ const homeLinks = [
 ]
 
 export function Navbar() {
+  const { status, profile, signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { pathname } = useLocation()
   const isHome = pathname === routes.home
@@ -67,7 +69,12 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          {isHome ? (
+          {status === 'signedIn' ? (
+            <>
+              <Link to={routes.dashboard} className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D]">Dashboard</Link>
+              <button type="button" onClick={() => void signOut()} className="rounded-full border border-[#CBD5E1] px-5 py-2 text-sm font-medium">Sign out</button>
+            </>
+          ) : (
             <>
               <Link
                 to={authRoutes.signin}
@@ -82,23 +89,14 @@ export function Navbar() {
                 Get Started
               </Link>
             </>
-          ) : (
-            <Link
-              to={routes.dashboard}
-              className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D] shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all hover:bg-[#07b27c]"
-            >
-              My dashboard
-            </Link>
           )}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <Link
-            to={isHome ? routes.getStarted : routes.dashboard}
-            onClick={closeMenu}
+          <Link to={status === 'signedIn' ? routes.dashboard : routes.getStarted} onClick={closeMenu}
             className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
           >
-            {isHome ? 'Get Started' : 'Dashboard'}
+            {status === 'signedIn' ? 'Dashboard' : 'Get Started'}
           </Link>
           <button
             type="button"
@@ -137,12 +135,13 @@ export function Navbar() {
             )}
           </nav>
           <div className="mt-3 peer-divider-fade-t pt-3">
+            {status === 'signedIn' ? <button type="button" onClick={() => { closeMenu(); void signOut() }} className="mb-2 block w-full rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]">Sign out{profile?.full_name ? ` · ${profile.full_name}` : ''}</button> : null}
             <Link
-              to={isHome ? routes.dashboard : routes.home}
+              to={status === 'signedIn' ? routes.dashboard : routes.getStarted}
               onClick={closeMenu}
               className="block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]"
             >
-              {isHome ? 'Open dashboard' : 'Back to home'}
+              {status === 'signedIn' ? 'Open dashboard' : 'Get Started'}
             </Link>
           </div>
         </div>

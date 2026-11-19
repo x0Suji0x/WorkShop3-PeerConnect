@@ -16,7 +16,7 @@ import { Card } from '../../components/common/Card'
 import { PageHeading } from '../../components/common/PageHeading'
 import { studentPlusAnalyticsPreview, studentPlusPlan } from '../../data/studentPlusMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
-import type { DemoPaymentMethod } from '../../types'
+import type { PaymentMethod } from '../../types'
 
 const paymentMethods = [
   { id: 'upi' as const, label: 'UPI', detail: 'Use a virtual UPI handle for this demo.', icon: Landmark },
@@ -25,7 +25,7 @@ const paymentMethods = [
 
 export function StudentPlusPage() {
   const { student, updateStudent } = useStudentProfile()
-  const [paymentMethod, setPaymentMethod] = useState<DemoPaymentMethod>('upi')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi')
   const [isActivating, setIsActivating] = useState(false)
   const [activationComplete, setActivationComplete] = useState(false)
 

@@ -373,7 +373,7 @@ export function ProjectMarketplaceSection() {
 
                       <span className="hidden lg:flex items-center gap-1 text-[11px] text-[#777A72]">
                         <Sparkles className="w-3 h-3 text-[#08C58A]" />
-                        <span>Demo Brief • Direct Collaboration</span>
+                        <span>Sample Brief • Direct Collaboration</span>
                       </span>
                     </div>
                   </div>

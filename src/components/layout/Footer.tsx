@@ -28,7 +28,7 @@ export function Footer() {
 
             <div className="flex items-center gap-2 text-xs text-[#171916] bg-white border border-[#E7E8E1] w-fit px-3 py-1.5 rounded-full shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-[#08C58A]" />
-              <span className="font-medium">Open-source student marketplace prototype</span>
+              <span className="font-medium">Student talent marketplace prototype</span>
             </div>
           </div>
 
@@ -129,7 +129,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 peer-divider-fade-t flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#777A72]">
-          <p>© 2026 PeerConnect. Educational open-source prototype.</p>
+          <p>© 2026 PeerConnect. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link to={routes.home} className="hover:text-[#08C58A] transition-colors">
               Back to Top

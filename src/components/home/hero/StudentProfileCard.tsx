@@ -58,7 +58,7 @@ export function StudentProfileCard({
                 <FolderGit2 className="w-3.5 h-3.5 text-[#08C58A]" />
                 Featured Portfolio Work
               </span>
-              <span className="text-[10px] text-[#777A72] font-mono">Demo Showcase</span>
+              <span className="text-[10px] text-[#08C58A] font-mono font-bold">Featured Work</span>
             </div>
             <p className="text-xs font-semibold text-[#171916] leading-snug">
               Interactive 3D Web Experience &amp; Design System
