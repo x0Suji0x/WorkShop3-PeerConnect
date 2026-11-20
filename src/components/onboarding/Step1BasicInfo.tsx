@@ -16,7 +16,6 @@ import {
   ShieldCheck,
   AlertCircle,
   Camera,
-  Image as ImageIcon,
 } from 'lucide-react'
 import type { OnboardingBasicInfo, FormValidationErrors } from '../../types/onboarding'
 import { AVATAR_PRESETS, DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
@@ -170,7 +169,6 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
   const [zoomLevel, setZoomLevel] = useState(1)
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const refFileInputRef = useRef<HTMLInputElement>(null)
 
   // Suggestion rotation index
   const [suggestionBatch, setSuggestionBatch] = useState(0)
@@ -421,7 +419,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
               <h3 className="text-sm font-bold text-[#171916]">Profile Photo & Avatar</h3>
             </div>
               <p className="mt-0.5 text-xs text-[#777A72]">
-                Use an illustrated PFP, upload a photo, or make your own avatar.
+                Upload your own photo or create an illustrated identity in Avatar Studio.
               </p>
           </div>
 
@@ -448,7 +446,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
         </div>
 
         {avatarTab === 'upload' ? (
-          /* TAB 1: DEVICE UPLOAD DROPZONE & PRESETS */
+          /* TAB 1: DEVICE UPLOAD ONLY */
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Main Avatar Preview (Large & Clear) */}
@@ -456,7 +454,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                 <div className="relative group">
                   <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-[#F7F6F0] shadow-lg ring-2 ring-[#08C58A]/40">
                     <img
-                      src={data.avatarUrl || AVATAR_PRESETS[0].url}
+                      src={data.avatarUrl || DEFAULT_AVATAR_URL}
                       alt="Profile preview"
                       className="h-full w-full object-cover transition-transform duration-150"
                       style={{ transform: `scale(${zoomLevel})` }}
@@ -550,15 +548,18 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
               </div>
             </div>
 
-            {/* Presets Gallery */}
-            <div className="border-t border-[#F2F1EA] pt-3">
+          </div>
+        ) : (
+          /* TAB 2: AVATAR STUDIO */
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-[#D9E9E1] bg-[#F7FCF9] p-3.5">
               <div className="mb-3 flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <span className="block text-xs font-bold text-[#171916]">
-                    Choose an illustrated PFP
+                    Start with an illustrated PFP
                   </span>
                   <p className="mt-0.5 text-[11px] text-[#777A72]">
-                    Colourful community-avatar styles — no stock or AI-looking portraits.
+                    Community-avatar styles — colourful, expressive, and never stock-photo looking.
                   </p>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#08A876]">
@@ -576,7 +577,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                     }}
                     aria-label={`${preset.label}: ${preset.description}`}
                     title={`${preset.label} — ${preset.description}`}
-                    className={`group relative aspect-square overflow-hidden rounded-2xl border-2 transition ${
+                    className={`relative aspect-square overflow-hidden rounded-2xl border-2 transition ${
                       data.avatarUrl === preset.url
                         ? 'border-[#08C58A] scale-105 ring-2 ring-[#08C58A]/30 shadow-sm'
                         : 'border-transparent opacity-85 hover:opacity-100 hover:scale-105 hover:border-[#123D30]/20'
@@ -588,10 +589,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                 ))}
               </div>
             </div>
-          </div>
-        ) : (
-          /* TAB 2: CUSTOM SVG AVATAR BUILDER */
-          <div className="space-y-4">
+
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Live SVG Avatar Preview */}
               <div className="flex flex-col items-center shrink-0">
@@ -733,26 +731,6 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                   </div>
                 </div>
 
-                {/* Upload picture as reference button */}
-                <div className="pt-1">
-                  <input
-                    ref={refFileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleFileChosen(file)
-                    }}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => refFileInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 text-xs text-[#08A876] font-bold hover:underline"
-                  >
-                    <ImageIcon className="h-3.5 w-3.5" /> Or upload a photo reference from your device
-                  </button>
-                </div>
               </div>
             </div>
           </div>
