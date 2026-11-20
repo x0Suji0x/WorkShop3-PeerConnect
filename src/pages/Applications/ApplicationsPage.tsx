@@ -9,6 +9,7 @@ import { PageHeading } from '../../components/common/PageHeading'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { useAuth } from '../../lib/auth/AuthProvider'
 import { supabaseApplicationRepository } from '../../repositories/supabaseApplicationRepository'
+import { canStudentWithdrawApplication } from '../../lib/applicationStatusRules'
 import type { Application } from '../../types'
 
 const statusStyles: Record<
@@ -194,11 +195,13 @@ function ApplicationCard({
           <Link to={projectRoute(application.projectId)}>
             <Button variant="secondary" size="sm">View project</Button>
           </Link>
-          {application.status === 'submitted' && (
+          {canStudentWithdrawApplication(application.status) ? (
             <Button variant="ghost" size="sm" disabled={isUpdating} onClick={onWithdraw}>
               {isUpdating ? 'Withdrawing…' : 'Withdraw'}
             </Button>
-          )}
+          ) : application.status !== 'withdrawn' ? (
+            <span className="text-xs text-[#777A72]">This application can no longer be withdrawn.</span>
+          ) : null}
         </div>
       </div>
     </div>

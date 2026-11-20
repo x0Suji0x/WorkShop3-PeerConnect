@@ -21,6 +21,7 @@ import { supabaseProjectRepository } from '../../repositories/supabaseProjectRep
 import { supabaseApplicationRepository } from '../../repositories/supabaseApplicationRepository'
 import type { AccountApplication, ClientApplicationStatus } from '../../repositories/applicationRepository'
 import { useAuth } from '../../lib/auth/AuthProvider'
+import { canClientTransitionApplication, clientApplicationActions } from '../../lib/applicationStatusRules'
 
 const applicantStatusLabel: Record<AccountApplication['status'], string> = {
   submitted: 'Submitted',
@@ -374,7 +375,8 @@ export function ClientDashboardView() {
               <p role="status" className="text-sm text-[#777A72]">Loading applications…</p>
             ) : applicants.length ? applicants.map((app) => {
               const publicProfile = app.applicantProfile
-              const canReview = app.status === 'submitted' || app.status === 'shortlisted'
+              const canReview = canClientTransitionApplication(app.status)
+              const availableActions = clientApplicationActions(app.status)
               const isUpdating = updatingApplicationId === app.id
               return (
               <div
@@ -431,18 +433,27 @@ export function ClientDashboardView() {
 
                 {canReview && (
                   <div className="flex flex-wrap justify-end gap-2 border-t border-[#E7E8E1] pt-3">
-                    {app.status === 'submitted' && (
+                    {availableActions.includes('shortlisted') && (
                       <Button size="sm" variant="secondary" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'shortlisted')}>
                         {isUpdating ? 'Saving…' : 'Shortlist'}
                       </Button>
                     )}
-                    <Button size="sm" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'accepted')}>
-                      Accept
-                    </Button>
-                    <Button size="sm" variant="ghost" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'rejected')}>
-                      Decline
-                    </Button>
+                    {availableActions.includes('accepted') && (
+                      <Button size="sm" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'accepted')}>
+                        Accept
+                      </Button>
+                    )}
+                    {availableActions.includes('rejected') && (
+                      <Button size="sm" variant="ghost" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'rejected')}>
+                        Decline
+                      </Button>
+                    )}
                   </div>
+                )}
+                {!canReview && (
+                  <p role="status" className="border-t border-[#E7E8E1] pt-3 text-right text-xs text-[#777A72]">
+                    {app.status === 'withdrawn' ? 'This application was withdrawn and cannot be changed.' : 'This decision is final; the application status can no longer be changed.'}
+                  </p>
                 )}
               </div>
             )}) : <p className="rounded-2xl border border-dashed border-[#CBD5C1] p-6 text-sm text-[#777A72]">No applications yet. New student proposals for your projects will appear here.</p>}
