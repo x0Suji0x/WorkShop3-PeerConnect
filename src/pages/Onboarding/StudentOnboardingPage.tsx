@@ -26,6 +26,7 @@ import { Button } from '../../components/common/Button'
 import { LoadingState } from '../../components/common/LoadingState'
 import { useAuth } from '../../lib/auth/AuthProvider'
 import type { Student, Verification } from '../../types'
+import { DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
 
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
@@ -47,7 +48,7 @@ export function StudentOnboardingPage() {
       phone: '',
       password: '',
       confirmPassword: '',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      avatarUrl: DEFAULT_AVATAR_URL,
       headline: '',
     },
     college: {
@@ -100,10 +101,23 @@ export function StudentOnboardingPage() {
 
   useEffect(() => {
     if (auth.status !== 'signedIn' || !auth.profile?.full_name) return
-    setFormData((current) => current.basicInfo.fullName
-      ? current
-      : { ...current, basicInfo: { ...current.basicInfo, fullName: auth.profile!.full_name! } })
-  }, [auth.status, auth.profile?.full_name])
+
+    setFormData((current) => {
+      const providerAvatar = auth.profile?.avatar_url
+      const shouldUseProviderAvatar = Boolean(providerAvatar) &&
+        (current.basicInfo.avatarUrl === DEFAULT_AVATAR_URL || !current.basicInfo.avatarUrl)
+      const nextBasicInfo = {
+        ...current.basicInfo,
+        fullName: current.basicInfo.fullName || auth.profile!.full_name!,
+        avatarUrl: shouldUseProviderAvatar ? providerAvatar! : current.basicInfo.avatarUrl,
+      }
+
+      return nextBasicInfo.fullName === current.basicInfo.fullName &&
+        nextBasicInfo.avatarUrl === current.basicInfo.avatarUrl
+        ? current
+        : { ...current, basicInfo: nextBasicInfo }
+    })
+  }, [auth.status, auth.profile?.avatar_url, auth.profile?.full_name])
 
   // Calculate dynamic completion score based on current input
   const estimatedCompletion = useMemo(() => {
