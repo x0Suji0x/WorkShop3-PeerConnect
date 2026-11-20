@@ -6,7 +6,8 @@ PeerConnect is a React + TypeScript student talent and project collaboration pro
 
 - **Authentication is real Supabase Auth.** Email/password and Google OAuth use Supabase. The account role is `student` or `client` and comes from the Supabase profile, not a URL or browser setting.
 - **Student profiles are persisted to Supabase.** Onboarding and profile edits save to `public.student_profiles`. Profiles are private by default; students can opt into public discovery. The public profile fields contain no email or phone number.
-- **Projects and marketplace applications/shortlists are still prototype features.** Project drafts are not persisted, and marketplace applications and shortlists are saved only in this browser/device. The separate college event and volunteer applications also remain browser-only.
+- **Projects are persisted to Supabase.** Client-owned drafts remain private until published; published account projects appear alongside clearly labeled sample listings. Editing and closing a project are not available yet.
+- **Marketplace applications and shortlists are still prototype features.** They are saved only in this browser/device. The separate college event and volunteer applications also remain browser-only.
 - **Verification is not implemented.** Email confirmation and Google sign-in do not establish student enrollment, company identity, skills, or portfolio ownership. Sample talent profiles, ratings, and reviews are illustrative content.
 
 The shared demo notice describes these limits in the app. Avoid entering sensitive personal information in prototype features.
@@ -29,7 +30,7 @@ Useful routes:
 - `/` — public landing page
 - `/get-started` — browse-first student/client chooser
 - `/profiles` — public student profiles and clearly labeled sample profiles
-- `/projects` — prototype project browser
+- `/projects` — published Supabase projects and labeled sample listings
 - `/signup/student` — student account and onboarding flow
 - `/signin` — sign in or register a client account
 - `/dashboard` — authenticated student or client dashboard

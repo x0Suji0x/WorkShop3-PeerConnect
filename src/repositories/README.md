@@ -18,3 +18,23 @@ Student-facing pages use the `StudentRepository` contract instead of reading pro
 | `featuredWork` | derived from first `portfolioProjects` item | No duplicate column. |
 
 Auth email, phone, passwords, college email, selected document filenames, and verification states are intentionally not copied into this table. Ratings, reviews, work counters, Plus status, and cover images remain illustrative or belong to later feature work. The database table contains only fields intended to be shown in a public profile; its row policies limit reads to the owner or explicitly published rows.
+
+## Project field mapping
+
+`ProjectRepository` keeps project pages independent from Supabase details. `SupabaseProjectRepository` is the active backend for drafts, published listings, project details, and the client dashboard.
+
+| App field | `public.projects` field | Notes |
+| --- | --- | --- |
+| `id`, owner | `id`, `owner_id` | UUID and authenticated client owner. RLS checks the owner and the `client` role. |
+| `title`, `description` | same-named columns | User-provided project brief. |
+| `clientName`, `clientType`, `clientLocation` | `client_name`, `client_type`, `client_location` | Public-safe snapshots included in the project row; no join to private account profiles. |
+| `budget`, `budgetType` | `budget_amount`, `budget_type` | Stored as INR amount and one of the supported schedule types. |
+| `duration`, `hoursPerWeek`, `skillsRequired` | `duration`, `hours_per_week`, `skills_required` | Scope and skill details. |
+| `category`, `workMode`, `deadline`, `deliverables` | same-named fields in snake case | Optional brief metadata. |
+| `status` | `status` | `draft`, `published`, or `closed`; only published rows are publicly readable. |
+| `createdAt`, `updatedAt` | `created_at`, `updated_at` | `updated_at` is set by a database trigger. |
+| `postedTimeAgo` | derived from `created_at` | Display-only relative time. |
+| `applicantsCount` | not stored yet | Always zero for account projects until the applications phase. |
+| `badge`, `clientLogo` | not stored | No fake urgency, featured, verification, or logo value is generated for account projects. |
+
+The project browser keeps the existing fixture rows as clearly marked samples. Marketplace applications and shortlists still use their browser-only prototype storage until the next phase.

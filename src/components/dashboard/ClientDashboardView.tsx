@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Plus,
   ArrowRight,
-  ShieldCheck,
   Building2,
   DollarSign,
   Sparkles,
@@ -19,8 +18,9 @@ import { Badge } from '../common/Badge'
 import { PageHeading } from '../common/PageHeading'
 import { DemoNotice } from '../common/DemoNotice'
 import { DEMO_COPY } from '../../config/demoCopy'
-import { mockProjects } from '../../data/mockData'
-import type { ProjectOpportunity } from '../../types'
+import { projectRoute } from '../../app/routes'
+import type { AccountProject, ProjectCreateInput } from '../../repositories/projectRepository'
+import { supabaseProjectRepository } from '../../repositories/supabaseProjectRepository'
 import { useAuth } from '../../lib/auth/AuthProvider'
 import {
   getStoredApplications,
@@ -34,11 +34,11 @@ interface ApplicantItem {
   college: string
   role: string
   avatar: string
-  matchScore: number
   projectApplied: string
   pitch: string
   skills: string[]
   isShortlisted?: boolean
+  isSample: boolean
 }
 
 const INITIAL_APPLICANTS: ApplicantItem[] = [
@@ -48,7 +48,7 @@ const INITIAL_APPLICANTS: ApplicantItem[] = [
     college: 'National Institute of Design (NID)',
     role: 'UI/UX & Product Designer',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    matchScore: 98,
+    isSample: true,
     projectApplied: 'Interactive 3D Web Landing Experience',
     pitch: 'Proficient in Three.js, GSAP, and interactive micro-animations. Built portfolio projects for 2 client demos with high engagement.',
     skills: ['Three.js', 'GSAP', 'React', 'Figma'],
@@ -60,7 +60,7 @@ const INITIAL_APPLICANTS: ApplicantItem[] = [
     college: 'IIT Bombay',
     role: 'Full-Stack Software Engineer',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    matchScore: 95,
+    isSample: true,
     projectApplied: 'Full-Stack Analytics Dashboard for Supply Chain Data',
     pitch: 'Built scalable dashboards with TanStack Table, React 19, and PostgreSQL. Solved real-time dispatch filters with sub-50ms query times.',
     skills: ['React 19', 'TypeScript', 'Tailwind CSS', 'PostgreSQL'],
@@ -72,7 +72,7 @@ const INITIAL_APPLICANTS: ApplicantItem[] = [
     college: 'IIIT Hyderabad',
     role: 'AI / ML Engineer',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    matchScore: 94,
+    isSample: true,
     projectApplied: 'Document Intelligence Pipeline & Query API',
     pitch: 'Specializing in LangChain and pgvector pipelines. Extracted tables from 500+ complex technical documents with 96% OCR accuracy.',
     skills: ['Python', 'FastAPI', 'LangChain', 'pgvector'],
@@ -84,7 +84,7 @@ const INITIAL_APPLICANTS: ApplicantItem[] = [
     college: 'BITS Pilani',
     role: 'Mobile / React Native Developer',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-    matchScore: 89,
+    isSample: true,
     projectApplied: 'Cross-Platform Wellness Tracking Application',
     pitch: 'Shipped 2 React Native apps to Google Play Store with Supabase auth and offline SQLite caching.',
     skills: ['React Native', 'Expo', 'TypeScript', 'Supabase'],
@@ -101,7 +101,7 @@ function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
     avatar:
       app.studentAvatar ||
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    matchScore: 98,
+    isSample: false,
     projectApplied: app.projectTitle || 'Web & Mobile Project',
     pitch: app.coverLetter || 'Enthusiastic to deliver this project with milestone deliverables.',
     skills: app.skills && app.skills.length > 0 ? app.skills : ['React', 'TypeScript', 'Tailwind CSS'],
@@ -114,15 +114,19 @@ function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
 }
 
 export function ClientDashboardView() {
-  const { profile } = useAuth()
+  const { profile, user } = useAuth()
   const clientName = profile?.full_name || 'Client'
   const companyName = profile?.company_name || 'Your company'
 
-  const [projects, setProjects] = useState<ProjectOpportunity[]>(mockProjects)
+  const [projects, setProjects] = useState<AccountProject[]>([])
+  const [projectsLoading, setProjectsLoading] = useState(true)
+  const [projectsError, setProjectsError] = useState<string | null>(null)
+  const [projectsRetryKey, setProjectsRetryKey] = useState(0)
   const [applicants, setApplicants] = useState<ApplicantItem[]>(() =>
     buildApplicantsList(getStoredApplications())
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isPosting, setIsPosting] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   useEffect(() => {
@@ -133,41 +137,85 @@ export function ClientDashboardView() {
     return () => window.removeEventListener('peerconnect_applications_updated', handleUpdate)
   }, [])
 
+  useEffect(() => {
+    if (!user?.id) {
+      setProjects([])
+      setProjectsLoading(false)
+      return
+    }
+
+    let active = true
+    setProjects([])
+    setProjectsLoading(true)
+    supabaseProjectRepository.listMine(user.id)
+      .then((rows) => {
+        if (!active) return
+        setProjects(rows)
+        setProjectsError(null)
+      })
+      .catch((error: unknown) => {
+        if (active) setProjectsError(error instanceof Error ? error.message : 'Could not load your projects.')
+      })
+      .finally(() => {
+        if (active) setProjectsLoading(false)
+      })
+
+    return () => { active = false }
+  }, [user?.id, projectsRetryKey])
+
   // New Project Form State
   const [newTitle, setNewTitle] = useState('')
-  const [newBudget, setNewBudgetType] = useState('4500')
-  const [newType, setNewType] = useState<'Fixed-price' | 'Milestone-based'>('Milestone-based')
+  const [newBudget, setNewBudget] = useState('4500')
+  const [newType, setNewType] = useState<ProjectCreateInput['budgetType']>('Milestone-based')
   const [newDuration, setNewDuration] = useState('3 Weeks')
   const [newSkills, setNewSkills] = useState('React, TypeScript, Tailwind CSS')
   const [newDescription, setNewDescription] = useState('')
 
-  const handlePostBrief = (e: React.FormEvent) => {
+  const handlePostBrief = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newTitle.trim() || !newBudget) return
+    if (!newTitle.trim() || !newBudget || !user?.id) return
 
-    const createdProject: ProjectOpportunity = {
-      id: `client-proj-${Date.now()}`,
-      title: newTitle.trim(),
-      clientName: companyName,
-      clientType: 'Project owner',
-      clientLocation: 'Remote Scope',
-      budget: Number(newBudget) || 4000,
-      budgetType: newType,
-      duration: newDuration,
-      hoursPerWeek: '15-20 hrs/wk',
-      description: newDescription.trim() || 'Custom project brief.',
-      skillsRequired: newSkills.split(',').map((s) => s.trim()).filter(Boolean),
-      badge: 'New',
-      applicantsCount: 0,
-      postedTimeAgo: 'Just now',
+    setIsPosting(true)
+    try {
+      const organization = profile?.company_name?.trim()
+      const createdProject = await supabaseProjectRepository.create(user.id, {
+        title: newTitle.trim(),
+        clientName: organization || profile?.full_name?.trim() || 'Client',
+        clientType: organization ? 'Organization' : 'Independent client',
+        clientLocation: '',
+        budget: Number(newBudget),
+        budgetType: newType,
+        duration: newDuration.trim(),
+        hoursPerWeek: '15–20 hrs/week',
+        description: newDescription.trim() || 'Project brief details to be confirmed.',
+        skillsRequired: newSkills.split(',').map((skill) => skill.trim()).filter(Boolean),
+        category: '',
+        workMode: 'Remote',
+        deliverables: [],
+      }, 'published')
+
+      setProjects((current) => [createdProject, ...current])
+      setIsModalOpen(false)
+      setNewTitle('')
+      setNewDescription('')
+      setToastMessage('Project published. Students can find it in the marketplace.')
+      window.setTimeout(() => setToastMessage(null), 5000)
+    } catch (error) {
+      setProjectsError(error instanceof Error ? error.message : 'Could not publish this project.')
+    } finally {
+      setIsPosting(false)
     }
+  }
 
-    setProjects([createdProject, ...projects])
-    setIsModalOpen(false)
-    setNewTitle('')
-    setNewDescription('')
-    setToastMessage('Demo brief added to this dashboard. It resets on reload; no students are notified.')
-    setTimeout(() => setToastMessage(null), 5000)
+  const publishDraft = async (projectId: string) => {
+    try {
+      const published = await supabaseProjectRepository.publish(projectId)
+      setProjects((current) => current.map((project) => project.id === projectId ? published : project))
+      setToastMessage('Project published. Students can find it in the marketplace.')
+      window.setTimeout(() => setToastMessage(null), 5000)
+    } catch (error) {
+      setProjectsError(error instanceof Error ? error.message : 'Could not publish this project.')
+    }
   }
 
   const toggleShortlist = (appId: string) => {
@@ -188,10 +236,11 @@ export function ClientDashboardView() {
         ? `Shortlisted candidate ${target?.name || ''} on this device.`
         : `Removed candidate ${target?.name || ''} from the local shortlist.`
     )
-    setTimeout(() => setToastMessage(null), 4000)
+    window.setTimeout(() => setToastMessage(null), 4000)
   }
 
   const shortlistedCount = applicants.filter((a) => a.isShortlisted).length
+  const publishedProjectCount = projects.filter((project) => project.status === 'published').length
 
   return (
     <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
@@ -236,7 +285,7 @@ export function ClientDashboardView() {
         <PageHeading
           eyebrow="Client & Hiring Dashboard"
           title={`Welcome back, ${clientName.split(' ')[0]}.`}
-          description={`Manage your demo project briefs for ${companyName}, review sample proposals, and browse student talent.`}
+          description={`Manage project briefs for ${companyName}, review sample proposal examples, and browse student talent.`}
           actions={
             <div className="flex items-center gap-2">
               <Button size="sm" variant="primary" onClick={() => setIsModalOpen(true)}>
@@ -258,18 +307,18 @@ export function ClientDashboardView() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8F3EA] text-[#176B4C] border border-black/5">
               <Briefcase className="h-4.5 w-4.5" />
             </div>
-            <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{projects.length}</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Active Project Briefs</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Open for student proposals</p>
+            <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{publishedProjectCount}</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Published Projects</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Visible in the marketplace</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-gold p-5 hover:-translate-y-1 transition-all duration-200">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FBF0DC] text-[#9A6A24] border border-black/5">
               <Users className="h-4.5 w-4.5" />
             </div>
-            <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{applicants.length + 14}</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Proposals Received</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Across all live scopes</p>
+            <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{applicants.length}</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Proposal Examples</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Includes sample and local entries</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-rose p-5 hover:-translate-y-1 transition-all duration-200">
@@ -277,8 +326,8 @@ export function ClientDashboardView() {
               <Star className="h-4.5 w-4.5" />
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{shortlistedCount}</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Shortlisted Candidates</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Applicants to review</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Shortlisted Examples</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Sample and local-device state</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-mint p-5 hover:-translate-y-1 transition-all duration-200">
@@ -297,8 +346,8 @@ export function ClientDashboardView() {
         <section className="space-y-4 lg:col-span-7">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-black text-[#171916]">Your Active Project Briefs</h2>
-              <p className="text-xs text-[#777A72]">Student squads can apply directly to these scopes</p>
+              <h2 className="text-lg font-black text-[#171916]">Your Projects</h2>
+              <p className="text-xs text-[#777A72]">Your project records and private drafts</p>
             </div>
             <button
               type="button"
@@ -309,8 +358,14 @@ export function ClientDashboardView() {
             </button>
           </div>
 
+          {projectsError && (
+            <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <span>{projectsError}</span>
+              <button type="button" className="font-bold underline" onClick={() => setProjectsRetryKey((value) => value + 1)}>Retry</button>
+            </div>
+          )}
           <div className="space-y-3">
-            {projects.map((project) => (
+            {projectsLoading ? <p className="text-sm text-[#777A72]">Loading your projects…</p> : projects.length ? projects.map((project) => (
               <div
                 key={project.id}
                 className="peer-card-glass p-5 sm:p-6 group hover:-translate-y-0.5 transition-all duration-200"
@@ -319,11 +374,9 @@ export function ClientDashboardView() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-[#08A876]">{project.clientName}</span>
-                      {project.badge && (
-                        <Badge variant="green" size="sm">
-                          {project.badge}
-                        </Badge>
-                      )}
+                      <Badge variant={project.status === 'published' ? 'green' : 'neutral'} size="sm">
+                        {project.status === 'published' ? 'Published' : project.status === 'draft' ? 'Draft' : 'Closed'}
+                      </Badge>
                     </div>
                     <h3 className="mt-1 text-base font-bold text-[#171916] group-hover:text-[#08A876] transition-colors">
                       {project.title}
@@ -350,13 +403,15 @@ export function ClientDashboardView() {
                       </p>
                       <p className="text-[11px] text-[#777A72]">{project.budgetType}</p>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#123D30] bg-[#E3F4EB] px-2.5 py-1 rounded-full">
-                      <Users className="h-3 w-3" /> {project.applicantsCount || 4} proposals
-                    </span>
+                    {project.status === 'draft' ? (
+                      <Button size="sm" onClick={() => publishDraft(project.id)}>Publish</Button>
+                    ) : project.status === 'published' ? (
+                      <Link to={projectRoute(project.id)} className="text-xs font-bold text-[#123D30] hover:text-[#08A876]">View listing</Link>
+                    ) : null}
                   </div>
                 </div>
               </div>
-            ))}
+            )) : <p className="rounded-2xl border border-dashed border-[#CBD5C1] p-6 text-sm text-[#777A72]">You have no project drafts or listings yet. Create a brief to get started.</p>}
           </div>
         </section>
 
@@ -364,8 +419,8 @@ export function ClientDashboardView() {
         <section className="space-y-4 lg:col-span-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-black text-[#171916]">Student Proposals</h2>
-              <p className="text-xs text-[#777A72]">Sample student profiles from the demo directory</p>
+              <h2 className="text-lg font-black text-[#171916]">Proposal Examples</h2>
+              <p className="text-xs text-[#777A72]">Illustrative applicants plus this-device submissions</p>
             </div>
             <span className="text-xs font-semibold text-[#08A876] bg-[#E3F4EB] px-2.5 py-1 rounded-full">
               {shortlistedCount} shortlisted
@@ -388,7 +443,7 @@ export function ClientDashboardView() {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <h4 className="text-sm font-bold text-[#171916]">{app.name}</h4>
-                        <ShieldCheck className="h-3.5 w-3.5 text-[#08A876]" />
+                        <Badge variant="neutral" size="sm">{app.isSample ? 'Sample' : 'This device'}</Badge>
                       </div>
                       <p className="text-xs text-[#525A55]">{app.role}</p>
                       <p className="text-[11px] text-[#777A72]">{app.college}</p>
@@ -396,9 +451,6 @@ export function ClientDashboardView() {
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <span className="rounded-full bg-[#E3F4EB] px-2 py-0.5 text-[10px] font-bold text-[#08A876]">
-                      {app.matchScore}% Match
-                    </span>
                     <button
                       type="button"
                       onClick={() => toggleShortlist(app.id)}
@@ -455,7 +507,7 @@ export function ClientDashboardView() {
             <div className="flex items-center justify-between border-b border-[#E7E8E1] pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-[#08C58A]" />
-                <h3 className="text-lg font-black text-[#171916]">Post a New Project Brief</h3>
+                <h3 className="text-lg font-black text-[#171916]">Publish a Project Brief</h3>
               </div>
               <button
                 type="button"
@@ -466,13 +518,14 @@ export function ClientDashboardView() {
               </button>
             </div>
 
-            <DemoNotice>{DEMO_COPY.session} This brief is only a local preview and will not be published or notify students.</DemoNotice>
             <form onSubmit={handlePostBrief} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-[#171916]">Project Title</label>
                 <input
                   type="text"
                   required
+                  minLength={3}
+                  maxLength={160}
                   placeholder="e.g. AI-Powered Customer Support Assistant"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
@@ -486,8 +539,10 @@ export function ClientDashboardView() {
                   <input
                     type="number"
                     required
+                    min="0"
+                    step="0.01"
                     value={newBudget}
-                    onChange={(e) => setNewBudgetType(e.target.value)}
+                    onChange={(e) => setNewBudget(e.target.value)}
                     className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] py-2.5 px-3 text-xs outline-none focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20"
                   />
                 </div>
@@ -495,11 +550,12 @@ export function ClientDashboardView() {
                   <label className="block font-bold text-[#171916]">Budget structure</label>
                   <select
                     value={newType}
-                    onChange={(e) => setNewType(e.target.value as 'Fixed-price' | 'Milestone-based')}
+                    onChange={(e) => setNewType(e.target.value as ProjectCreateInput['budgetType'])}
                     className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] py-2.5 px-3 text-xs outline-none focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20"
                   >
                     <option value="Milestone-based">Milestone-based</option>
                     <option value="Fixed-price">Fixed-price</option>
+                    <option value="Hourly">Hourly</option>
                   </select>
                 </div>
               </div>
@@ -536,6 +592,7 @@ export function ClientDashboardView() {
                 />
               </div>
 
+              {projectsError && <p role="alert" className="text-sm font-semibold text-red-700">{projectsError}</p>}
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#E7E8E1]">
                 <button
                   type="button"
@@ -544,8 +601,8 @@ export function ClientDashboardView() {
                 >
                   Cancel
                 </button>
-                <Button type="submit" variant="primary" size="sm">
-                  Publish Project Brief <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                <Button type="submit" variant="primary" size="sm" disabled={isPosting}>
+                  {isPosting ? 'Publishing…' : 'Publish Project Brief'} <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </div>
             </form>

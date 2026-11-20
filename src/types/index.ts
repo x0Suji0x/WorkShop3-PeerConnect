@@ -180,6 +180,8 @@ export interface ProjectOpportunity {
   workMode?: 'Remote' | 'Hybrid' | 'On-site'
   deadline?: string
   deliverables?: string[]
+  /** Identifies illustrative marketplace rows separately from account projects. */
+  source?: 'sample' | 'account'
 }
 
 export interface Project extends ProjectOpportunity {

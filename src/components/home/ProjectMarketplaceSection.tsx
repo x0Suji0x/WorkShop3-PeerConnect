@@ -13,6 +13,12 @@ import {
 import { mockProjects } from '../../data/mockData'
 import { gsap, ScrollTrigger } from '../../lib/gsap'
 
+const formatBudget = (amount: number) => new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 0,
+}).format(amount)
+
 export function ProjectMarketplaceSection() {
   const [activeCategory, setActiveCategory] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -272,6 +278,9 @@ export function ProjectMarketplaceSection() {
                             {displayBadge}
                           </span>
                         )}
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-[#F7F6F0] text-[#777A72] border-[#E7E8E1]">
+                          Sample
+                        </span>
 
                         <div className="flex items-center gap-1.5 text-[#777A72]">
                           <Building2 className="w-3.5 h-3.5 text-[#08C58A] shrink-0" />
@@ -316,7 +325,7 @@ export function ProjectMarketplaceSection() {
                         <div className="flex items-center gap-1 text-[#777A72]">
                           <Users className="w-3.5 h-3.5 text-[#08C58A]" />
                           <span>
-                            <strong className="text-[#171916] font-semibold">{project.applicantsCount}</strong> Pitches
+                            <strong className="text-[#171916] font-semibold">{project.applicantsCount}</strong> example pitches
                           </span>
                         </div>
 
@@ -341,7 +350,7 @@ export function ProjectMarketplaceSection() {
                       {/* Budget Display */}
                       <div className="text-left lg:text-right space-y-0.5">
                         <span className="text-2xl sm:text-3xl font-black text-[#171916] font-mono leading-none block">
-                          ${project.budget.toLocaleString()}
+                          {formatBudget(project.budget)}
                         </span>
                         <span className="text-[11px] font-semibold text-[#123D30] bg-[#E3F4EB] px-2.5 py-0.5 rounded-full inline-block">
                           Project Budget
@@ -361,19 +370,19 @@ export function ProjectMarketplaceSection() {
                         {isApplied ? (
                           <>
                             <Check className="w-4 h-4 stroke-[2.5]" />
-                            <span>Application Sent</span>
+                            <span>Preview selected</span>
                           </>
                         ) : (
                           <>
-                            <span>Apply with Profile</span>
+                            <span>Preview application</span>
                             <ArrowUpRight className="w-4 h-4 ml-0.5" />
                           </>
                         )}
                       </button>
 
-                      <span className="hidden lg:flex items-center gap-1 text-[11px] text-[#777A72]">
+                      <span className="flex items-center gap-1 text-[11px] text-[#777A72]">
                         <Sparkles className="w-3 h-3 text-[#08C58A]" />
-                        <span>Sample Brief • Direct Collaboration</span>
+                        <span>Preview only • no application is saved</span>
                       </span>
                     </div>
                   </div>

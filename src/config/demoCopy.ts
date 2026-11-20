@@ -1,6 +1,5 @@
 export const DEMO_COPY = {
-  banner: 'Account sign-in and student profiles are saved with Supabase. Projects, marketplace applications, shortlists, and verification are still prototype features.',
-  session: 'These changes are held in memory and reset when you reload this page.',
+  banner: 'Accounts, student profiles, and project listings are saved with Supabase. Marketplace applications and shortlists are still stored only on this device; verification remains a prototype feature.',
   device: 'Applications and shortlists are saved only in this browser on this device. They are not synced to an account or server.',
   verification:
     'Coming soon: real verification will use consent, secure evidence checks, review status, and an audit trail. No checks happen in this demo.',
