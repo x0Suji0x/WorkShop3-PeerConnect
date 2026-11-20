@@ -1,5 +1,5 @@
 import { ArrowRight, BriefcaseBusiness, MapPin, Plus, Wallet } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { projectRoute, routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
@@ -8,7 +8,9 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { PageHeading } from '../../components/common/PageHeading'
 import { SearchBar } from '../../components/common/SearchBar'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
-import { marketplaceProjects, projectCategories } from '../../data/projectMarketplaceMockData'
+import { marketplaceProjects } from '../../data/projectMarketplaceMockData'
+import type { ProjectOpportunity } from '../../types'
+import { supabaseProjectRepository } from '../../repositories/supabaseProjectRepository'
 
 const formatBudget = (budget: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(budget)
 
@@ -16,7 +18,27 @@ export function ProjectsPage() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
   const [remoteOnly, setRemoteOnly] = useState(false)
-  const filteredProjects = useMemo(() => marketplaceProjects.filter((project) => `${project.title} ${project.clientName} ${project.skillsRequired.join(' ')} ${project.category}`.toLowerCase().includes(query.toLowerCase()) && (category === 'All' || project.category === category) && (!remoteOnly || project.workMode === 'Remote')), [category, query, remoteOnly])
+  const [accountProjects, setAccountProjects] = useState<ProjectOpportunity[]>([])
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [retryKey, setRetryKey] = useState(0)
+
+  useEffect(() => {
+    let active = true
+    supabaseProjectRepository.listPublished()
+      .then((projects) => {
+        if (!active) return
+        setAccountProjects(projects)
+        setLoadError(null)
+      })
+      .catch((error: unknown) => {
+        if (active) setLoadError(error instanceof Error ? error.message : 'Could not load published projects.')
+      })
+    return () => { active = false }
+  }, [retryKey])
+
+  const projects = useMemo(() => [...accountProjects, ...marketplaceProjects], [accountProjects])
+  const categories = useMemo(() => ['All', ...new Set(projects.map((project) => project.category || 'Other'))], [projects])
+  const filteredProjects = useMemo(() => projects.filter((project) => `${project.title} ${project.clientName} ${project.skillsRequired.join(' ')} ${project.category}`.toLowerCase().includes(query.toLowerCase()) && (category === 'All' || (project.category || 'Other') === category) && (!remoteOnly || project.workMode === 'Remote')), [category, projects, query, remoteOnly])
 
   return (
     <div className="peer-page-surface min-h-[calc(100vh-80px)] relative overflow-hidden">
@@ -52,7 +74,7 @@ export function ProjectsPage() {
             />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-2">
-                {projectCategories.map((option) => (
+                {categories.map((option) => (
                   <button
                     key={option}
                     type="button"
@@ -86,6 +108,12 @@ export function ProjectsPage() {
         <p className="mt-6 text-sm text-[#777A72]">
           {filteredProjects.length} open {filteredProjects.length === 1 ? 'project' : 'projects'}
         </p>
+        {loadError && (
+          <div role="alert" className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <span>{loadError}</span>
+            <button type="button" className="font-bold underline" onClick={() => setRetryKey((value) => value + 1)}>Retry</button>
+          </div>
+        )}
         {filteredProjects.length ? (
           <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
             {filteredProjects.map((project) => (
@@ -106,13 +134,14 @@ export function ProjectsPage() {
   )
 }
 
-function ProjectCard({ project }: { project: (typeof marketplaceProjects)[number] }) {
+function ProjectCard({ project }: { project: ProjectOpportunity }) {
   return (
     <div className="peer-card-glass p-5 sm:p-6 flex h-full flex-col justify-between hover:-translate-y-0.5 transition-all duration-200">
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap gap-2">
+              {project.source === 'sample' && <Badge variant="neutral" size="sm">Sample</Badge>}
               {project.badge && (
                 <Badge
                   variant={project.badge === 'High Urgency' ? 'peach' : 'green'}

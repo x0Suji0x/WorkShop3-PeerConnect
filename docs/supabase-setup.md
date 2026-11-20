@@ -1,6 +1,6 @@
 # Supabase setup for PeerConnect
 
-This guide configures real Supabase Auth for local development. Product data beyond the account name and company name is still prototype data; see the README for its storage limits.
+This guide configures Supabase Auth, student profile storage, and project listings for local development. Marketplace applications, shortlists, and verification remain prototype features; see the README for their storage limits.
 
 ## 1. Create a Supabase project
 
@@ -19,14 +19,16 @@ VITE_SUPABASE_ANON_KEY=<YOUR-PUBLISHABLE-OR-ANON-KEY>
 
 The publishable/anon key is intended for the browser and relies on Row Level Security. **Never put the `service_role` key in `.env.local`, a `VITE_*` variable, source code, or a browser.** Restart `npm run dev` after changing environment variables.
 
-## 3. Create the profile table and harden its permissions
+## 3. Create the profile, student profile, and project tables
 
 Open **SQL Editor → New query**. Run these files in order, using the project owner/editor connection:
 
 1. `supabase/migrations/0001_profiles.sql`
 2. `supabase/migrations/0002_harden_profiles.sql`
+3. `supabase/migrations/0003_student_profiles.sql`
+4. `supabase/migrations/0004_projects.sql`
 
-The first migration creates the account profile and the one-time role-selection RPC. The second removes anonymous access and prevents authenticated users from inserting or deleting profile rows or directly changing their role. Do not run these migrations through the browser app.
+The first migration creates the account profile and one-time role-selection RPC. The second hardens profile permissions. The next migrations add private-by-default student profiles and client-owned projects with public reads limited to published listings. Each table has explicit grants and RLS policies. Do not run these migrations through the browser app. The matching rollback-only policy checks live under `supabase/tests/`.
 
 ## 4. Configure email authentication and redirects
 
@@ -78,7 +80,8 @@ With `.env.local` configured and `npm run dev` running, check:
 4. Sign in with Google as a new user, select one role, sign out, and sign in again. The returning account should keep its existing role and not be asked again.
 5. Open `/dashboard` while signed out. It should redirect to `/signin?next=%2Fdashboard`.
 6. Sign in as a student and open `/projects/new`. The page should explain that the route is for client accounts.
-7. While signed in as a student in the Vite dev app, try a direct profile role update from the browser console:
+7. Sign in as a client, create a project draft, confirm it appears in the client dashboard after reload, then publish it and confirm it appears in `/projects` and its detail route.
+8. While signed in as a student in the Vite dev app, try a direct profile role update from the browser console:
 
    ```js
    const { supabase } = await import('/src/lib/supabase.ts')

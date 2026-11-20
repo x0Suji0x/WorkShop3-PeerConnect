@@ -1,5 +1,5 @@
 import { ArrowLeft, CheckCircle2, Clock3, MapPin, Send, Wallet, ExternalLink } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
@@ -11,6 +11,8 @@ import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { marketplaceProjects } from '../../data/projectMarketplaceMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
 import { getStoredApplications, saveApplication } from '../../lib/applicationStorage'
+import type { ProjectOpportunity } from '../../types'
+import { supabaseProjectRepository } from '../../repositories/supabaseProjectRepository'
 
 const formatBudget = (budget: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(
@@ -20,20 +22,54 @@ const formatBudget = (budget: number) =>
 export function ProjectDetailPage() {
   const { projectId } = useParams()
   const { student } = useStudentProfile()
-  const project = marketplaceProjects.find((item) => item.id === projectId)
+  const sampleProject = marketplaceProjects.find((item) => item.id === projectId) ?? null
+  const [project, setProject] = useState<ProjectOpportunity | null>(sampleProject)
+  const [isLoading, setIsLoading] = useState(!sampleProject)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [retryKey, setRetryKey] = useState(0)
   const [isApplying, setIsApplying] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+
+  useEffect(() => {
+    const sample = marketplaceProjects.find((item) => item.id === projectId)
+    if (sample) {
+      setProject(sample)
+      setIsLoading(false)
+      setLoadError(null)
+      return
+    }
+
+    let active = true
+    setProject(null)
+    setIsLoading(true)
+    setLoadError(null)
+    supabaseProjectRepository.getPublishedById(projectId ?? '')
+      .then((publishedProject) => {
+        if (active) setProject(publishedProject)
+      })
+      .catch((error: unknown) => {
+        if (active) setLoadError(error instanceof Error ? error.message : 'Could not load this project.')
+      })
+      .finally(() => {
+        if (active) setIsLoading(false)
+      })
+    return () => { active = false }
+  }, [projectId, retryKey])
+
+  if (isLoading) {
+    return <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" role="status">Loading project…</div>
+  }
 
   if (!project) {
     return (
       <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <EmptyState
           title="That project is no longer available"
-          description="It may have been removed, closed, or the link may be incorrect."
+          description={loadError ?? 'It may have been removed, closed, or the link may be incorrect.'}
           action={
-            <Link to={routes.projects}>
-              <Button>Browse projects</Button>
-            </Link>
+            loadError
+              ? <Button onClick={() => setRetryKey((value) => value + 1)}>Retry</Button>
+              : <Link to={routes.projects}><Button>Browse projects</Button></Link>
           }
         />
       </div>
@@ -86,6 +122,7 @@ export function ProjectDetailPage() {
         <main className="lg:col-span-8 space-y-6">
           <Card padding="lg">
             <div className="flex flex-wrap gap-2">
+              {project.source === 'sample' && <Badge variant="neutral">Sample</Badge>}
               {project.badge && (
                 <Badge variant={project.badge === 'High Urgency' ? 'peach' : 'green'}>
                   {project.badge}

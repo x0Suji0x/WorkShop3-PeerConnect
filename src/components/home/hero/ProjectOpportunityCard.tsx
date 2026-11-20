@@ -26,7 +26,7 @@ export function ProjectOpportunityCard({
         {/* Header Tag & Duration */}
         <div className="flex items-center justify-between">
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#08C58A] text-[#0A261D] tracking-wide uppercase">
-            Project Opportunity
+            Sample Project
           </span>
           <span className="text-[11px] text-emerald-200/90 flex items-center gap-1 font-mono">
             <Clock className="w-3.5 h-3.5 text-emerald-300" />
@@ -51,7 +51,7 @@ export function ProjectOpportunityCard({
             <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider block">
               Project Budget
             </span>
-            <span className="text-lg font-black text-white font-mono">$3,200</span>
+            <span className="text-lg font-black text-white font-mono">₹3,200</span>
           </div>
           <span className="text-[11px] text-emerald-200 font-medium bg-white/10 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
             <Briefcase className="w-3.5 h-3.5 text-[#08C58A]" />
