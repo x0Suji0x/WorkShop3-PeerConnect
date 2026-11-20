@@ -19,6 +19,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import type { OnboardingBasicInfo, FormValidationErrors } from '../../types/onboarding'
+import { AVATAR_PRESETS, DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
 import { evaluatePasswordStrength } from '../../lib/onboardingValidation'
 import { Badge } from '../common/Badge'
 import { GoogleSignInModal } from '../auth/GoogleSignInModal'
@@ -30,15 +31,6 @@ interface Step1BasicInfoProps {
   onChange: (field: keyof OnboardingBasicInfo, value: string | boolean) => void
   onGoogleSuccess?: (user: AuthUser) => void
 }
-
-const AVATAR_PRESETS = [
-  { id: 'av-1', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', label: 'Sofia' },
-  { id: 'av-2', url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80', label: 'Marcus' },
-  { id: 'av-3', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', label: 'Liam' },
-  { id: 'av-4', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', label: 'Ananya' },
-  { id: 'av-5', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', label: 'Devon' },
-  { id: 'av-6', url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80', label: 'Elena' },
-]
 
 // Avatar Builder options
 const SKIN_TONES = [
@@ -428,9 +420,9 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
               <Camera className="h-4 w-4 text-[#08A876]" />
               <h3 className="text-sm font-bold text-[#171916]">Profile Photo & Avatar</h3>
             </div>
-            <p className="mt-0.5 text-xs text-[#777A72]">
-              Upload a picture from your device or design a custom personal avatar
-            </p>
+              <p className="mt-0.5 text-xs text-[#777A72]">
+                Use an illustrated PFP, upload a photo, or make your own avatar.
+              </p>
           </div>
 
           <div className="flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E7E8E1] shrink-0">
@@ -441,7 +433,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                 avatarTab === 'upload' ? 'bg-[#123D30] text-white shadow-xs' : 'text-[#777A72] hover:text-[#171916]'
               }`}
             >
-              Upload Photo from Device
+              Pick / Upload PFP
             </button>
             <button
               type="button"
@@ -450,7 +442,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                 avatarTab === 'builder' ? 'bg-[#123D30] text-white shadow-xs' : 'text-[#777A72] hover:text-[#171916]'
               }`}
             >
-              Build Custom Avatar
+              Avatar Studio
             </button>
           </div>
         </div>
@@ -492,7 +484,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                   <span className="text-[#777A72]">•</span>
                   <button
                     type="button"
-                    onClick={() => onChange('avatarUrl', AVATAR_PRESETS[0].url)}
+                    onClick={() => onChange('avatarUrl', DEFAULT_AVATAR_URL)}
                     className="text-xs text-red-600 hover:underline flex items-center gap-0.5"
                   >
                     <Trash2 className="h-3 w-3" /> Reset
@@ -560,10 +552,20 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
 
             {/* Presets Gallery */}
             <div className="border-t border-[#F2F1EA] pt-3">
-              <span className="block text-xs font-bold text-[#171916] mb-2">
-                Or select from diverse student portraits:
-              </span>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="mb-3 flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span className="block text-xs font-bold text-[#171916]">
+                    Choose an illustrated PFP
+                  </span>
+                  <p className="mt-0.5 text-[11px] text-[#777A72]">
+                    Colourful community-avatar styles — no stock or AI-looking portraits.
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#08A876]">
+                  8 vibes
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-8">
                 {AVATAR_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
@@ -572,13 +574,16 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                       onChange('avatarUrl', preset.url)
                       setZoomLevel(1)
                     }}
-                    className={`h-11 w-11 rounded-full overflow-hidden border-2 transition ${
+                    aria-label={`${preset.label}: ${preset.description}`}
+                    title={`${preset.label} — ${preset.description}`}
+                    className={`group relative aspect-square overflow-hidden rounded-2xl border-2 transition ${
                       data.avatarUrl === preset.url
-                        ? 'border-[#08C58A] scale-110 ring-2 ring-[#08C58A]/30 shadow-xs'
-                        : 'border-transparent opacity-70 hover:opacity-100 hover:scale-105'
+                        ? 'border-[#08C58A] scale-105 ring-2 ring-[#08C58A]/30 shadow-sm'
+                        : 'border-transparent opacity-85 hover:opacity-100 hover:scale-105 hover:border-[#123D30]/20'
                     }`}
                   >
                     <img src={preset.url} alt={preset.label} className="h-full w-full object-cover" />
+                    <span className="sr-only">{preset.label}</span>
                   </button>
                 ))}
               </div>

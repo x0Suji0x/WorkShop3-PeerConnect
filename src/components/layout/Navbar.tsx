@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Menu, X, LogOut } from 'lucide-react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { routes, communityRoutes, authRoutes } from '../../app/routes'
+import { DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
 import { useAuth } from '../../hooks/useAuth'
 
 const homeLinks = [
@@ -84,7 +85,7 @@ export function Navbar() {
                 title="View your dashboard"
               >
                 <img
-                  src={user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                  src={user.avatarUrl || DEFAULT_AVATAR_URL}
                   alt={user.fullName}
                   className="h-7 w-7 rounded-full object-cover border border-[#E2E8F0]"
                 />

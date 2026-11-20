@@ -26,6 +26,7 @@ import { Button } from '../../components/common/Button'
 import type { Student, Verification } from '../../types'
 import { useAuth } from '../../hooks/useAuth'
 import type { AuthUser } from '../../types/auth'
+import { DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
 
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
@@ -47,7 +48,7 @@ export function StudentOnboardingPage() {
       phone: '',
       password: '',
       confirmPassword: '',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      avatarUrl: DEFAULT_AVATAR_URL,
       headline: '',
     },
     college: {

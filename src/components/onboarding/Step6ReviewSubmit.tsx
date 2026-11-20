@@ -7,6 +7,7 @@ import {
   Pencil,
 } from 'lucide-react'
 import type { OnboardingFormData, OnboardingStep } from '../../types/onboarding'
+import { DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
 import { Badge } from '../common/Badge'
 
 interface Step6ReviewSubmitProps {
@@ -106,7 +107,7 @@ export function Step6ReviewSubmit({
 
           <div className="mt-3 flex items-start gap-3.5">
             <img
-              src={data.basicInfo.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
+              src={data.basicInfo.avatarUrl || DEFAULT_AVATAR_URL}
               alt={data.basicInfo.fullName}
               className="h-12 w-12 rounded-xl object-cover border border-[#E7E8E1]"
             />
