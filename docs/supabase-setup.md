@@ -34,11 +34,15 @@ Open **Authentication → Sign In / Providers → Email** (labels may vary sligh
 
 1. Enable Email sign-in and require email confirmation.
 2. Set the minimum password length to at least 8 characters.
-3. Under **URL Configuration**, set the local **Site URL** to `http://localhost:5173`.
-4. Add these **Redirect URLs**:
-   - `http://localhost:5173/auth/callback`
+3. Under **URL Configuration**, set the local **Site URL** to the development origin you will use, for example `http://localhost:5173`.
+4. Add these **Redirect URLs** for development:
+   - `http://localhost:5173/**`
+   - `http://127.0.0.1:5173/**`
    - `http://localhost:5173/auth/reset-password`
-5. Add the production origin and its callback/reset-password URLs after deployment.
+   - `http://127.0.0.1:5173/auth/reset-password`
+5. In production, add the exact `https://<your-domain>/auth/callback` URL and a wildcard variant such as `https://<your-domain>/**` so confirmation and recovery links with query strings can return to the app.
+
+Sign-up confirmation links include a `?next=` query string. If confirmation emails land on the site root instead of the callback page, check the Supabase Redirect URL allow-list first. `localhost` and `127.0.0.1` are different origins; choose one for local development and use it consistently in the app and dashboard configuration.
 
 The built-in email sender is heavily rate-limited and is meant for evaluation. Configure custom SMTP before inviting real users, and verify delivery, sender reputation, and rate limits.
 
@@ -47,9 +51,9 @@ The built-in email sender is heavily rate-limited and is meant for evaluation. C
 In **Google Cloud Console**:
 
 1. Create or select a Google Cloud project.
-2. Open **Google Auth Platform → Branding/Audience** (previously the OAuth consent screen) and configure the consent details and test users as needed.
+2. Open **Google Auth Platform → Branding/Audience** (previously the OAuth consent screen) and configure the consent details and test users as needed. While the consent screen is in **Testing** mode, only listed test users can sign in.
 3. Open **Clients → Create client → Web application**.
-4. Add `http://localhost:5173` as an **Authorized JavaScript origin**. Add the production origin later.
+4. Add the same local origin you chose above (either `http://localhost:5173` or `http://127.0.0.1:5173`) as an **Authorized JavaScript origin**. Add the production origin later.
 5. Add this **Authorized redirect URI**, replacing `<PROJECT-REF>` with the Supabase project reference:
 
    `https://<PROJECT-REF>.supabase.co/auth/v1/callback`

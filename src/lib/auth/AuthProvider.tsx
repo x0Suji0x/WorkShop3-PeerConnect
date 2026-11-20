@@ -84,19 +84,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthConfigured ? 'loading' : 'unconfigured',
   )
   const [profileError, setProfileError] = useState<string | null>(null)
+  const sessionRef = useRef<Session | null>(null)
+  const profileRef = useRef<AuthProfile | null>(null)
+  const profileLoadUserId = useRef<string | null>(null)
+  const hasHydrated = useRef(false)
   const profileRequestId = useRef(0)
   const mounted = useRef(false)
 
-  const loadProfile = useCallback(async (nextSession: Session) => {
+  const loadProfile = useCallback(async (
+    nextSession: Session,
+    options: { silent?: boolean; force?: boolean } = {},
+  ) => {
+    const userId = nextSession.user.id
+    if (profileLoadUserId.current === userId && !options.force) return
+
     const requestId = ++profileRequestId.current
-    setStatus('loading')
-    setProfileError(null)
+    profileLoadUserId.current = userId
+    if (!options.silent) {
+      setStatus('loading')
+      setProfileError(null)
+    }
 
     try {
       const { data, error } = await requireSupabase()
         .from('profiles')
         .select('id,role,full_name,company_name,avatar_url')
-        .eq('id', nextSession.user.id)
+        .eq('id', userId)
         .maybeSingle()
 
       if (!mounted.current || requestId !== profileRequestId.current) return
@@ -104,33 +117,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error
 
       // A missing row behaves like a profile with no role, so the user can finish setup.
-      setProfile(toAuthProfile(nextSession.user.id, data))
+      const nextProfile = toAuthProfile(userId, data)
+      profileRef.current = nextProfile
+      setProfile(nextProfile)
+      setProfileError(null)
       setStatus('signedIn')
     } catch (error) {
       if (!mounted.current || requestId !== profileRequestId.current) return
-      setProfile(null)
-      setProfileError(mapAuthError(error))
-      setStatus('profileError')
+      const currentProfile = profileRef.current
+      if (!currentProfile || currentProfile.id !== userId) {
+        profileRef.current = null
+        setProfile(null)
+        setProfileError(mapAuthError(error))
+        setStatus('profileError')
+      }
       throw error
+    } finally {
+      if (requestId === profileRequestId.current && profileLoadUserId.current === userId) {
+        profileLoadUserId.current = null
+      }
     }
   }, [])
 
   const refreshProfile = useCallback(async () => {
     if (!supabase) {
+      sessionRef.current = null
+      profileRef.current = null
       setProfile(null)
       setProfileError(null)
       setStatus('unconfigured')
       return
     }
-    if (!session) {
+    const currentSession = sessionRef.current
+    if (!currentSession) {
+      profileRef.current = null
       setProfile(null)
       setProfileError(null)
       setStatus('signedOut')
       return
     }
 
-    await loadProfile(session)
-  }, [loadProfile, session])
+    await loadProfile(currentSession, {
+      silent: profileRef.current?.id === currentSession.user.id,
+      force: true,
+    })
+  }, [loadProfile])
 
   useEffect(() => {
     mounted.current = true
@@ -145,12 +176,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let receivedAuthEvent = false
     const hydrate = (nextSession: Session | null) => {
       receivedAuthEvent = true
+      const nextUserId = nextSession?.user.id ?? null
+      const currentUserId = sessionRef.current?.user.id ?? null
+
+      if (hasHydrated.current && nextUserId === currentUserId) {
+        sessionRef.current = nextSession
+        setSession(nextSession)
+
+        if (
+          nextSession &&
+          profileRef.current?.id !== nextUserId &&
+          profileLoadUserId.current !== nextUserId
+        ) {
+          void loadProfile(nextSession, { silent: true }).catch(() => {
+            // loadProfile publishes its own profileError state when no profile is available.
+          })
+        }
+        return
+      }
+
+      hasHydrated.current = true
+      profileRequestId.current += 1
+      profileLoadUserId.current = null
+      sessionRef.current = nextSession
       setSession(nextSession)
+      profileRef.current = null
       setProfile(null)
       setProfileError(null)
 
       if (!nextSession) {
-        profileRequestId.current += 1
         setStatus('signedOut')
         return
       }
@@ -172,17 +226,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void supabase.auth.getSession().then(({ data, error }) => {
       if (!mounted.current || receivedAuthEvent) return
       if (error) {
-        setSession(null)
-        setProfile(null)
-        setStatus('signedOut')
+        hydrate(null)
         return
       }
       hydrate(data.session)
     }).catch(() => {
       if (!mounted.current || receivedAuthEvent) return
-      setSession(null)
-      setProfile(null)
-      setStatus('signedOut')
+      hydrate(null)
     })
 
     return () => {
