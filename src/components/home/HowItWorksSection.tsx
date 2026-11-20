@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import {
   Users,
   Compass,
@@ -6,7 +6,7 @@ import {
   Sparkles,
   CheckCircle2,
 } from 'lucide-react'
-import { gsap, ScrollTrigger } from '../../lib/gsap'
+import { gsap, useGSAP } from '../../lib/gsap'
 
 export function HowItWorksSection() {
   const [activeTab, setActiveTab] = useState<'student' | 'client'>('student')
@@ -64,42 +64,102 @@ export function HowItWorksSection() {
     },
   ]
 
-  useEffect(() => {
-    if (!stepsContainerRef.current) return
+  useGSAP(
+    () => {
+      if (!sectionRef.current || !stepsContainerRef.current) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      ScrollTrigger.refresh()
-      return
-    }
+      const select = gsap.utils.selector(sectionRef)
+      const headerItems = select('.workflow-reveal')
+      const stations = select('.process-station')
+      const milestone = select('.workflow-milestone')
+      const checkpoints = select('.workflow-checkpoint')
+      const allAnimatedItems = [...headerItems, ...stations, ...milestone, ...checkpoints]
+      const media = gsap.matchMedia()
 
-    const stations = stepsContainerRef.current.querySelectorAll('.process-station')
-    if (stations.length === 0) return
+      media.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set(allAnimatedItems, {
+          autoAlpha: 1,
+          clearProps: 'transform',
+        })
+      })
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        stations,
-        { opacity: 0.72, y: 8 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.32,
-          stagger: 0.06,
-          ease: 'power2.out',
-          clearProps: 'opacity,transform',
+      media.add('(prefers-reduced-motion: no-preference)', () => {
+        const workflowIntro = gsap.timeline({
           scrollTrigger: {
-            trigger: stepsContainerRef.current,
-            start: 'top 88%',
+            trigger: sectionRef.current,
+            start: 'top 78%',
             once: true,
             fastScrollEnd: true,
           },
-        },
-      )
-    }, sectionRef)
+        })
 
-    return () => {
-      ctx.revert()
-    }
-  }, [activeTab])
+        workflowIntro
+          .fromTo(
+            headerItems,
+            { autoAlpha: 0, y: 22 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.58,
+              stagger: 0.09,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+          )
+          .fromTo(
+            stations,
+            { autoAlpha: 0, y: 44, scale: 0.98 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.64,
+              stagger: 0.12,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.2',
+          )
+
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: milestone[0],
+              start: 'top 86%',
+              once: true,
+              fastScrollEnd: true,
+            },
+          })
+          .fromTo(
+            milestone,
+            { autoAlpha: 0, y: 30 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.56,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+          )
+          .fromTo(
+            checkpoints,
+            { autoAlpha: 0, y: 18 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.46,
+              stagger: 0.09,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.25',
+          )
+      })
+
+      return () => media.revert()
+    },
+    { scope: sectionRef },
+  )
 
   return (
     <section
@@ -124,13 +184,13 @@ export function HowItWorksSection() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-12 border-b border-[#DED9D1]">
           <div className="max-w-2xl space-y-3">
             {/* Small Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/75 border border-[#176B4C]/15 text-[#315448] text-xs font-bold tracking-wider uppercase backdrop-blur-sm">
+            <div className="workflow-reveal inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/75 border border-[#176B4C]/15 text-[#315448] text-xs font-bold tracking-wider uppercase backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-[#08A875]" />
               <span>COLLABORATIVE WORKFLOW STORY</span>
             </div>
 
             {/* Headline */}
-            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-medium text-[#171916] leading-[1.08] tracking-tight">
+            <h2 className="workflow-reveal text-3xl sm:text-4xl lg:text-[46px] font-medium text-[#171916] leading-[1.08] tracking-tight">
               A better way{' '}
               <span className="text-[#16845F] relative inline-block font-serif italic">
                 to build together.
@@ -142,14 +202,14 @@ export function HowItWorksSection() {
             </h2>
 
             {/* Supporting Text */}
-            <p className="text-base sm:text-lg text-[#626A64] leading-relaxed pt-1">
+            <p className="workflow-reveal text-base sm:text-lg text-[#626A64] leading-relaxed pt-1">
               From discovering demonstrated skills to delivering completed briefs, PeerConnect makes
               peer and business collaboration straightforward.
             </p>
           </div>
 
           {/* Workflow Perspective Toggle */}
-          <div className="p-1.5 bg-white/75 rounded-full border border-[#DED9D1] inline-flex self-start lg:self-auto shadow-2xs backdrop-blur-sm">
+          <div className="workflow-reveal p-1.5 bg-white/75 rounded-full border border-[#DED9D1] inline-flex self-start lg:self-auto shadow-2xs backdrop-blur-sm">
             <button
               type="button"
               onClick={() => setActiveTab('student')}
@@ -262,7 +322,7 @@ export function HowItWorksSection() {
           {/* ============================================================ */}
           {/* STRUCTURED MILESTONE & COMMUNICATION STRIP                   */}
           {/* ============================================================ */}
-          <div className="mt-12 bg-white/55 rounded-3xl p-6 sm:p-8 border border-[#E5DED5] backdrop-blur-sm">
+          <div className="workflow-milestone mt-12 bg-white/55 rounded-3xl p-6 sm:p-8 border border-[#E5DED5] backdrop-blur-sm">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-5 space-y-2 text-left">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F3EA] border border-[#176B4C]/15 text-[#176B4C] text-xs font-bold">
@@ -279,7 +339,7 @@ export function HowItWorksSection() {
               </div>
 
               <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-left">
-                <div className="p-4 rounded-2xl bg-white/80 border border-[#E5DED5] space-y-1.5">
+                <div className="workflow-checkpoint p-4 rounded-2xl bg-white/80 border border-[#E5DED5] space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-[#747B75] uppercase tracking-wider">
                       Phase 1
@@ -290,7 +350,7 @@ export function HowItWorksSection() {
                   <p className="text-xs text-[#747B75]">Kickoff brief, expectations, repo setup</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#EAF3E9] border border-[#176B4C]/15 space-y-1.5">
+                <div className="workflow-checkpoint p-4 rounded-2xl bg-[#EAF3E9] border border-[#176B4C]/15 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-[#176B4C] uppercase tracking-wider">
                       Phase 2
@@ -301,7 +361,7 @@ export function HowItWorksSection() {
                   <p className="text-xs text-[#426B58]">Milestone reviews, feedback loops, PRs</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/80 border border-[#E5DED5] space-y-1.5">
+                <div className="workflow-checkpoint p-4 rounded-2xl bg-white/80 border border-[#E5DED5] space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-[#747B75] uppercase tracking-wider">
                       Phase 3

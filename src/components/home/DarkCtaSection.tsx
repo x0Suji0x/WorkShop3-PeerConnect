@@ -1,48 +1,106 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { ArrowRight, Sparkles, FolderGit2, Briefcase, CheckCircle2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { routes } from '../../app/routes'
-import { gsap, ScrollTrigger } from '../../lib/gsap'
+import { gsap, useGSAP } from '../../lib/gsap'
 
 export function DarkCtaSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!contentRef.current) return
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      ScrollTrigger.refresh()
-      return
-    }
+  useGSAP(
+    () => {
+      if (!sectionRef.current || !contentRef.current) return
 
-    const items = contentRef.current.querySelectorAll('.cta-reveal')
-    if (items.length === 0) return
+      const select = gsap.utils.selector(sectionRef)
+      const headerItems = select('.cta-header-reveal')
+      const surface = select('.cta-surface')
+      const pathways = select('.cta-pathway')
+      const trustItems = select('.cta-trust-item')
+      const allAnimatedItems = [...headerItems, ...surface, ...pathways, ...trustItems]
+      const media = gsap.matchMedia()
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        items,
-        { opacity: 0.75, y: 8 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.32,
-          stagger: 0.045,
-          ease: 'power2.out',
-          clearProps: 'opacity,transform',
+      media.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set(allAnimatedItems, {
+          autoAlpha: 1,
+          clearProps: 'transform',
+        })
+      })
+
+      media.add('(prefers-reduced-motion: no-preference)', () => {
+        const isDesktop = window.matchMedia('(min-width: 768px)').matches
+        const ctaTimeline = gsap.timeline({
           scrollTrigger: {
             trigger: contentRef.current,
-            start: 'top 88%',
+            start: 'top 84%',
             once: true,
             fastScrollEnd: true,
           },
-        },
-      )
-    }, sectionRef)
+        })
 
-    return () => {
-      ctx.revert()
-    }
-  }, [])
+        ctaTimeline
+          .fromTo(
+            headerItems,
+            { autoAlpha: 0, y: 22 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.58,
+              stagger: 0.09,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+          )
+          .fromTo(
+            surface,
+            { autoAlpha: 0, y: 30, scale: 0.985 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.62,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.16',
+          )
+          .fromTo(
+            pathways,
+            {
+              autoAlpha: 0,
+              x: (index: number) => (isDesktop ? (index === 0 ? -28 : 28) : 0),
+              y: isDesktop ? 0 : 20,
+            },
+            {
+              autoAlpha: 1,
+              x: 0,
+              y: 0,
+              duration: 0.5,
+              stagger: 0.1,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.28',
+          )
+          .fromTo(
+            trustItems,
+            { autoAlpha: 0, y: 12 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.4,
+              stagger: 0.08,
+              ease: 'power3.out',
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.04',
+          )
+      })
+
+      return () => media.revert()
+    },
+    { scope: sectionRef },
+  )
 
   return (
     <section
@@ -66,12 +124,12 @@ export function DarkCtaSection() {
       >
         {/* Editorial Top Masthead */}
         <div className="max-w-3xl mx-auto text-center space-y-5">
-          <div className="cta-reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/75 border border-[#176B4C]/15 text-[#315448] text-[11px] font-mono uppercase tracking-widest">
+          <div className="cta-header-reveal inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/75 border border-[#176B4C]/15 text-[#315448] text-[11px] font-mono uppercase tracking-widest">
             <Sparkles className="w-3 h-3 text-[#176B4C]" />
             <span>PROJECT COLLABORATION</span>
           </div>
 
-          <h2 className="cta-reveal text-3xl sm:text-5xl lg:text-[54px] font-medium tracking-tight text-[#171916] leading-[1.08]">
+          <h2 className="cta-header-reveal text-3xl sm:text-5xl lg:text-[54px] font-medium tracking-tight text-[#171916] leading-[1.08]">
             A strong brief turns good ideas into{' '}
             <span className="text-[#16845F] font-serif italic relative inline-block">
               shipped work.
@@ -82,16 +140,16 @@ export function DarkCtaSection() {
             </span>
           </h2>
 
-          <p className="cta-reveal text-sm sm:text-base lg:text-lg text-[#626A64] leading-relaxed max-w-2xl mx-auto">
+          <p className="cta-header-reveal text-sm sm:text-base lg:text-lg text-[#626A64] leading-relaxed max-w-2xl mx-auto">
             Browse scoped opportunities or post your own and find student builders ready to work
             together.
           </p>
         </div>
 
         {/* Distinct Split Pathways: Pathway A (Students) & Pathway B (Project Owners) */}
-        <div className="cta-reveal grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white/75 border border-[#E5DED5] rounded-3xl p-6 sm:p-10 lg:p-12 backdrop-blur-md shadow-[0_16px_48px_rgba(79,58,42,0.06)]">
+        <div className="cta-surface grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white/75 border border-[#E5DED5] rounded-3xl p-6 sm:p-10 lg:p-12 backdrop-blur-md shadow-[0_16px_48px_rgba(79,58,42,0.06)]">
           {/* Pathway 1: For Student Talent */}
-          <div className="flex flex-col justify-between space-y-6 md:pr-4">
+          <div className="cta-pathway flex flex-col justify-between space-y-6 md:pr-4">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono tracking-widest text-[#176B4C] uppercase flex items-center gap-2">
@@ -142,7 +200,7 @@ export function DarkCtaSection() {
           </div>
 
           {/* Pathway 2: For Project Owners / Startups */}
-          <div className="flex flex-col justify-between space-y-6 md:border-l md:border-[#E5DED5] md:pl-8 lg:pl-12 pt-8 md:pt-0 border-t border-[#E5DED5] md:border-t-0">
+          <div className="cta-pathway flex flex-col justify-between space-y-6 md:border-l md:border-[#E5DED5] md:pl-8 lg:pl-12 pt-8 md:pt-0 border-t border-[#E5DED5] md:border-t-0">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-mono tracking-widest text-[#176B4C] uppercase flex items-center gap-2">
@@ -188,16 +246,16 @@ export function DarkCtaSection() {
         </div>
 
         {/* Editorial trust baseline without unsupported payment or payout claims. */}
-        <div className="cta-reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-[#747B75] font-mono pt-2">
-          <span className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-[#747B75] font-mono pt-2">
+          <span className="cta-trust-item flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#176B4C]" />
             Free to browse &amp; connect
           </span>
-          <span className="flex items-center gap-2">
+          <span className="cta-trust-item flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#176B4C]" />
             Direct student collaboration
           </span>
-          <span className="flex items-center gap-2">
+          <span className="cta-trust-item flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#176B4C]" />
             Transparent milestone scopes
           </span>
