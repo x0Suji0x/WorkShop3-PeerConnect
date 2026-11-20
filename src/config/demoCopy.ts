@@ -1,10 +1,10 @@
 export const DEMO_COPY = {
-  banner: 'Accounts, student profiles, project listings, and marketplace applications are saved with Supabase. Sample marketplace listings are illustrative; college event applications remain on this device, and verification is still a prototype feature.',
-  device: 'Applications and shortlists are saved only in this browser on this device. They are not synced to an account or server.',
+  banner: 'Accounts, student profiles, project listings, marketplace applications, shortlists, and verification requests are saved with Supabase. Sample marketplace listings are illustrative; college event applications remain on this device. Verified badges appear only after manual approval.',
+  device: 'This campus application is saved only in this browser on this device. It is not synced to an account or server.',
   verification:
-    'Coming soon: real verification will use consent, secure evidence checks, review status, and an audit trail. No checks happen in this demo.',
+    'Verification requests are reviewed by a person. An official email address alone does not verify an account.',
   verificationNotPerformed:
-    'No identity, college, experience, skill, or portfolio checks are performed here.',
+    'No automatic identity or affiliation checks run, and this version does not upload documents.',
 } as const
 
 export const DEMO_BANNER_SESSION_KEY = 'peerconnect_demo_banner_dismissed_v1'

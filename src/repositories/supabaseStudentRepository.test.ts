@@ -26,16 +26,24 @@ const row = {
   is_public: true,
 }
 
-function fakeClient(results: { one?: unknown; many?: unknown } = {}) {
-  const query: Record<string, ReturnType<typeof vi.fn>> = {}
-  query.select = vi.fn(() => query)
-  query.eq = vi.fn(() => query)
-  query.maybeSingle = vi.fn().mockResolvedValue(results.one ?? { data: row, error: null })
-  query.single = vi.fn().mockResolvedValue(results.one ?? { data: row, error: null })
-  query.upsert = vi.fn(() => query)
-  query.then = vi.fn((resolve: (value: unknown) => unknown) => Promise.resolve(results.many ?? { data: [row], error: null }).then(resolve))
-  const client = { from: vi.fn(() => query) }
-  return { client: client as unknown as SupabaseClient, query }
+function fakeClient(results: { one?: unknown; many?: unknown; verified?: unknown; verifiedMany?: unknown } = {}) {
+  const makeQuery = (singleResult: unknown, listResult: unknown) => {
+    const query: Record<string, ReturnType<typeof vi.fn>> = {}
+    query.select = vi.fn(() => query)
+    query.eq = vi.fn(() => query)
+    query.in = vi.fn(() => query)
+    query.maybeSingle = vi.fn().mockResolvedValue(singleResult)
+    query.single = vi.fn().mockResolvedValue(singleResult)
+    query.upsert = vi.fn(() => query)
+    query.then = vi.fn((resolve: (value: unknown) => unknown) => Promise.resolve(listResult).then(resolve))
+    return query
+  }
+  const profileQuery = makeQuery(results.one ?? { data: row, error: null }, results.many ?? { data: [row], error: null })
+  const verificationQuery = makeQuery(results.verified ?? { data: null, error: null }, results.verifiedMany ?? { data: [], error: null })
+  const client = {
+    from: vi.fn((table: string) => table === 'verified_users' ? verificationQuery : profileQuery),
+  }
+  return { client: client as unknown as SupabaseClient, query: profileQuery, verificationQuery }
 }
 
 describe('SupabaseStudentRepository', () => {
@@ -52,7 +60,17 @@ describe('SupabaseStudentRepository', () => {
       academicYear: '3rd Year',
       isPublic: true,
       featuredWork: 'Portfolio page',
+      isVerified: false,
     })
+  })
+
+  it('shows a verified badge only when the approved-only result contains the student', async () => {
+    const { client } = fakeClient({ verified: { data: { user_id: 'student-1', kind: 'student' }, error: null } })
+    const repository = createSupabaseStudentRepository(client)
+
+    const profile = await repository.getById('student-1')
+
+    expect(profile?.isVerified).toBe(true)
   })
 
   it('writes onboarding fields and publication status without writing demo metrics', async () => {

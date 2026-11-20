@@ -221,6 +221,7 @@ export function TalentDirectoryPage() {
                         {student.name}
                       </h3>
                       {student.source === 'sample' && <span className="mt-1 inline-flex rounded-full bg-[#FBF0DC] px-2 py-0.5 text-[10px] font-bold text-[#765820]">Sample</span>}
+                      {student.isVerified && <span className="inline-flex items-center rounded-full bg-[#E3F4EB] px-2 py-0.5 text-[10px] font-bold text-[#087A59]">Verified student</span>}
                       <span className="rounded-md bg-[#E3F4EB] px-1.5 py-0.5 text-[10px] font-bold text-[#08A876]">
                         {student.availability}
                       </span>

@@ -7,10 +7,11 @@ PeerConnect is a React + TypeScript student talent and project collaboration pro
 - **Authentication is real Supabase Auth.** Email/password and Google OAuth use Supabase. The account role is `student` or `client` and comes from the Supabase profile, not a URL or browser setting.
 - **Student profiles are persisted to Supabase.** Onboarding and profile edits save to `public.student_profiles`. Profiles are private by default; students can opt into public discovery. The public profile fields contain no email or phone number.
 - **Projects are persisted to Supabase.** Client-owned drafts remain private until published; published account projects appear alongside clearly labeled sample listings. Editing and closing a project are not available yet.
-- **Marketplace applications and shortlists are still prototype features.** They are saved only in this browser/device. The separate college event and volunteer applications also remain browser-only.
-- **Verification is not implemented.** Email confirmation and Google sign-in do not establish student enrollment, company identity, skills, or portfolio ownership. Sample talent profiles, ratings, and reviews are illustrative content.
+- **Marketplace applications and shortlists are persisted to Supabase.** Students can track application status, and project owners can review applicants and shortlist them. College event, volunteer, and club applications remain saved only in the current browser/device.
+- **Verification requests are persisted to Supabase and reviewed manually.** Only an admin-approved request produces a verified badge. Email confirmation and Google sign-in do not establish student enrollment or company identity. There is no admin review screen or document upload yet; admins are configured and review requests through the documented SQL workflow.
+- **Sample content remains illustrative.** Marketplace listings, sample talent profiles, ratings, and reviews are not real user submissions or evidence of verified work.
 
-The shared demo notice describes these limits in the app. Avoid entering sensitive personal information in prototype features.
+The shared demo notice describes these limits in the app. Verification notes are visible to the account owner and verification admins; avoid entering sensitive identity numbers or other unnecessary personal information.
 
 ## Local development
 

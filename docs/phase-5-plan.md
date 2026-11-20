@@ -1,27 +1,24 @@
 # Supabase data migration plan
 
-Supabase Auth, extended student profiles, and core project persistence are implemented. The `profiles` table stores the account role and basic name/company/avatar fields. The `student_profiles` table stores onboarding and profile fields, with private-by-default opt-in discovery. The `projects` table stores client-owned drafts and published listings. Auth email, phone, passwords, and verification evidence are not copied into these feature tables.
+Authentication, account profiles, student profiles, projects, marketplace applications and shortlists, and manual verification requests are implemented with Supabase. Keep future migrations incremental: define ownership and RLS, test cross-account access, wire the UI, verify reload behavior, then remove that feature's browser-storage path.
 
-The next phase is to move one data area at a time to Supabase tables. For each area, add and test its schema, ownership rules, and RLS policies; wire the UI to the Supabase repository; verify reload and cross-account behavior; then remove that area's localStorage or in-memory path. Do not remove browser behavior before its replacement works.
+## Persisted in Supabase
 
-## Migration order
+- `profiles` stores account role, name, company name, avatar, and the admin-managed verification flag. Account roles are `student` or `client`.
+- `student_profiles` stores student onboarding and profile details. Profiles are private unless the student enables public discovery.
+- `projects` stores client-owned drafts and published listings.
+- `applications` stores marketplace applications and their status transitions, including shortlists.
+- `verification_requests` stores the review request and decision. Only verification admins can make a decision; the approved-only `verified_users` result exposes account IDs and badge type.
 
-1. **Applications and shortlists**: persist student submissions and authorized status transitions. Enforce one application per student per project; let project owners review submissions and shortlist applicants. Remove the marketplace `applicationStorage` path after the Supabase flow is verified. The separate event/volunteer application flow remains browser-only and is out of scope for that phase.
-2. **Verification**: implement manual review with admin-only decisions before showing any verified badge. Document the admin setup and keep evidence as plain text in the first version; do not imply email confirmation verifies identity.
+## Still illustrative or browser-only
 
-Project creation, draft persistence, publishing, public listing/detail pages, and the client-owned dashboard list are implemented. Editing and closing project listings are not available yet.
+- Marketplace project fixtures and sample talent profiles, ratings, and reviews are illustrative content.
+- College event, volunteer, and club applications still use browser storage and do not sync across devices or accounts.
+- Verification has no admin screen or document upload. A person must review each request using the SQL workflow in [verification-admin.md](verification-admin.md). Email confirmation alone does not create a verified badge.
+- Project editing and closing are not available yet. The demo-banner dismissal is a session-level presentation preference.
 
-Keep each migration narrow and reversible. Add database constraints and policy tests for anonymous access, cross-user reads, forged IDs, ownership changes, and allowed status transitions before launch. The demo-banner dismissal is only a session-level presentation preference and is not account data.
+## Next data areas
 
-## Current boundaries
+If campus features are brought into the persistence scope, migrate event, volunteer, and club applications one feature at a time. Ratings and reviews also need a defined source and moderation model before they can represent real work history.
 
-- Authentication and account roles use Supabase Auth and `public.profiles`; roles are `student` or `client` and are never inferred from a URL query or local storage.
-- Student profile details, project drafts, and published project listings are persisted in Supabase. Marketplace applications and shortlists remain browser-only; verification is not implemented. The college event/volunteer applications remain in browser storage.
-- Supabase Auth does not verify student enrollment, a business, skills, work history, or portfolio ownership. Those require a separate trusted verification workflow.
-- The browser uses only the publishable/anon key. Never put a service-role key, database password, OAuth secret, or signing key in frontend code or a `VITE_*` variable.
-
-## Decisions still needed before the related migrations
-
-1. What exact verification process and evidence retention policy should PeerConnect use?
-2. Which organization name, support email, privacy contact, retention period, and jurisdiction belong in finalized policies?
-3. What production domains and hosting environment should be used for OAuth redirects?
+Never put a service-role key, database password, OAuth secret, or signing key in frontend code or a `VITE_*` variable. The browser uses only the publishable/anon key; authorization depends on RLS and trusted database operations.

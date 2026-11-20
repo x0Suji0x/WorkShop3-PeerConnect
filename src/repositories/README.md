@@ -17,7 +17,7 @@ Student-facing pages use the `StudentRepository` contract instead of reading pro
 | `isPublic` | `is_public` | Off by default; the directory only queries published profiles. |
 | `featuredWork` | derived from first `portfolioProjects` item | No duplicate column. |
 
-Auth email, phone, passwords, college email, selected document filenames, and verification states are intentionally not copied into this table. Ratings, reviews, work counters, Plus status, and cover images remain illustrative or belong to later feature work. The database table contains only fields intended to be shown in a public profile; its row policies limit reads to the owner or explicitly published rows.
+Auth email, phone, passwords, college email, selected document filenames, and verification state are intentionally not copied into this table. Approved badge state comes from the approved-only `public.verified_users` result; ratings, reviews, work counters, Plus status, and cover images remain illustrative or belong to later feature work. The database table contains only fields intended to be shown in a public profile; its row policies limit reads to the owner or explicitly published rows.
 
 ## Project field mapping
 
@@ -34,7 +34,7 @@ Auth email, phone, passwords, college email, selected document filenames, and ve
 | `status` | `status` | `draft`, `published`, or `closed`; only published rows are publicly readable. |
 | `createdAt`, `updatedAt` | `created_at`, `updated_at` | `updated_at` is set by a database trigger. |
 | `postedTimeAgo` | derived from `created_at` | Display-only relative time. |
-| `applicantsCount` | not stored yet | Always zero for account projects until the applications phase. |
+| `applicantsCount` | not stored on `projects` | Account project rows still report zero here; real application records and status are stored separately in `public.applications`. |
 | `badge`, `clientLogo` | not stored | No fake urgency, featured, verification, or logo value is generated for account projects. |
 
-The project browser keeps the existing fixture rows as clearly marked samples. Marketplace applications and shortlists still use their browser-only prototype storage until the next phase.
+The project browser keeps the existing fixture rows as clearly marked samples. Marketplace applications and shortlists are stored in Supabase. College event, volunteer, and club applications still use browser-only prototype storage.

@@ -18,6 +18,7 @@ export interface AuthProfile {
   full_name: string | null
   company_name: string | null
   avatar_url: string | null
+  is_verified: boolean
 }
 
 export type AuthStatus =
@@ -66,6 +67,7 @@ function toAuthProfile(
     full_name: string | null
     company_name: string | null
     avatar_url: string | null
+    is_verified?: boolean | null
   } | null,
 ): AuthProfile {
   return {
@@ -74,6 +76,7 @@ function toAuthProfile(
     full_name: data?.full_name ?? null,
     company_name: data?.company_name ?? null,
     avatar_url: data?.avatar_url ?? null,
+    is_verified: data?.is_verified ?? false,
   }
 }
 
@@ -108,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await requireSupabase()
         .from('profiles')
-        .select('id,role,full_name,company_name,avatar_url')
+        .select('id,role,full_name,company_name,avatar_url,is_verified')
         .eq('id', userId)
         .maybeSingle()
 

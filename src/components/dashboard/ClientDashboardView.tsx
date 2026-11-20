@@ -194,6 +194,7 @@ export function ClientDashboardView() {
             <Badge variant="green" size="md" className="font-bold flex items-center gap-1.5">
               <Building2 className="h-3.5 w-3.5" /> Client Workspace
             </Badge>
+            {profile?.is_verified && <Badge variant="green" size="sm"><CheckCircle2 className="mr-1 h-3 w-3" />Verified business</Badge>}
             <span className="text-xs text-[#777A72]">
               Signed in as <strong className="text-[#171916]">{clientName}</strong> ({companyName})
             </span>
