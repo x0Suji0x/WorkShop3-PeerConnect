@@ -105,6 +105,17 @@ function fromRow(row: StudentProfileRow): Student {
   return student
 }
 
+async function withVerifiedBadge(client: SupabaseClient, student: Student): Promise<Student> {
+  const { data, error } = await client
+    .from('verified_users')
+    .select('user_id')
+    .eq('user_id', student.id)
+    .eq('kind', 'student')
+    .maybeSingle()
+  if (error) throw new Error('Could not load the student verification status.')
+  return { ...student, isVerified: Boolean(data) }
+}
+
 function toRow(userId: string, changes: StudentUpdate): Partial<StudentProfileRow> & Pick<StudentProfileRow, 'user_id'> {
   const row: Partial<StudentProfileRow> & Pick<StudentProfileRow, 'user_id'> = { user_id: userId }
   if (changes.name !== undefined) row.display_name = changes.name
@@ -140,7 +151,7 @@ export function createSupabaseStudentRepository(client: SupabaseClient | null): 
         .eq('user_id', studentId)
         .maybeSingle()
       if (error) throw new Error('Could not load this student profile. Please try again.')
-      return data ? fromRow(data as StudentProfileRow) : null
+      return data ? withVerifiedBadge(client, fromRow(data as StudentProfileRow)) : null
     },
 
     async update(studentId, changes) {
@@ -151,7 +162,7 @@ export function createSupabaseStudentRepository(client: SupabaseClient | null): 
         .select('*')
         .single()
       if (error || !data) throw new Error('Could not save your student profile. Please try again.')
-      return fromRow(data as StudentProfileRow)
+      return withVerifiedBadge(client, fromRow(data as StudentProfileRow))
     },
 
     async getPublicProfiles() {
@@ -161,7 +172,17 @@ export function createSupabaseStudentRepository(client: SupabaseClient | null): 
         .select('*')
         .eq('is_public', true)
       if (error) throw new Error('Could not load public student profiles.')
-      return (data ?? []).map((row) => fromRow(row as StudentProfileRow))
+      const students = (data ?? []).map((row) => fromRow(row as StudentProfileRow))
+      if (!students.length) return []
+
+      const { data: verifiedRows, error: verificationError } = await client
+        .from('verified_users')
+        .select('user_id')
+        .eq('kind', 'student')
+        .in('user_id', students.map((student) => student.id))
+      if (verificationError) throw new Error('Could not load student verification statuses.')
+      const verifiedIds = new Set((verifiedRows ?? []).map((row) => (row as { user_id: string }).user_id))
+      return students.map((student) => ({ ...student, isVerified: verifiedIds.has(student.id) }))
     },
   }
 }

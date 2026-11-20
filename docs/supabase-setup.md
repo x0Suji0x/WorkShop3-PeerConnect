@@ -1,6 +1,6 @@
 # Supabase setup for PeerConnect
 
-This guide configures Supabase Auth, student profile storage, and project listings for local development. Marketplace applications, shortlists, and verification remain prototype features; see the README for their storage limits.
+This guide configures Supabase Auth and the persisted profile, project, application, shortlist, and manual verification features for local development. College event, volunteer, and club applications remain browser-only; see the README for current boundaries.
 
 ## 1. Create a Supabase project
 
@@ -19,7 +19,7 @@ VITE_SUPABASE_ANON_KEY=<YOUR-PUBLISHABLE-OR-ANON-KEY>
 
 The publishable/anon key is intended for the browser and relies on Row Level Security. **Never put the `service_role` key in `.env.local`, a `VITE_*` variable, source code, or a browser.** Restart `npm run dev` after changing environment variables.
 
-## 3. Create the profile, student profile, and project tables
+## 3. Create the application tables and policies
 
 Open **SQL Editor → New query**. Run these files in order, using the project owner/editor connection:
 
@@ -27,8 +27,10 @@ Open **SQL Editor → New query**. Run these files in order, using the project o
 2. `supabase/migrations/0002_harden_profiles.sql`
 3. `supabase/migrations/0003_student_profiles.sql`
 4. `supabase/migrations/0004_projects.sql`
+5. `supabase/migrations/0005_applications.sql`
+6. `supabase/migrations/0006_verification.sql`
 
-The first migration creates the account profile and one-time role-selection RPC. The second hardens profile permissions. The next migrations add private-by-default student profiles and client-owned projects with public reads limited to published listings. Each table has explicit grants and RLS policies. Do not run these migrations through the browser app. The matching rollback-only policy checks live under `supabase/tests/`.
+The first migration creates the account profile and one-time role-selection RPC. The next migrations add private-by-default student profiles, client-owned projects, marketplace applications, and manual verification. Each table has explicit grants and RLS policies. Do not run these migrations through the browser app. The matching rollback-only policy checks live under `supabase/tests/`.
 
 ## 4. Configure email authentication and redirects
 
@@ -95,5 +97,5 @@ With `.env.local` configured and `npm run dev` running, check:
 
 - Supabase may link identity providers that share a verified email. Review Supabase's account-linking behavior and decide whether it matches the product's policy.
 - Email confirmation proves access to an email address. Google sign-in proves access to a Google account. Neither proves student enrollment, a real business, skills, work history, or portfolio ownership.
-- Student/company verification is a separate feature and is not implemented. Do not show email-format checks or sample profile data as verification.
+- Verification requests are reviewed manually; email confirmation and Google sign-in do not verify student enrollment or a business. Follow [verification-admin.md](verification-admin.md) to configure an admin and review requests. No document upload or admin UI is included.
 - The browser app uses only the publishable/anon key. Authorization depends on database policies and the authenticated profile, never on a role query parameter or local storage.

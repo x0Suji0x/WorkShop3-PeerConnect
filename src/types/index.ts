@@ -14,6 +14,8 @@ export interface StudentProfile {
   skills: { name: string; category: 'design' | 'dev' | 'ai' | 'other' }[]
   featuredWork: string
   bio: string
+  /** True only when an admin-approved verification record exists. */
+  isVerified?: boolean
   /** Identifies illustrative directory rows separately from real student accounts. */
   source?: 'sample' | 'account'
 }

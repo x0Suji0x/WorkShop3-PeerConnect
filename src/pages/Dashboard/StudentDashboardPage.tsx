@@ -34,6 +34,7 @@ export function StudentDashboardPage() {
 }
 
 function StudentDashboardContent() {
+  const { profile } = useAuth()
   const { student, needsProfileCompletion, isLoadingProfile, profileError, refreshStudentProfile } = useStudentProfile()
 
   if (isLoadingProfile) return <LoadingState label="Loading your student profile…" />
@@ -67,7 +68,6 @@ function StudentDashboardContent() {
     { label: 'Applications sent', value: student.applicationsSent, icon: FileText, detail: '2 awaiting a response' },
     { label: 'Profile views', value: student.profileViews, icon: Eye, detail: 'In the last 30 days' },
   ]
-  const pendingVerificationsCount = student.verifications.filter((v) => v.status === 'pending').length
 
   const statTones = [
     { glow: 'peer-card-glow-mint', iconBg: 'bg-[#E8F3EA]', iconColor: 'text-[#176B4C]' },
@@ -131,7 +131,7 @@ function StudentDashboardContent() {
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <ShieldCheck className="h-4 w-4 text-[#08A876]" />
                 <p className="mt-3 text-sm font-bold text-[#171916]">Verification</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} demo status placeholders</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{profile?.is_verified ? 'Approved by manual review' : 'Manual review available'}</p>
               </div>
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <UserRoundCheck className="h-4 w-4 text-[#08A876]" />
@@ -140,7 +140,7 @@ function StudentDashboardContent() {
               </div>
               <Link to={routes.verification} className="rounded-2xl bg-[#123D30] p-4 text-white transition hover:bg-[#0E3127] shadow-xs">
                 <p className="text-sm font-bold">Strengthen trust</p>
-                <p className="mt-1 text-xs leading-relaxed text-emerald-100/75">Review demo verification states <ArrowRight className="inline h-3 w-3" /></p>
+                <p className="mt-1 text-xs leading-relaxed text-emerald-100/75">Submit or check a review request <ArrowRight className="inline h-3 w-3" /></p>
               </Link>
             </div>
           </div>

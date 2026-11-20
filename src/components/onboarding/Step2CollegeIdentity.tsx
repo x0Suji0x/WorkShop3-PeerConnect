@@ -537,9 +537,9 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
       {/* College Identity Verification Card */}
       <div className="rounded-3xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
         <div>
-          <h3 className="text-sm font-bold text-[#171916]">Campus details and demo states</h3>
+          <h3 className="text-sm font-bold text-[#171916]">Campus details</h3>
           <p className="text-xs text-[#777A72]">
-            Add college details or view simulated verification states. No checks or emails are performed in this demo.
+            This step saves your self-reported details only. It does not check email or upload an ID; request a manual review from Verification Centre after setup.
           </p>
         </div>
 
@@ -577,7 +577,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
               <span className="text-xs font-bold text-[#171916]">Option B: College ID Card</span>
             </div>
             <p className="mt-1 text-[11px] text-[#777A72]">
-              Upload front of student ID for manual staff review
+              Example file selection only; no ID is uploaded here
             </p>
           </button>
         </div>
