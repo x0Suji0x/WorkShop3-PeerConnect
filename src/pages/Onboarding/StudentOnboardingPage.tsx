@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react'
 import type {
   OnboardingStep,
   OnboardingFormData,
@@ -23,21 +23,21 @@ import { Step4GoalsAvailability } from '../../components/onboarding/Step4GoalsAv
 import { Step5PortfolioExperience } from '../../components/onboarding/Step5PortfolioExperience'
 import { Step6ReviewSubmit } from '../../components/onboarding/Step6ReviewSubmit'
 import { Button } from '../../components/common/Button'
+import { LoadingState } from '../../components/common/LoadingState'
+import { useAuth } from '../../lib/auth/AuthProvider'
 import type { Student, Verification } from '../../types'
-import { useAuth } from '../../hooks/useAuth'
-import type { AuthUser } from '../../types/auth'
 
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
+  const auth = useAuth()
   const { student, updateStudent } = useStudentProfile()
-  const { signupStudent, user } = useAuth()
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1)
   const [highestStepVisited, setHighestStepVisited] = useState<number>(1)
   const [errors, setErrors] = useState<FormValidationErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
   const [profileCreated, setProfileCreated] = useState(false)
+  const [profileSaveError, setProfileSaveError] = useState('')
 
   // Central form state preserving all information across steps
   const [formData, setFormData] = useState<OnboardingFormData>({
@@ -58,10 +58,7 @@ export function StudentOnboardingPage() {
       graduationYear: '2027',
       collegeEmail: '',
       verificationMethod: 'college_email',
-      otpCode: '',
-      isEmailVerified: false,
       idCardFileName: null,
-      idVerificationStatus: 'unverified',
     },
     skillsInterests: {
       skills: [
@@ -100,6 +97,13 @@ export function StudentOnboardingPage() {
     },
     agreedToTerms: false,
   })
+
+  useEffect(() => {
+    if (auth.status !== 'signedIn' || !auth.profile?.full_name) return
+    setFormData((current) => current.basicInfo.fullName
+      ? current
+      : { ...current, basicInfo: { ...current.basicInfo, fullName: auth.profile!.full_name! } })
+  }, [auth.status, auth.profile?.full_name])
 
   // Calculate dynamic completion score based on current input
   const estimatedCompletion = useMemo(() => {
@@ -151,34 +155,6 @@ export function StudentOnboardingPage() {
     }
   }
 
-  const handleGoogleSuccess = (googleUser: AuthUser) => {
-    setFormData((prev) => ({
-      ...prev,
-      basicInfo: {
-        ...prev.basicInfo,
-        fullName: googleUser.fullName || prev.basicInfo.fullName,
-        email: googleUser.email || prev.basicInfo.email,
-        avatarUrl: googleUser.avatarUrl || prev.basicInfo.avatarUrl,
-        headline: googleUser.headline || prev.basicInfo.headline || 'Student Developer & Creator',
-        phone: googleUser.phone || prev.basicInfo.phone,
-        password: prev.basicInfo.password,
-      },
-      college: {
-        ...prev.college,
-        collegeName: googleUser.collegeName || prev.college.collegeName,
-        degree: googleUser.degree || prev.college.degree,
-        fieldOfStudy: googleUser.fieldOfStudy || prev.college.fieldOfStudy,
-      },
-    }))
-    setErrors((prev) => {
-      const next = { ...prev }
-      delete next.fullName
-      delete next.email
-      delete next.password
-      return next
-    })
-  }
-
   const handleCollegeChange = (field: keyof OnboardingFormData['college'], value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -224,10 +200,6 @@ export function StudentOnboardingPage() {
     let stepErrors: FormValidationErrors = {}
     if (currentStep === 1) {
       stepErrors = validateStep1(formData.basicInfo)
-      if (user?.role === 'student' && user.email === formData.basicInfo.email) {
-        delete stepErrors.password
-        delete stepErrors.confirmPassword
-      }
     } else if (currentStep === 2) {
       stepErrors = validateStep2(formData.college)
     } else if (currentStep === 3) {
@@ -244,60 +216,45 @@ export function StudentOnboardingPage() {
 
   const handleNext = async () => {
     if (!validateCurrentStep()) {
-      setTimeout(() => {
-        const firstErrorEl = document.querySelector(
-          '.border-red-500, p.text-red-600, input:invalid, [id="reg-fullname"], [id="reg-email"], [id="reg-phone"], [id="reg-password"]'
-        )
-        if (firstErrorEl) {
-          firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          const inputEl =
-            firstErrorEl.tagName === 'INPUT'
-              ? firstErrorEl
-              : firstErrorEl.parentElement?.querySelector('input') ||
-                firstErrorEl.closest('div')?.querySelector('input')
-          if (inputEl && 'focus' in inputEl) {
-            ;(inputEl as HTMLElement).focus()
-          }
-        }
-      }, 50)
       return
     }
 
     if (currentStep === 1) {
-      try {
-        const phoneLast4 = (formData.basicInfo.phone || '').slice(-4)
-        const initialVerifications: Verification[] = [
-          {
-            id: 'ver-college',
-            type: 'college_identity',
-            status: formData.basicInfo.email ? 'pending' : 'unverified',
-            label: 'Institutional enrollment',
-            description: formData.basicInfo.email
-              ? `Institutional email submitted (${formData.basicInfo.email}). Awaiting verification.`
-              : 'Add an institutional email to start verification.',
-          },
-          {
-            id: 'ver-phone',
-            type: 'phone_number',
-            status: formData.basicInfo.phone ? 'pending' : 'unverified',
-            label: 'Mobile phone',
-            description: formData.basicInfo.phone
-              ? `Registered mobile: +91 ${phoneLast4.padStart(10, '•')}. Awaiting verification.`
-              : 'Add a mobile number to start verification.',
-          },
-        ]
+      // Step 1 completed: Immediately create the initial student profile in store!
+      const initialVerifications: Verification[] = [
+        {
+          id: 'ver-college',
+          type: 'college_identity',
+          status: 'unverified',
+          label: 'Institutional enrollment',
+          description: 'No identity or enrollment checks have been performed.',
+        },
+        {
+          id: 'ver-phone',
+          type: 'phone_number',
+          status: 'unverified',
+          label: 'Mobile phone',
+          description: 'Phone number provided; no phone verification happens in this demo.',
+        },
+      ]
 
+      try {
         await updateStudent({
           name: formData.basicInfo.fullName || student.name,
           headline: formData.basicInfo.headline || student.headline,
           avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
           verifications: initialVerifications,
-          profileCompletion: formData.basicInfo.email ? 35 : 30,
+          profileCompletion: formData.basicInfo.fullName ? 30 : 20,
         })
-        setProfileCreated(true)
-      } catch (err) {
-        console.warn('Initial student profile creation notice:', err)
+        if (formData.basicInfo.fullName.trim()) {
+          await auth.updateProfileName(formData.basicInfo.fullName.trim())
+        }
+        setProfileSaveError('')
+      } catch (caught) {
+        setProfileSaveError(caught instanceof Error ? caught.message : 'Could not save your account name.')
+        return
       }
+      setProfileCreated(true)
     }
 
     const nextStep = (currentStep + 1) as OnboardingStep
@@ -307,20 +264,28 @@ export function StudentOnboardingPage() {
   }
 
   const handleSkipToDashboard = async () => {
-    // Save any progress entered so far and go directly to dashboard
-    await updateStudent({
-      name: formData.basicInfo.fullName || student.name,
-      headline: formData.basicInfo.headline || student.headline,
-      avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
-      college: formData.college.collegeName || student.college,
-      university: formData.college.collegeName || student.university,
-      degree: formData.college.degree || student.degree,
-      fieldOfStudy: formData.college.fieldOfStudy || student.fieldOfStudy,
-      graduationYear: formData.college.graduationYear || student.graduationYear,
-      skills: formData.skillsInterests.skills.length > 0 ? formData.skillsInterests.skills : student.skills,
-      interests: formData.skillsInterests.interests.length > 0 ? formData.skillsInterests.interests : student.interests,
-      profileCompletion: estimatedCompletion,
-    })
+    try {
+      await updateStudent({
+        name: formData.basicInfo.fullName || student.name,
+        headline: formData.basicInfo.headline || student.headline,
+        avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
+        college: formData.college.collegeName || student.college,
+        university: formData.college.collegeName || student.university,
+        degree: formData.college.degree || student.degree,
+        fieldOfStudy: formData.college.fieldOfStudy || student.fieldOfStudy,
+        graduationYear: formData.college.graduationYear || student.graduationYear,
+        skills: formData.skillsInterests.skills.length > 0 ? formData.skillsInterests.skills : student.skills,
+        interests: formData.skillsInterests.interests.length > 0 ? formData.skillsInterests.interests : student.interests,
+        profileCompletion: estimatedCompletion,
+      })
+      if (formData.basicInfo.fullName.trim()) {
+        await auth.updateProfileName(formData.basicInfo.fullName.trim())
+      }
+      setProfileSaveError('')
+    } catch (caught) {
+      setProfileSaveError(caught instanceof Error ? caught.message : 'Could not save your account name.')
+      return
+    }
     navigate('/dashboard?welcome=true', {
       state: {
         justRegistered: true,
@@ -350,55 +315,48 @@ export function StudentOnboardingPage() {
     }
 
     setIsSubmitting(true)
-    setSubmitError(null)
 
     // Build the updated verifications list
     const updatedVerifications: Verification[] = [
       {
         id: 'ver-college',
         type: 'college_identity',
-        status: formData.college.collegeEmail || formData.college.idCardFileName
-          ? 'pending'
-          : 'unverified',
+        status: 'unverified',
         label: 'College enrollment',
-        description: formData.college.collegeEmail
-          ? `Institutional email submitted (${formData.college.collegeEmail}). Awaiting verification.`
-          : formData.college.idCardFileName
-          ? `College ID document (${formData.college.idCardFileName}) submitted for review`
-          : 'Provide a college email or ID document to verify student status.',
+        description: formData.college.idCardFileName
+          ? `File selected (${formData.college.idCardFileName}); it is not uploaded or reviewed.`
+          : 'No identity or enrollment checks have been performed.',
       },
       {
         id: 'ver-phone',
         type: 'phone_number',
-        status: formData.basicInfo.phone ? 'pending' : 'unverified',
+        status: 'unverified',
         label: 'Phone number',
-        description: formData.basicInfo.phone
-          ? `Registered mobile number: +91 ${formData.basicInfo.phone.slice(-4).padStart(10, '•')}. Awaiting verification.`
-          : 'Add a mobile number to start verification.',
+        description: 'Phone number provided; no phone verification happens in this demo.',
       },
       {
         id: 'ver-exp',
         type: 'experience',
-        status: formData.portfolio.organization ? 'pending' : 'unverified',
+        status: 'unverified',
         label: 'Experience & roles',
         description: formData.portfolio.organization
-          ? `Self-reported role at ${formData.portfolio.organization}. Pending project owner verification.`
-          : 'Completed verified project reviews contribute to experience credibility.',
+          ? `Self-reported role at ${formData.portfolio.organization}. This demo does not verify it.`
+          : 'Experience review is not available in this demo.',
       },
       {
         id: 'ver-skills',
         type: 'skills',
         status: 'unverified',
         label: 'Skill assessments',
-        description: 'Complete community coding or design challenges to earn verified skill badges.',
+        description: 'Skill checks are not available in this demo.',
       },
       {
         id: 'ver-portfolio',
         type: 'portfolio_ownership',
-        status: formData.portfolio.githubUrl ? 'pending' : 'unverified',
+        status: 'unverified',
         label: 'Portfolio ownership',
         description: formData.portfolio.githubUrl
-          ? 'GitHub profile linked. Pending repository ownership verification.'
+          ? 'GitHub profile link provided; repository ownership is not checked in this demo.'
           : 'Link your public GitHub or Behance to verify authorship.',
       },
     ]
@@ -470,39 +428,6 @@ export function StudentOnboardingPage() {
     }
 
     try {
-      const isSignedInStudent = user?.role === 'student' && user.email === formData.basicInfo.email
-      if (formData.basicInfo.email && formData.basicInfo.password && !isSignedInStudent) {
-        const signupResult = await signupStudent({
-          fullName: formData.basicInfo.fullName,
-          email: formData.basicInfo.email,
-          password: formData.basicInfo.password,
-          phone: formData.basicInfo.phone,
-          collegeName: formData.college.collegeName,
-          degree: formData.college.degree,
-          fieldOfStudy: formData.college.fieldOfStudy,
-          academicYear: formData.college.academicYear,
-          graduationYear: formData.college.graduationYear,
-          collegeEmail: formData.college.collegeEmail,
-          skills: formData.skillsInterests.skills,
-          interests: formData.skillsInterests.interests,
-          portfolio: {
-            githubUrl: formData.portfolio.githubUrl,
-            linkedinUrl: formData.portfolio.linkedinUrl,
-            behanceUrl: formData.portfolio.behanceUrl,
-            portfolioUrl: formData.portfolio.portfolioUrl,
-            aboutBio: formData.portfolio.aboutBio,
-            featuredProjectName: formData.portfolio.featuredProjectName,
-            featuredProjectDesc: formData.portfolio.featuredProjectDesc,
-            featuredProjectUrl: formData.portfolio.featuredProjectUrl,
-          },
-          avatarUrl: formData.basicInfo.avatarUrl,
-          headline: formData.basicInfo.headline,
-        })
-        if (!signupResult.success) {
-          throw new Error(signupResult.error || 'Could not create your account.')
-        }
-      }
-
       await updateStudent(updatedStudentData)
       // Navigate to onboarding completion welcome screen with summary
       navigate('/signup/student/complete', {
@@ -513,11 +438,61 @@ export function StudentOnboardingPage() {
           skillsCount: formData.skillsInterests.skills.length,
         },
       })
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Could not create your account. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (auth.status === 'loading') {
+    return <LoadingState label="Checking your student account…" />
+  }
+
+  if (auth.status === 'profileError') {
+    return (
+      <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12">
+        <section className="peer-card-glass w-full max-w-lg p-8 text-center">
+          <h1 className="text-2xl font-bold">We couldn’t load your profile</h1>
+          <p role="alert" className="mt-3 text-sm text-[#525A55]">{auth.profileError}</p>
+          <button type="button" onClick={() => void auth.refreshProfile().catch(() => {})} className="mt-5 rounded-full bg-[#123D30] px-5 py-2.5 font-semibold text-white">Retry</button>
+        </section>
+      </main>
+    )
+  }
+
+  if (auth.status === 'unconfigured') {
+    return (
+      <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12">
+        <section className="peer-card-glass w-full max-w-lg p-8 text-center">
+          <h1 className="text-2xl font-bold">Sign-in isn’t configured</h1>
+          <p className="mt-3 text-sm text-[#525A55]">Connect the Supabase project URL and publishable key before creating a student account.</p>
+        </section>
+      </main>
+    )
+  }
+
+  if (auth.status === 'signedOut') return <StudentAccountStep />
+
+  if (auth.profile?.role === 'client') {
+    return (
+      <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12">
+        <section className="peer-card-glass w-full max-w-lg p-8 text-center">
+          <h1 className="text-2xl font-bold">This setup is for student accounts</h1>
+          <p className="mt-3 text-sm text-[#525A55]">You’re signed in with a client account.</p>
+          <Link className="mt-5 inline-block font-semibold text-[#087a59]" to="/dashboard">Go to your dashboard</Link>
+        </section>
+      </main>
+    )
+  }
+
+  if (!auth.profile?.role) {
+    return (
+      <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12">
+        <section className="peer-card-glass w-full max-w-lg p-8 text-center">
+          <h1 className="text-2xl font-bold">Choose your account type first</h1>
+          <Link className="mt-5 inline-block font-semibold text-[#087a59]" to="/auth/choose-role">Choose student</Link>
+        </section>
+      </main>
+    )
   }
 
   return (
@@ -553,12 +528,9 @@ export function StudentOnboardingPage() {
           />
         </div>
 
+        {profileSaveError && <p className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">{profileSaveError}</p>}
+
         {/* Profile Created Status Banner */}
-        {submitError && (
-          <div role="alert" className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-            {submitError}
-          </div>
-        )}
         {(profileCreated || currentStep > 1) && (
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-[#08C58A]/40 bg-[#E3F4EB] p-4 text-xs text-[#123D30] shadow-2xs">
             <div className="flex items-center gap-2.5">
@@ -566,7 +538,7 @@ export function StudentOnboardingPage() {
               <div>
                 <p className="font-bold">Student Profile Created!</p>
                 <p className="text-[11px] text-[#525A55]">
-                  Step 1 credentials are saved. You can continue filling your university & portfolio details or skip to your dashboard anytime.
+                  Your account name is saved. Continue adding education and portfolio details; those details reset on reload for now.
                 </p>
               </div>
             </div>
@@ -582,12 +554,16 @@ export function StudentOnboardingPage() {
 
         {/* Wizard Form Container */}
         <div className="peer-card-glass peer-card-glow-mint p-6 shadow-xl sm:p-10">
+          {currentStep === 6 && (
+            <p className="mb-6 rounded-xl border border-[#D8DDD7] bg-white/70 p-4 text-sm leading-relaxed text-[#525A55]">
+              Only your full name is saved to your account profile. Other onboarding details, including documents and verification selections, are temporary and reset on reload.
+            </p>
+          )}
           {currentStep === 1 && (
             <Step1BasicInfo
               data={formData.basicInfo}
               errors={errors}
               onChange={handleBasicInfoChange}
-              onGoogleSuccess={handleGoogleSuccess}
             />
           )}
 
@@ -635,28 +611,7 @@ export function StudentOnboardingPage() {
           )}
 
           {/* Form Actions (Back / Next / Skip / Submit) */}
-          <div className="mt-10 peer-divider-fade-t pt-6">
-            {Object.keys(errors).length > 0 && (
-              <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-red-50/90 border border-red-200 px-4 py-3 text-xs font-semibold text-red-700 shadow-2xs">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
-                  <span>
-                    Please complete the required fields highlighted in red above to continue.
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const firstErrorEl = document.querySelector('.border-red-500, p.text-red-600, input:invalid')
-                    firstErrorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                  }}
-                  className="shrink-0 text-[11px] font-bold text-red-600 underline hover:text-red-800"
-                >
-                  View missing field ↑
-                </button>
-              </div>
-            )}
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-10 flex flex-wrap items-center justify-between gap-3 peer-divider-fade-t pt-6">
             <div>
               {currentStep > 1 && (
                 <button
@@ -711,8 +666,146 @@ export function StudentOnboardingPage() {
             </div>
           </div>
         </div>
-        </div>
       </div>
     </div>
+  )
+}
+
+function StudentAccountStep() {
+  const auth = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [pendingConfirmation, setPendingConfirmation] = useState(false)
+  const [creatingProfile, setCreatingProfile] = useState(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+
+  const createAccount = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    if (password.length < 8) {
+      setError('Choose a password with at least 8 characters.')
+      return
+    }
+
+    setBusy(true)
+    try {
+      const result = await auth.signUp(email.trim(), password, 'student', '')
+      setPendingConfirmation(result.confirmationRequired)
+      if (result.confirmationRequired) {
+        setNotice('Check your email to confirm your account. This confirms email access only, not student status.')
+      } else {
+        setCreatingProfile(true)
+      }
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to create your account.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const continueWithGoogle = async () => {
+    setError('')
+    setBusy(true)
+    try {
+      await auth.signInWithGoogle('student')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to continue with Google.')
+      setBusy(false)
+    }
+  }
+
+  const resendConfirmation = async () => {
+    setError('')
+    setBusy(true)
+    try {
+      await auth.resendSignupConfirmation(email.trim())
+      setNotice('If this address has a pending account, a confirmation email is on its way.')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to resend the confirmation email.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (creatingProfile && auth.status === 'loading') {
+    return <LoadingState label="Preparing your student profile…" />
+  }
+
+  return (
+    <main className="peer-page-surface relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-4 py-12">
+      <div className="peer-ambient-glow peer-glow-gold -left-24 -top-24 h-96 w-96" />
+      <section className="peer-card-glass relative z-10 w-full max-w-lg space-y-5 p-7 shadow-xl sm:p-9">
+        <header className="text-center">
+          <div className="peer-eyebrow-pill mx-auto">STUDENT ACCOUNT</div>
+          <h1 className="mt-4 text-3xl font-black text-[#171916]">Start with your account</h1>
+          <p className="mt-2 text-sm leading-relaxed text-[#525A55]">
+            Create an account or continue with Google, then add your student profile details.
+          </p>
+        </header>
+
+        {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+        {notice && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-[#123D30]">{notice}</p>}
+
+        {!pendingConfirmation && (
+          <>
+            <button
+              type="button"
+              onClick={() => void continueWithGoogle()}
+              disabled={busy}
+              className="w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-semibold text-[#171916] hover:bg-[#FAF8F5] disabled:opacity-60"
+            >
+              Continue with Google
+            </button>
+            <div className="flex items-center gap-3 text-xs text-[#777A72]"><span className="h-px flex-1 bg-black/10" />or use email<span className="h-px flex-1 bg-black/10" /></div>
+            <form className="space-y-4" onSubmit={(event) => void createAccount(event)}>
+              <label className="block text-sm font-semibold text-[#171916]" htmlFor="student-account-email">
+                Email address
+                <input
+                  id="student-account-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#D8DDD7] bg-white px-3 py-2.5 font-normal"
+                />
+              </label>
+              <label className="block text-sm font-semibold text-[#171916]" htmlFor="student-account-password">
+                Password
+                <input
+                  id="student-account-password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#D8DDD7] bg-white px-3 py-2.5 font-normal"
+                />
+              </label>
+              <button type="submit" disabled={busy} className="w-full rounded-xl bg-[#123D30] px-4 py-3 text-sm font-bold text-white disabled:opacity-60">
+                {busy ? 'Creating account…' : 'Create student account'}
+              </button>
+            </form>
+          </>
+        )}
+
+        {pendingConfirmation && (
+          <button type="button" onClick={() => void resendConfirmation()} disabled={busy} className="w-full rounded-xl border border-[#123D30] px-4 py-3 text-sm font-semibold text-[#123D30] disabled:opacity-60">
+            Resend confirmation email
+          </button>
+        )}
+
+        <p className="text-center text-xs leading-relaxed text-[#777A72]">
+          Only your full name is saved to your account profile. Education, skills, and portfolio details are temporary and reset on reload.
+        </p>
+        <p className="text-center text-sm text-[#525A55]">
+          Already have an account? <Link to="/signin" className="font-bold text-[#087a59]">Sign in</Link>
+        </p>
+      </section>
+    </main>
   )
 }

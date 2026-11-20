@@ -8,7 +8,6 @@ export interface OnboardingBasicInfo {
   confirmPassword: string
   avatarUrl: string
   headline: string
-  isEmailVerified?: boolean
 }
 
 export interface OnboardingCollegeIdentity {
@@ -19,10 +18,7 @@ export interface OnboardingCollegeIdentity {
   graduationYear: string
   collegeEmail: string
   verificationMethod: 'college_email' | 'college_id'
-  otpCode: string
-  isEmailVerified: boolean
   idCardFileName: string | null
-  idVerificationStatus: 'unverified' | 'pending' | 'verified'
 }
 
 export interface OnboardingSkillsInterests {

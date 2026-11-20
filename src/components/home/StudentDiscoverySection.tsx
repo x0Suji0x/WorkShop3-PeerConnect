@@ -154,7 +154,7 @@ export function StudentDiscoverySection() {
           </div>
 
           <span className="text-xs text-[#777A72] hidden sm:inline-block font-mono">
-            Featured Student Profiles • Connect to Collaborate
+            Demo Student Profiles • Connect to Collaborate
           </span>
         </div>
 
@@ -250,7 +250,7 @@ export function StudentDiscoverySection() {
                       Featured Portfolio Project
                     </span>
                     <span className="text-[11px] font-mono text-[#08C58A] bg-[#E3F4EB] px-2 py-0.5 rounded-full font-bold">
-                      Verified Portfolio Work
+                      Demo student work
                     </span>
                   </div>
                   <h4 className="text-base sm:text-lg font-bold text-[#171916] leading-snug">

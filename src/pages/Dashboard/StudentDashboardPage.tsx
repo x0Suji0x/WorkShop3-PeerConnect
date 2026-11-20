@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react'
 import {
   ArrowRight,
-  Briefcase,
   BriefcaseBusiness,
   CheckCircle2,
   Eye,
@@ -10,7 +8,7 @@ import {
   Sparkles,
   UserRoundCheck,
 } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { profileRoute, routes } from '../../app/routes'
 import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
@@ -19,99 +17,53 @@ import { useStudentProfile } from '../../hooks/useStudentProfile'
 import { calculateProfileCompletion } from '../../lib/profileCompletion'
 import { dashboardNotifications, recommendedProjects } from '../../data/studentMockData'
 import { ClientDashboardView } from '../../components/dashboard/ClientDashboardView'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../../lib/auth/AuthProvider'
 
 export function StudentDashboardPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { user, isAuthenticated } = useAuth()
-  const roleParam = searchParams.get('role')
-  const [internalRole, setInternalRole] = useState<'student' | 'client' | null>(null)
-
-  const activeRole: 'student' | 'client' =
-    user?.role ?? internalRole ??
-    (roleParam === 'client'
-      ? 'client'
-      : roleParam === 'student'
-      ? 'student'
-      : (() => {
-          try {
-            return localStorage.getItem('peerconnect_active_role') === 'client' ? 'client' : 'student'
-          } catch {
-            return 'student'
-          }
-        })())
-
-  const switchToClient = () => {
-    setInternalRole('client')
-    setSearchParams({ role: 'client' })
-    try {
-      localStorage.setItem('peerconnect_active_role', 'client')
-    } catch {
-      // ignore
-    }
-  }
-
-  const switchToStudent = () => {
-    setInternalRole('student')
-    setSearchParams({ role: 'student' })
-    try {
-      localStorage.setItem('peerconnect_active_role', 'student')
-    } catch {
-      // ignore
-    }
-  }
+  const { profile } = useAuth()
+  const activeRole = profile?.role
 
   // If in Client Mode, render Client Dashboard View
   if (activeRole === 'client') {
-    return <ClientDashboardView onSwitchToStudent={switchToStudent} canSwitchRole={!isAuthenticated} />
+    return <ClientDashboardView />
   }
 
   // Otherwise render Student Dashboard
-  return <StudentDashboardContent onSwitchToClient={switchToClient} canSwitchRole={!isAuthenticated} />
+  return <StudentDashboardContent />
 }
 
-function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitchToClient: () => void; canSwitchRole: boolean }) {
-  const { student } = useStudentProfile()
-  const { user, token } = useAuth()
+function StudentDashboardContent() {
+  const { student, needsProfileCompletion } = useStudentProfile()
+
+  if (needsProfileCompletion) {
+    return (
+      <main className="peer-page-surface relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-4 py-12">
+        <div className="peer-ambient-glow peer-glow-gold -left-24 -top-24 h-96 w-96" />
+        <section className="peer-card-glass relative z-10 w-full max-w-2xl p-8 text-center sm:p-12">
+          <p className="peer-eyebrow-pill mx-auto">STUDENT DASHBOARD</p>
+          <h1 className="mt-5 text-3xl font-black text-[#171916]">
+            Let’s complete your profile, {student.name.split(' ')[0]}.
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#525A55]">
+            Add your education, skills, and work samples so project owners can understand what you bring to a team.
+          </p>
+          <Link to="/signup/student" className="mt-6 inline-flex rounded-full bg-[#123D30] px-6 py-3 text-sm font-bold text-white">
+            Complete your profile <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+          <p className="mt-5 text-xs text-[#777A72]">
+            Only your account name is saved to your profile. Other onboarding details are temporary and reset on reload.
+          </p>
+        </section>
+      </main>
+    )
+  }
+
   const completionReport = calculateProfileCompletion(student)
   const firstName = student.name.split(' ')[0]
-  const [applicationSummary, setApplicationSummary] = useState<{ total: number; awaiting: number } | null>(null)
-  const lastSignIn = user?.lastLoginAt
-    ? new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(user.lastLoginAt))
-    : null
-
-  useEffect(() => {
-    if (user?.role !== 'student' || !token) return
-
-    let isMounted = true
-    fetch('/api/applications', { headers: { Authorization: `Bearer ${token}` } })
-      .then(async (response) => {
-        if (!response.ok) return
-        const data = (await response.json()) as { applications?: Array<{ status?: string }> }
-        if (!isMounted || !Array.isArray(data.applications)) return
-        setApplicationSummary({
-          total: data.applications.length,
-          awaiting: data.applications.filter((application) => application.status === 'submitted').length,
-        })
-      })
-      .catch(() => {
-        // The dashboard retains saved profile data if the local API is offline.
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [token, user?.role])
-
   const stats = [
     { label: 'Projects completed', value: student.projectsCompleted, icon: CheckCircle2, detail: 'Across paid and campus work' },
     { label: 'Active projects', value: student.activeProjects, icon: BriefcaseBusiness, detail: 'In progress right now' },
-    {
-      label: 'Applications sent',
-      value: applicationSummary?.total ?? student.applicationsSent,
-      icon: FileText,
-      detail: applicationSummary ? `${applicationSummary.awaiting} awaiting a response` : 'Application activity',
-    },
+    { label: 'Applications sent', value: student.applicationsSent, icon: FileText, detail: '2 awaiting a response' },
     { label: 'Profile views', value: student.profileViews, icon: Eye, detail: 'In the last 30 days' },
   ]
   const pendingVerificationsCount = student.verifications.filter((v) => v.status === 'pending').length
@@ -143,20 +95,12 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
             </span>
           </div>
 
-          {canSwitchRole && <button
-            type="button"
-            onClick={onSwitchToClient}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
-          >
-            <Briefcase className="h-3.5 w-3.5 text-[#08C58A]" />
-            Switch to Employer View
-          </button>}
         </div>
 
         <PageHeading
           eyebrow="Student dashboard"
           title={`Good to see you, ${firstName}.`}
-          description={lastSignIn ? `Last signed in ${lastSignIn}.` : 'A focused view of your profile, opportunities, and collaboration activity.'}
+          description="A focused view of your profile, opportunities, and collaboration activity."
           actions={
             <Link to={profileRoute(student.id)}>
               <Button size="sm">View profile <ArrowRight className="h-3.5 w-3.5" /></Button>
@@ -186,7 +130,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <ShieldCheck className="h-4 w-4 text-[#08A876]" />
                 <p className="mt-3 text-sm font-bold text-[#171916]">Verification</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} verification items pending</p>
+                <p className="mt-1 text-xs leading-relaxed text-[#777A72]">{pendingVerificationsCount} demo status placeholders</p>
               </div>
               <div className="rounded-2xl border border-[rgba(91,112,96,0.18)] bg-white/70 p-4 backdrop-blur-xs">
                 <UserRoundCheck className="h-4 w-4 text-[#08A876]" />
@@ -195,7 +139,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
               </div>
               <Link to={routes.verification} className="rounded-2xl bg-[#123D30] p-4 text-white transition hover:bg-[#0E3127] shadow-xs">
                 <p className="text-sm font-bold">Strengthen trust</p>
-                <p className="mt-1 text-xs leading-relaxed text-emerald-100/75">Review verification status <ArrowRight className="inline h-3 w-3" /></p>
+                <p className="mt-1 text-xs leading-relaxed text-emerald-100/75">Review demo verification states <ArrowRight className="inline h-3 w-3" /></p>
               </Link>
             </div>
           </div>
@@ -206,7 +150,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9A6A24]">Student Plus</p>
             </div>
             <h2 className="mt-2 text-xl font-black text-[#171916]">Be easier to discover.</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[#777A72]">Premium membership for priority placement, verified badges, and actionable profile analytics.</p>
+            <p className="mt-2 text-sm leading-relaxed text-[#777A72]">A proposed ₹99/month plan for a more visible profile and practical insight into opportunity interest.</p>
             <ul className="mt-5 space-y-2.5 text-sm text-[#171916]">
               {['Featured profile placement', 'Plus profile badge', 'Profile-view analytics', 'Project-interest analytics'].map((benefit) => (
                 <li key={benefit} className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#08C58A]" />{benefit}</li>
@@ -214,11 +158,11 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
             </ul>
             <Link to={routes.studentPlus} className="mt-6 block">
               <Button variant="dark" className="w-full">
-                {student.isPlusMember ? 'Manage Student Plus' : 'Upgrade to Student Plus · ₹99/month'}
+                {student.isPlusMember ? 'Manage Student Plus' : 'Try Student Plus demo · ₹99/month'}
               </Button>
             </Link>
             <p className="mt-2 text-center text-[11px] text-[#777A72]">
-              {student.isPlusMember ? 'Active membership benefits enabled.' : 'Cancel anytime. 100% money-back student guarantee.'}
+              {student.isPlusMember ? 'Demo access is active for this session.' : 'Demo interface only — no payment is collected.'}
             </p>
           </div>
         </section>
@@ -247,7 +191,7 @@ function StudentDashboardContent({ onSwitchToClient, canSwitchRole }: { onSwitch
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-lg font-black text-[#171916]">Recommended for you</p>
-                <p className="mt-0.5 text-sm text-[#777A72]">Based on your skills and interests</p>
+                <p className="mt-0.5 text-sm text-[#777A72]">Based on your demo skills and interests</p>
               </div>
               <Link to={routes.projects} className="text-sm font-bold text-[#123D30] hover:text-[#08A876]">Browse all</Link>
             </div>

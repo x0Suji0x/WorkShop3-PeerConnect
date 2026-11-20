@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Menu, X, LogOut } from 'lucide-react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X } from 'lucide-react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { routes, communityRoutes, authRoutes } from '../../app/routes'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../../lib/auth/AuthProvider'
 
 const homeLinks = [
   { label: 'Projects', to: routes.projects },
@@ -13,18 +13,12 @@ const homeLinks = [
 ]
 
 export function Navbar() {
+  const { user, profile, signOut } = useAuth()
+  const isAuthenticated = Boolean(user)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { pathname } = useLocation()
-  const navigate = useNavigate()
-  const { user, isAuthenticated, logout } = useAuth()
   const isHome = pathname === routes.home
   const closeMenu = () => setMobileMenuOpen(false)
-
-  const handleLogout = () => {
-    logout()
-    closeMenu()
-    navigate(routes.home)
-  }
 
   const [overHero, setOverHero] = useState(true)
   useEffect(() => {
@@ -76,41 +70,11 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
-              <Link
-                to={`${routes.dashboard}?role=${user.role}`}
-                className="flex items-center gap-2.5 rounded-full border border-[#E2E8F0] bg-white py-1.5 pl-2 pr-3.5 shadow-2xs transition-all hover:border-[#CBD5E1] hover:bg-[#F8FAFC]"
-                title="View your dashboard"
-              >
-                <img
-                  src={user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-                  alt={user.fullName}
-                  className="h-7 w-7 rounded-full object-cover border border-[#E2E8F0]"
-                />
-                <span className="text-xs font-semibold text-[#171916]">
-                  {user.fullName?.split(' ')[0] || user.fullName}
-                </span>
-                <span className="rounded-full bg-[#E3F4EB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#123D30]">
-                  {user.role}
-                </span>
-              </Link>
-              <Link
-                to={`${routes.dashboard}?role=${user.role}`}
-                className="rounded-full bg-[#08C58A] px-4 py-2 text-sm font-semibold text-[#0A261D] shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all hover:bg-[#07b27c]"
-              >
-                Dashboard
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 rounded-full border border-[#E2E8F0] px-3 py-2 text-xs font-medium text-[#64748B] transition-colors hover:border-[#CBD5E1] hover:bg-white hover:text-[#DC2626]"
-                title="Log out of account"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span>Log out</span>
-              </button>
-            </div>
+          {isAuthenticated ? (
+            <>
+              <Link to={routes.dashboard} className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D]">Dashboard</Link>
+              <button type="button" onClick={() => void signOut()} className="rounded-full border border-[#CBD5E1] px-5 py-2 text-sm font-medium">Sign out</button>
+            </>
           ) : (
             <>
               <Link
@@ -120,7 +84,7 @@ export function Navbar() {
                 Sign In
               </Link>
               <Link
-                to={authRoutes.signup}
+                to={routes.getStarted}
                 className="rounded-full bg-[#08C58A] px-5 py-2 text-sm font-semibold text-[#0A261D] shadow-[0_2px_10px_rgba(8,197,138,0.25)] transition-all hover:bg-[#07b27c]"
               >
                 Get Started
@@ -130,23 +94,11 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          {isAuthenticated && user ? (
-            <Link
-              to={`${routes.dashboard}?role=${user.role}`}
-              onClick={closeMenu}
-              className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <Link
-              to={isHome ? authRoutes.signup : authRoutes.signin}
-              onClick={closeMenu}
-              className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
-            >
-              {isHome ? 'Get Started' : 'Sign In'}
-            </Link>
-          )}
+          <Link to={isAuthenticated ? routes.dashboard : routes.getStarted} onClick={closeMenu}
+            className="rounded-full bg-[#08C58A] px-3 py-1.5 text-xs font-semibold text-[#0A261D]"
+          >
+            {isAuthenticated ? 'Dashboard' : 'Get Started'}
+          </Link>
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
@@ -162,56 +114,45 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="peer-divider-fade bg-[#FAF8F5]/98 px-4 pb-6 pt-3 shadow-lg backdrop-blur-lg lg:hidden">
           <nav className="flex flex-col gap-1 text-base font-semibold text-[#171916]">
-            {homeLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `rounded-xl px-3 py-2.5 ${isActive ? 'bg-[#E3F4EB] text-[#123D30]' : 'hover:bg-white'}`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
-          <div className="mt-3 peer-divider-fade-t pt-3 flex flex-col gap-2">
-            {isAuthenticated && user ? (
-              <>
-                <Link
-                  to={`${routes.dashboard}?role=${user.role}`}
-                  onClick={closeMenu}
-                  className="block rounded-full bg-[#08C58A] py-2.5 text-center text-sm font-semibold text-[#0A261D]"
-                >
-                  My dashboard ({user.fullName})
+            {isHome ? (
+              homeLinks.map((link) => (
+                <Link key={link.to} to={link.to} onClick={closeMenu} className="rounded-xl px-3 py-2.5 text-left hover:bg-white">
+                  {link.label}
                 </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 rounded-full border border-[#CBD5E1] bg-white py-2 text-center text-sm font-medium text-[#DC2626]"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Log out
-                </button>
-              </>
+              ))
             ) : (
-              <>
-                <Link
-                  to={authRoutes.signin}
+              homeLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
                   onClick={closeMenu}
-                  className="block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]"
+                  className={({ isActive }) =>
+                    `rounded-xl px-3 py-2.5 ${isActive ? 'bg-[#E3F4EB] text-[#123D30]' : 'hover:bg-white'}`
+                  }
                 >
-                  Sign In
-                </Link>
-                <Link
-                  to={authRoutes.signup}
-                  onClick={closeMenu}
-                  className="block rounded-full bg-[#08C58A] py-2.5 text-center text-sm font-semibold text-[#0A261D]"
-                >
-                  Get Started
-                </Link>
-              </>
+                  {link.label}
+                </NavLink>
+              ))
             )}
+          </nav>
+          <div className="mt-3 peer-divider-fade-t pt-3">
+            {isAuthenticated ? <button type="button" onClick={() => { closeMenu(); void signOut() }} className="mb-2 block w-full rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]">Sign out{profile?.full_name ? ` · ${profile.full_name}` : ''}</button> : null}
+            {!isAuthenticated && (
+              <Link
+                to={authRoutes.signin}
+                onClick={closeMenu}
+                className="mb-2 block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]"
+              >
+                Sign in
+              </Link>
+            )}
+            <Link
+              to={isAuthenticated ? routes.dashboard : routes.getStarted}
+              onClick={closeMenu}
+              className="block rounded-full border border-[#CBD5E1] bg-white py-2.5 text-center text-sm font-medium text-[#171916]"
+            >
+              {isAuthenticated ? 'Open dashboard' : 'Get Started'}
+            </Link>
           </div>
         </div>
       )}

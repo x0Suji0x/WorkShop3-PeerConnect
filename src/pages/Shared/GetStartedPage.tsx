@@ -6,7 +6,7 @@ const paths = [
   {
     title: 'I’m looking for work',
     description:
-      'Find projects that fit your skills, meet collaborators, and turn your work into experience you can show.',
+      'Browse projects that fit your skills, meet collaborators, and find work you can build into experience.',
     details: ['Explore scoped projects', 'Showcase your skills', 'Build with a team'],
     action: 'Browse projects',
     to: routes.projects,
@@ -16,7 +16,7 @@ const paths = [
   {
     title: 'I’m hiring for work',
     description:
-      'Review student profiles, compare skills and portfolios, and choose the people who fit your work.',
+      'Browse student profiles, compare skills and portfolios, and choose applicants who fit your project.',
     details: ['Browse student applicants', 'Compare skills and work', 'Choose your best fit'],
     action: 'Choose an applicant',
     to: routes.profiles,

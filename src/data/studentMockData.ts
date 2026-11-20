@@ -102,46 +102,46 @@ export const demoStudent: Student = {
     {
       id: 'verification-college',
       type: 'college_identity',
-      status: 'verified',
+      status: 'unverified',
       label: 'Institutional Email',
-      description: 'Official campus email verified via institutional single sign-on.',
+      description: 'Illustrative sample status only; no campus identity check is performed.',
     },
     {
       id: 'verification-phone',
       type: 'phone_number',
-      status: 'verified',
+      status: 'unverified',
       label: 'Phone number',
-      description: 'Mobile phone identity verified via one-time SMS passkey.',
+      description: 'Illustrative sample status only; no phone identity check is performed.',
     },
     {
       id: 'verification-experience',
       type: 'experience',
-      status: 'verified',
+      status: 'unverified',
       label: 'Experience',
-      description: 'Prior project history and client reviews confirmed.',
+      description: 'Sample profile data only; project history and reviews are not confirmed.',
     },
     {
       id: 'verification-skills',
       type: 'skills',
-      status: 'verified',
+      status: 'unverified',
       label: 'Skills',
-      description: 'Demonstrated skill assessments and code repository reviews.',
+      description: 'Sample profile data only; no skill assessment or repository review is performed.',
     },
     {
       id: 'verification-portfolio',
       type: 'portfolio_ownership',
       status: 'verified',
       label: 'Portfolio ownership',
-      description: 'GitHub and Figma portfolio ownership verified.',
+      description: 'Illustrative sample status only; portfolio ownership is not checked.',
     },
   ],
   isPlusMember: false,
 }
 
 export const dashboardNotifications = [
-  { id: 'n1', title: 'Your profile appeared in 18 searches this week', time: '2 hours ago', kind: 'insight' },
-  { id: 'n2', title: 'New opportunity matches your React and Figma skills', time: 'Yesterday', kind: 'opportunity' },
-  { id: 'n3', title: 'Complete your verification details to strengthen your profile', time: '2 days ago', kind: 'verification' },
+  { id: 'n1', title: 'Your profile appeared in 18 sample searches this week', time: '2 hours ago', kind: 'insight' },
+  { id: 'n2', title: 'A sample opportunity matches your React and Figma skills', time: 'Yesterday', kind: 'opportunity' },
+  { id: 'n3', title: 'Verification features are demo placeholders', time: '2 days ago', kind: 'verification' },
 ]
 
 export const recommendedProjects = [

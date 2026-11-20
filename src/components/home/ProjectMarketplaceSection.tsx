@@ -247,8 +247,7 @@ export function ProjectMarketplaceSection() {
           <div ref={rosterRef} className="space-y-4">
             {filteredProjects.map((project) => {
               const isApplied = appliedProjects[project.id]
-              const displayBadge =
-                project.badge === 'Verified Client' ? 'Active Brief' : project.badge
+              const displayBadge = project.badge
 
               return (
                 <div
@@ -374,7 +373,7 @@ export function ProjectMarketplaceSection() {
 
                       <span className="hidden lg:flex items-center gap-1 text-[11px] text-[#777A72]">
                         <Sparkles className="w-3 h-3 text-[#08C58A]" />
-                        <span>Verified Brief • Direct Collaboration</span>
+                        <span>Sample Brief • Direct Collaboration</span>
                       </span>
                     </div>
                   </div>

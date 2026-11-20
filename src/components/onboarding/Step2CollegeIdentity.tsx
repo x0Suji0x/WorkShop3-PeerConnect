@@ -106,12 +106,6 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
     data.fieldOfStudy && !BRANCH_OPTIONS.includes(data.fieldOfStudy) ? data.fieldOfStudy : ''
   )
 
-  // OTP verification state
-  const [isSendingOtp, setIsSendingOtp] = useState(false)
-  const [otpSent, setOtpSent] = useState(false)
-  const [otpValue, setOtpValue] = useState(data.otpCode || '')
-  const [otpError, setOtpError] = useState('')
-
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Filter colleges from mockColleges (from collegeData.ts)
@@ -147,7 +141,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
   // Email format validation (.edu or .ac.in requirement)
   const validateCollegeEmail = (email: string): { valid: boolean; reason?: string } => {
     const trimmed = email.trim().toLowerCase()
-    if (!trimmed) return { valid: false, reason: 'College email is required for verification' }
+    if (!trimmed) return { valid: false, reason: 'College email is required for this demo step.' }
     const parts = trimmed.split('@')
     if (parts.length !== 2 || !parts[0] || !parts[1]) {
       return { valid: false, reason: 'Please enter a valid email address' }
@@ -156,7 +150,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
     if (PERSONAL_EMAIL_DOMAINS.includes(domain)) {
       return {
         valid: false,
-        reason: `Personal email (@${domain}) cannot be verified as an institutional email. Must end in .edu or .ac.in.`,
+        reason: `Personal email (@${domain}) is not a college-style address. Use an institutional address for this demo form.`,
       }
     }
     const isEdu =
@@ -182,11 +176,6 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
 
   const handleCollegeEmailInput = (val: string) => {
     onChange('collegeEmail', val)
-    const validEdu = validateCollegeEmail(val).valid
-    onChange('isEmailVerified', validEdu)
-    if (validEdu) {
-      onChange('idVerificationStatus', 'verified')
-    }
   }
 
   const handleSelectCollege = (college: College) => {
@@ -223,35 +212,10 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
     }
   }
 
-  const handleSendOtp = () => {
-    if (!emailValidation.valid) return
-    setIsSendingOtp(true)
-    setTimeout(() => {
-      setIsSendingOtp(false)
-      setOtpSent(true)
-      setOtpValue('482910')
-      onChange('otpCode', '482910')
-    }, 500)
-  }
-
-  const handleVerifyOtp = () => {
-    if (otpValue === '482910' || otpValue.length === 6) {
-      onChange('isEmailVerified', true)
-      onChange('idVerificationStatus', 'verified')
-      setOtpError('')
-    } else {
-      setOtpError('Invalid verification code. Please check your email inbox.')
-    }
-  }
-
   const handleSimulateIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       onChange('idCardFileName', file.name)
-      onChange('idVerificationStatus', 'pending')
-    } else {
-      onChange('idCardFileName', 'student_id_card_front.jpg')
-      onChange('idVerificationStatus', 'pending')
     }
   }
 
@@ -354,7 +318,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
             <p className="mt-1 text-xs text-red-600 font-medium">{errors.collegeName}</p>
           )}
 
-          {/* Verified Partner Badge */}
+          {/* Listed college directory entry (not a verification badge). */}
           {matchedCollege && !isManualCollege && (
             <div className="mt-2 flex items-center justify-between rounded-xl bg-[#E3F4EB]/60 p-2.5 text-xs text-[#123D30] border border-[#08C58A]/30">
               <div className="flex items-center gap-2">
@@ -364,7 +328,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
                 </span>
               </div>
               <Badge variant="green" size="sm">
-                Verified Partner Institution
+                  Listed in demo directory
               </Badge>
             </div>
           )}
@@ -573,9 +537,9 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
       {/* College Identity Verification Card */}
       <div className="rounded-3xl border border-[#E7E8E1] bg-white p-6 shadow-2xs space-y-4">
         <div>
-          <h3 className="text-sm font-bold text-[#171916]">Campus Identity Verification</h3>
+          <h3 className="text-sm font-bold text-[#171916]">Campus details and demo states</h3>
           <p className="text-xs text-[#777A72]">
-            Verify enrollment via your .edu / .ac.in institutional email or college ID upload
+            Add college details or view simulated verification states. No checks or emails are performed in this demo.
           </p>
         </div>
 
@@ -595,7 +559,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
               <span className="text-xs font-bold text-[#171916]">Option A: College Email</span>
             </div>
             <p className="mt-1 text-[11px] text-[#777A72]">
-              Instant OTP verification with official .edu or .ac.in email
+              Simulated code only; no email is sent or checked
             </p>
           </button>
 
@@ -628,11 +592,11 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
               {isEduDomain ? (
                 <span className="flex items-center gap-1 text-xs font-bold text-[#08A876]">
                   <CheckCircle2 className="h-4 w-4" />
-                  <span>{data.collegeEmail}</span> ✓ Verified
+                  <span>College-style format</span>
                 </span>
               ) : (
                 <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                  No verified tick (Needs .edu / .ac.in)
+                  Format not recognized
                 </span>
               )}
             </div>
@@ -653,75 +617,28 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2">
                 {isEduDomain ? (
-                  <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
-                    <Check className="h-3 w-3 text-[#08A876]" /> Verified
-                  </Badge>
+                  <span className="rounded-md bg-[#E3F4EB] px-2 py-1 text-[10px] font-bold text-[#176B4C]">Format match</span>
                 ) : (
-                  <button
-                    type="button"
-                    disabled={!emailValidation.valid || isSendingOtp}
-                    onClick={handleSendOtp}
-                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                      emailValidation.valid
-                        ? 'bg-[#123D30] text-white hover:bg-[#0E3127]'
-                        : 'bg-gray-100 text-[#777A72] opacity-60 cursor-not-allowed'
-                    }`}
-                  >
-                    {isSendingOtp ? 'Sending...' : 'Send OTP'}
-                  </button>
+                  <span className="rounded-md bg-white px-2 py-1 text-[10px] font-semibold text-[#777A72]">Optional</span>
                 )}
               </div>
             </div>
 
-            {/* Error message */}
-            {!data.isEmailVerified && !emailValidation.valid && data.collegeEmail.length > 4 && (
+            {data.collegeEmail.length > 4 && !emailValidation.valid && (
               <p className="text-xs text-red-600 font-medium">{emailValidation.reason}</p>
             )}
-
-            {/* OTP Form */}
-            {otpSent && !data.isEmailVerified && (
-              <div className="rounded-xl border border-[#08C58A]/30 bg-white p-3 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#123D30]">Enter 6-digit verification code:</span>
-                  <span className="text-[11px] text-[#08A876] font-semibold">
-                    Code sent to campus email
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    maxLength={6}
-                    value={otpValue}
-                    onChange={(e) => setOtpValue(e.target.value)}
-                    className="w-32 rounded-lg border border-[#E7E8E1] p-1.5 text-center font-mono text-xs font-bold tracking-widest outline-none focus:border-[#08C58A]"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerifyOtp}
-                    className="rounded-lg bg-[#08C58A] px-3 py-1.5 text-xs font-bold text-[#123D30]"
-                  >
-                    Confirm OTP
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOtpValue('482910')}
-                    className="text-[11px] text-[#525A55] underline hover:text-[#171916]"
-                  >
-                    Auto-fill
-                  </button>
-                </div>
-                {otpError && <p className="text-xs text-red-600 font-medium">{otpError}</p>}
-              </div>
-            )}
+            <p className="text-[11px] leading-relaxed text-[#777A72]">
+              The address format is only a hint. No email is sent and no student identity or enrollment is checked.
+            </p>
           </div>
         ) : (
           /* Method B: College ID Card Upload */
           <div className="rounded-2xl border border-dashed border-[#E7E8E1] bg-[#FAF8F5] p-5 text-center space-y-3">
             <UploadCloud className="mx-auto h-8 w-8 text-[#08C58A]" />
             <div>
-              <p className="text-xs font-bold text-[#171916]">Upload Student ID Card Document</p>
+              <p className="text-xs font-bold text-[#171916]">Choose a student ID file (optional)</p>
               <p className="mt-0.5 text-[11px] text-[#777A72]">
-                Supports JPG, PNG, or PDF of your university ID card
+                Supports JPG, PNG, or PDF. The file stays in this form and is not uploaded or reviewed.
               </p>
             </div>
             <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#123D30] px-4 py-2 text-xs font-bold text-white hover:bg-[#0E3127]">
@@ -737,9 +654,7 @@ export function Step2CollegeIdentity({ data, errors, onChange }: Step2CollegeIde
             {data.idCardFileName && (
               <div className="flex items-center justify-center gap-2 rounded-xl bg-amber-50 p-2 text-xs text-amber-900 border border-amber-200">
                 <Clock className="h-3.5 w-3.5 text-amber-600" />
-                <span>
-                  <strong>Uploaded:</strong> {data.idCardFileName} (Pending verification review)
-                </span>
+                <span><strong>Selected:</strong> {data.idCardFileName} (demo only; no review occurs)</span>
               </div>
             )}
           </div>

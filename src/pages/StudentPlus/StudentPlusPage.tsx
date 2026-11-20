@@ -16,23 +16,24 @@ import { Card } from '../../components/common/Card'
 import { PageHeading } from '../../components/common/PageHeading'
 import { studentPlusAnalyticsPreview, studentPlusPlan } from '../../data/studentPlusMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
+import type { PaymentMethod } from '../../types'
 
 const paymentMethods = [
-  { id: 'upi' as const, label: 'UPI', detail: 'Google Pay, PhonePe, Paytm, BHIM', icon: Landmark },
-  { id: 'card' as const, label: 'Credit / Debit Card', detail: 'Visa, Mastercard, RuPay', icon: CreditCard },
+  { id: 'upi' as const, label: 'UPI', detail: 'Use a virtual UPI handle for this demo.', icon: Landmark },
+  { id: 'card' as const, label: 'Card', detail: 'Uses a non-chargeable demo card.', icon: CreditCard },
 ]
 
 export function StudentPlusPage() {
   const { student, updateStudent } = useStudentProfile()
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi')
   const [isActivating, setIsActivating] = useState(false)
   const [activationComplete, setActivationComplete] = useState(false)
 
-  const activateMembership = async () => {
+  const activateDemo = async () => {
     setIsActivating(true)
 
     try {
-      await new Promise((resolve) => window.setTimeout(resolve, 600))
+      await new Promise((resolve) => window.setTimeout(resolve, 500))
       await updateStudent({ isPlusMember: true })
       setActivationComplete(true)
     } finally {
@@ -40,7 +41,7 @@ export function StudentPlusPage() {
     }
   }
 
-  const cancelMembership = async () => {
+  const resetDemo = async () => {
     await updateStudent({ isPlusMember: false })
     setActivationComplete(false)
   }
@@ -52,13 +53,11 @@ export function StudentPlusPage() {
 
       <div className="relative mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <PageHeading
-          eyebrow="Student Plus Membership"
-          title={student.isPlusMember ? 'Your Student Plus Membership is Active.' : 'Be easier to discover.'}
-          description={
-            student.isPlusMember
-              ? 'Explore priority placement, custom branding, and profile analytics included with your membership.'
-              : 'Stand out to hiring clients, startups, and hackathon teams with verified credentials and top-tier talent discovery.'
-          }
+          eyebrow="Student Plus · demo"
+          title={student.isPlusMember ? 'Your Student Plus demo is active.' : 'Be easier to discover.'}
+          description={student.isPlusMember
+            ? 'Explore the visibility and analytics preview included with Student Plus.'
+            : 'Try the proposed Student Plus experience. This is a frontend demo: no real payment, account, or renewal is created.'}
           actions={
             <Link to={routes.dashboard}>
               <Button variant="secondary" size="sm">Back to dashboard</Button>
@@ -67,18 +66,18 @@ export function StudentPlusPage() {
         />
 
         {student.isPlusMember ? (
-          <ActiveMembership onCancel={cancelMembership} activationComplete={activationComplete} />
+          <ActiveMembership onReset={resetDemo} activationComplete={activationComplete} />
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
             <section className="lg:col-span-7">
               <Card variant="editorial" padding="lg" className="relative overflow-hidden">
                 <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-[#08C58A]/10 blur-3xl" aria-hidden="true" />
                 <div className="relative">
-                  <Badge variant="green" className="font-bold">PRO MEMBERSHIP</Badge>
+                  <Badge variant="peach" className="font-bold">PROPOSED PLAN</Badge>
                   <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
                     <div>
                       <h2 className="text-2xl font-black tracking-tight text-[#171916]">{studentPlusPlan.name}</h2>
-                      <p className="mt-1 text-sm text-[#777A72]">For students building a serious, verified professional presence.</p>
+                      <p className="mt-1 text-sm text-[#777A72]">For students building a more visible professional presence.</p>
                     </div>
                     <p className="font-mono text-3xl font-black text-[#171916]">
                       ₹{studentPlusPlan.price}<span className="font-sans text-sm font-semibold text-[#777A72]">/{studentPlusPlan.billingInterval}</span>
@@ -88,7 +87,7 @@ export function StudentPlusPage() {
                   <ul className="mt-7 space-y-4 border-t border-[#E7E8E1] pt-6">
                     {studentPlusPlan.benefits.map((benefit) => (
                       <li key={benefit} className="flex gap-3 text-sm leading-relaxed text-[#171916]">
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#08C58A]" aria-hidden="true" />
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#08A876]" aria-hidden="true" />
                         {benefit}
                       </li>
                     ))}
@@ -102,10 +101,8 @@ export function StudentPlusPage() {
                     <ShieldCheck className="h-5 w-5" />
                   </span>
                   <div>
-                    <h2 className="font-bold text-[#171916]">100% Student Guarantee</h2>
-                    <p className="mt-1 text-sm leading-relaxed text-[#777A72]">
-                      Zero lock-in. Cancel anytime with a single click right from your account dashboard. Full 14-day refund policy if you don't land relevant project views.
-                    </p>
+                    <h2 className="font-bold text-[#171916]">What this demo does</h2>
+                    <p className="mt-1 text-sm leading-relaxed text-[#777A72]">It temporarily adds Plus access to this browser session so you can review the member state. No payment information is collected, saved, or sent anywhere.</p>
                   </div>
                 </div>
               </Card>
@@ -115,23 +112,23 @@ export function StudentPlusPage() {
               <Card padding="lg" className="h-full">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Instant Activation</p>
-                    <h2 id="checkout-title" className="mt-2 text-xl font-black text-[#171916]">Select Payment Method</h2>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Checkout preview</p>
+                    <h2 id="checkout-title" className="mt-2 text-xl font-black text-[#171916]">Activate demo access</h2>
                   </div>
-                  <Badge variant="green" size="sm">First Month Free</Badge>
+                  <Badge variant="neutral" size="sm">No charge</Badge>
                 </div>
 
                 <fieldset className="mt-6 space-y-3">
-                  <legend className="text-sm font-bold text-[#171916]">Payment Option</legend>
+                  <legend className="text-sm font-bold text-[#171916]">Choose a payment method</legend>
                   {paymentMethods.map(({ id, label, detail, icon: Icon }) => {
                     const checked = paymentMethod === id
 
                     return (
                       <label key={id} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition ${checked ? 'border-[#08C58A] bg-[#E3F4EB]/45' : 'border-[#E7E8E1] bg-white hover:border-[#08C58A]/50'}`}>
-                        <input type="radio" name="payment-method" value={id} checked={checked} onChange={() => setPaymentMethod(id)} className="h-4 w-4 accent-[#08A876]" />
+                        <input type="radio" name="demo-payment-method" value={id} checked={checked} onChange={() => setPaymentMethod(id)} className="h-4 w-4 accent-[#08A876]" />
                         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-[#123D30] shadow-2xs"><Icon className="h-4 w-4" /></span>
                         <span>
-                          <span className="block text-sm font-bold text-[#171916]">{label}</span>
+                          <span className="block text-sm font-bold text-[#171916]">{label} · demo</span>
                           <span className="mt-0.5 block text-xs text-[#777A72]">{detail}</span>
                         </span>
                       </label>
@@ -140,16 +137,15 @@ export function StudentPlusPage() {
                 </fieldset>
 
                 <div className="mt-6 rounded-2xl bg-[#F7F6F0] p-4 text-sm">
-                  <div className="flex items-center justify-between gap-4 text-[#777A72]"><span>Student Plus Membership</span><span>₹{studentPlusPlan.price}.00</span></div>
-                  <div className="mt-1 flex items-center justify-between gap-4 text-xs text-[#08A876] font-semibold"><span>Student Promo Discount</span><span>-₹{studentPlusPlan.price}.00</span></div>
-                  <div className="mt-3 flex items-center justify-between border-t border-[#E7E8E1] pt-3 font-bold text-[#171916]"><span>Amount Due Today</span><span>₹0.00</span></div>
-                  <p className="mt-2 text-xs leading-relaxed text-[#777A72]">First month trial included. You can manage or cancel your renewal at any time.</p>
+                  <div className="flex items-center justify-between gap-4 text-[#777A72]"><span>Student Plus</span><span>₹{studentPlusPlan.price}.00</span></div>
+                  <div className="mt-3 flex items-center justify-between border-t border-[#E7E8E1] pt-3 font-bold text-[#171916]"><span>Amount due today</span><span>₹0.00</span></div>
+                  <p className="mt-2 text-xs leading-relaxed text-[#777A72]">The ₹{studentPlusPlan.price}/month price is shown for product testing only. This demo never starts billing.</p>
                 </div>
 
-                <Button type="button" onClick={() => void activateMembership()} disabled={isActivating} className="mt-6 w-full">
-                  {isActivating ? 'Activating membership…' : 'Activate Student Plus'}
+                <Button type="button" onClick={() => void activateDemo()} disabled={isActivating} className="mt-6 w-full">
+                  {isActivating ? 'Activating demo access…' : 'Complete demo checkout'}
                 </Button>
-                <p className="mt-3 text-center text-xs leading-relaxed text-[#777A72]">Encrypted 256-bit checkout · Trusted by students nationwide</p>
+                <p className="mt-3 text-center text-xs leading-relaxed text-[#777A72]">By continuing, you are only changing local demo state for this session.</p>
               </Card>
             </section>
           </div>
@@ -159,7 +155,7 @@ export function StudentPlusPage() {
   )
 }
 
-function ActiveMembership({ onCancel, activationComplete }: { onCancel: () => Promise<void>; activationComplete: boolean }) {
+function ActiveMembership({ onReset, activationComplete }: { onReset: () => Promise<void>; activationComplete: boolean }) {
   return (
     <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
       <section className="lg:col-span-7">
@@ -169,11 +165,9 @@ function ActiveMembership({ onCancel, activationComplete }: { onCancel: () => Pr
               <CheckCircle2 className="h-6 w-6" />
             </span>
             <div>
-              <Badge variant="green" className="font-bold">STUDENT PLUS MEMBER</Badge>
-              <h2 className="mt-3 text-2xl font-black tracking-tight text-[#171916]">Your profile has Plus priority visibility.</h2>
-              <p className="mt-2 text-sm leading-relaxed text-[#777A72]">
-                {activationComplete ? 'Membership successfully activated!' : 'Your membership is active and in good standing.'} Your verified Plus badge is displayed across all marketplace and search listings.
-              </p>
+              <Badge variant="green" className="font-bold">STUDENT PLUS ACTIVE · DEMO</Badge>
+              <h2 className="mt-3 text-2xl font-black tracking-tight text-[#171916]">Your profile now has Plus visibility.</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[#777A72]">{activationComplete ? 'Demo checkout completed successfully.' : 'This membership state is active from a previous demo action.'} Your Plus badge is now visible on the demo profile.</p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-3 border-t border-[#E7E8E1] pt-6 sm:grid-cols-2">
@@ -185,7 +179,7 @@ function ActiveMembership({ onCancel, activationComplete }: { onCancel: () => Pr
 
       <section className="lg:col-span-5">
         <Card padding="lg" className="h-full">
-          <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-[#08A876]" /><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Profile Performance Analytics</p></div>
+          <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-[#08A876]" /><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Analytics preview</p></div>
           <div className="mt-5 space-y-4">
             {studentPlusAnalyticsPreview.map((metric, index) => {
               const Icon = [Eye, UserRoundCheck, Sparkles][index]
@@ -198,7 +192,7 @@ function ActiveMembership({ onCancel, activationComplete }: { onCancel: () => Pr
               )
             })}
           </div>
-          <Button variant="ghost" size="sm" onClick={() => void onCancel()} className="mt-5 w-full text-red-600 hover:bg-red-50 hover:text-red-700">Cancel Membership</Button>
+          <Button variant="ghost" size="sm" onClick={() => void onReset()} className="mt-5 w-full">Reset demo membership</Button>
         </Card>
       </section>
     </div>

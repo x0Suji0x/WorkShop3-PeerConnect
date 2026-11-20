@@ -108,7 +108,7 @@ export function DarkCtaSection() {
               </h3>
 
               <p className="text-xs sm:text-sm text-[#626A64] leading-relaxed">
-                Put your real repositories, live demos, and design files front and center. Apply directly to client briefs and build verified experience with teams.
+                Add repositories, live demos, and design files to your profile. Explore client briefs and build experience with teams.
               </p>
 
               {/* Decorative mini student capability strip */}
@@ -159,7 +159,7 @@ export function DarkCtaSection() {
               </h3>
 
               <p className="text-xs sm:text-sm text-[#626A64] leading-relaxed">
-                Outline your scope, budget, and timeline. Receive curated student applications with verified GitHub code and Figma prototypes.
+                Outline your scope, budget, and timeline. Review student applications with linked GitHub code and Figma prototypes.
               </p>
 
               {/* Decorative mini project brief strip */}
@@ -187,7 +187,7 @@ export function DarkCtaSection() {
           </div>
         </div>
 
-        {/* Editorial Trust Baseline (no fake escrow/payout claims) */}
+        {/* Editorial trust baseline without unsupported payment or payout claims. */}
         <div className="cta-reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-[#747B75] font-mono pt-2">
           <span className="flex items-center gap-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#176B4C]" />

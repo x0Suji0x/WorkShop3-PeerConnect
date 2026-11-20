@@ -11,6 +11,8 @@ export const routes = {
   colleges: '/colleges',
   clubs: '/clubs',
   events: '/events',
+  terms: '/terms',
+  privacy: '/privacy',
 } as const
 
 export const profileRoute = (profileId: string) => `/profiles/${profileId}`
@@ -33,4 +35,7 @@ export const authRoutes = {
   signupStudent: '/signup/student',
   signupComplete: '/signup/student/complete',
   signin: '/signin',
+  callback: '/auth/callback',
+  chooseRole: '/auth/choose-role',
+  resetPassword: '/auth/reset-password',
 } as const

@@ -124,7 +124,7 @@ export function validateStep2(data: OnboardingFormData['college']): FormValidati
   if (data.verificationMethod === 'college_email') {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!data.collegeEmail.trim()) {
-      errors.collegeEmail = 'College email is required for instant institutional verification.'
+      errors.collegeEmail = 'A college-style email address is required for this demo step.'
     } else if (!emailRegex.test(data.collegeEmail.trim())) {
       errors.collegeEmail = 'Please enter a valid institutional email.'
     }

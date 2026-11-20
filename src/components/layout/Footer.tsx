@@ -28,7 +28,7 @@ export function Footer() {
 
             <div className="flex items-center gap-2 text-xs text-[#171916] bg-white border border-[#E7E8E1] w-fit px-3 py-1.5 rounded-full shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-[#08C58A]" />
-              <span className="font-medium">Verified student talent network</span>
+              <span className="font-medium">Student talent marketplace prototype</span>
             </div>
           </div>
 
@@ -142,6 +142,12 @@ export function Footer() {
             </Link>
             <Link to={routes.projects} className="hover:text-[#08C58A] transition-colors">
               Project Board
+            </Link>
+            <Link to={routes.terms} className="hover:text-[#08C58A] transition-colors">
+              Terms
+            </Link>
+            <Link to={routes.privacy} className="hover:text-[#08C58A] transition-colors">
+              Privacy
             </Link>
           </div>
         </div>

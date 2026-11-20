@@ -6,7 +6,9 @@ import { LoadingState } from './components/common/LoadingState'
 import { routes, communityRoutes, authRoutes } from './app/routes'
 import { HomePage } from './pages/Home/HomePage'
 import { StudentProfileProvider } from './components/providers/StudentProfileProvider'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider } from './lib/auth/AuthProvider'
+import { ProtectedRoute, RoleRoute } from './components/auth/RouteGuards'
+import { AuthCallbackPage, ChooseRolePage, ResetPasswordPage } from './pages/Auth/AuthFlowPages'
 
 const StudentDashboardPage = lazy(() => import('./pages/Dashboard/StudentDashboardPage').then(({ StudentDashboardPage: Page }) => ({ default: Page })))
 const StudentProfilePage = lazy(() => import('./pages/Profiles/StudentProfilePage').then(({ StudentProfilePage: Page }) => ({ default: Page })))
@@ -24,7 +26,6 @@ const GetStartedPage = lazy(() => import('./pages/Shared/GetStartedPage').then((
 const ApplicationsPage = lazy(() => import('./pages/Applications/ApplicationsPage').then(({ ApplicationsPage: Page }) => ({ default: Page })))
 const SignUpPage = lazy(() => import('./pages/Auth/SignUpPage').then(({ SignUpPage: Page }) => ({ default: Page })))
 const SignInPage = lazy(() => import('./pages/Auth/SignInPage').then(({ SignInPage: Page }) => ({ default: Page })))
-const GooglePopupPage = lazy(() => import('./pages/Auth/GooglePopupPage').then(({ GooglePopupPage: Page }) => ({ default: Page })))
 const StudentOnboardingPage = lazy(() => import('./pages/Onboarding/StudentOnboardingPage').then(({ StudentOnboardingPage: Page }) => ({ default: Page })))
 const OnboardingCompletePage = lazy(() => import('./pages/Onboarding/OnboardingCompletePage').then(({ OnboardingCompletePage: Page }) => ({ default: Page })))
 const CommunitiesPage = lazy(() => import('./pages/Communities/CommunitiesPage').then(({ CommunitiesPage: Page }) => ({ default: Page })))
@@ -34,6 +35,8 @@ const TeamFinderPage = lazy(() => import('./pages/TeamFinder/TeamFinderPage').th
 const TeamDetailPage = lazy(() => import('./pages/TeamFinder/TeamDetailPage').then(({ TeamDetailPage: Page }) => ({ default: Page })))
 const NewTeamPage = lazy(() => import('./pages/TeamFinder/NewTeamPage').then(({ NewTeamPage: Page }) => ({ default: Page })))
 const TeamBuilderPage = lazy(() => import('./pages/TeamFinder/TeamBuilderPage').then(({ TeamBuilderPage: Page }) => ({ default: Page })))
+const TermsPage = lazy(() => import('./pages/Legal/TermsPage').then(({ TermsPage: Page }) => ({ default: Page })))
+const PrivacyPage = lazy(() => import('./pages/Legal/PrivacyPage').then(({ PrivacyPage: Page }) => ({ default: Page })))
 
 function RouteBoundary({ children }: { children: ReactNode }) {
   return <Suspense fallback={<LoadingState label="Loading page…" />}>{children}</Suspense>
@@ -42,32 +45,35 @@ function RouteBoundary({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <SmoothScrollProvider>
-        <AuthProvider>
-          <StudentProfileProvider>
-            <AppShell>
+      <AuthProvider><SmoothScrollProvider>
+        <StudentProfileProvider>
+          <AppShell>
             <Routes>
               <Route path={routes.home} element={<HomePage />} />
               <Route path={routes.getStarted} element={<RouteBoundary><GetStartedPage /></RouteBoundary>} />
-              <Route path={routes.dashboard} element={<RouteBoundary><StudentDashboardPage /></RouteBoundary>} />
+              <Route path={routes.dashboard} element={<ProtectedRoute><RouteBoundary><StudentDashboardPage /></RouteBoundary></ProtectedRoute>} />
               <Route path={routes.profiles} element={<RouteBoundary><TalentDirectoryPage /></RouteBoundary>} />
               <Route path="/profiles/:profileId" element={<RouteBoundary><StudentProfilePage /></RouteBoundary>} />
-              <Route path={routes.verification} element={<RouteBoundary><VerificationPage /></RouteBoundary>} />
-              <Route path={routes.studentPlus} element={<RouteBoundary><StudentPlusPage /></RouteBoundary>} />
+              <Route path={routes.verification} element={<ProtectedRoute><RouteBoundary><VerificationPage /></RouteBoundary></ProtectedRoute>} />
+              <Route path={routes.studentPlus} element={<ProtectedRoute><RouteBoundary><StudentPlusPage /></RouteBoundary></ProtectedRoute>} />
               <Route path={routes.projects} element={<RouteBoundary><ProjectsPage /></RouteBoundary>} />
               <Route path="/projects/:projectId" element={<RouteBoundary><ProjectDetailPage /></RouteBoundary>} />
-              <Route path={routes.newProject} element={<RouteBoundary><NewProjectPage /></RouteBoundary>} />
-              <Route path={routes.applications} element={<RouteBoundary><ApplicationsPage /></RouteBoundary>} />
+              <Route path={routes.newProject} element={<RoleRoute role="client"><RouteBoundary><NewProjectPage /></RouteBoundary></RoleRoute>} />
+              <Route path={routes.applications} element={<ProtectedRoute><RouteBoundary><ApplicationsPage /></RouteBoundary></ProtectedRoute>} />
               <Route path={routes.colleges} element={<RouteBoundary><CollegesPage /></RouteBoundary>} />
               <Route path={routes.clubs} element={<RouteBoundary><ClubsPage /></RouteBoundary>} />
               <Route path={routes.events} element={<RouteBoundary><EventsPage /></RouteBoundary>} />
+              <Route path={routes.terms} element={<RouteBoundary><TermsPage /></RouteBoundary>} />
+              <Route path={routes.privacy} element={<RouteBoundary><PrivacyPage /></RouteBoundary>} />
 
               {/* Authentication & Onboarding routes */}
-              <Route path="/auth/google-popup" element={<RouteBoundary><GooglePopupPage /></RouteBoundary>} />
               <Route path={authRoutes.signup} element={<RouteBoundary><SignUpPage /></RouteBoundary>} />
               <Route path={authRoutes.signupStudent} element={<RouteBoundary><StudentOnboardingPage /></RouteBoundary>} />
               <Route path={authRoutes.signupComplete} element={<RouteBoundary><OnboardingCompletePage /></RouteBoundary>} />
               <Route path={authRoutes.signin} element={<RouteBoundary><SignInPage /></RouteBoundary>} />
+              <Route path={authRoutes.callback} element={<AuthCallbackPage />} />
+              <Route path={authRoutes.chooseRole} element={<ChooseRolePage />} />
+              <Route path={authRoutes.resetPassword} element={<ResetPasswordPage />} />
 
               {/* Communities & Team Finder module routes */}
               <Route path={communityRoutes.communities} element={<RouteBoundary><CommunitiesPage /></RouteBoundary>} />
@@ -82,8 +88,7 @@ export default function App() {
             </Routes>
           </AppShell>
         </StudentProfileProvider>
-      </AuthProvider>
-    </SmoothScrollProvider>
-  </BrowserRouter>
+      </SmoothScrollProvider></AuthProvider>
+    </BrowserRouter>
   )
 }

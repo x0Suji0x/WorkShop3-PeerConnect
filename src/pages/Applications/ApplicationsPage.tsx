@@ -6,6 +6,8 @@ import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { EmptyState } from '../../components/common/EmptyState'
 import { PageHeading } from '../../components/common/PageHeading'
+import { DemoNotice } from '../../components/common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { mockApplications } from '../../data/projectMarketplaceMockData'
 import { getStoredApplications, removeApplication } from '../../lib/applicationStorage'
@@ -65,8 +67,9 @@ export function ApplicationsPage() {
         <PageHeading
           eyebrow="Your activity"
           title="Applications in progress."
-          description="Track your proposals, client shortlist notifications, and project interviews."
+          description="Review your demo applications and sample status updates."
         />
+        <DemoNotice><strong>Submitted applications and status changes.</strong> {DEMO_COPY.device}</DemoNotice>
 
         <MarketplaceTabs />
 

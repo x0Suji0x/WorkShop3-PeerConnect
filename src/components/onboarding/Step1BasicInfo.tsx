@@ -21,14 +21,11 @@ import {
 import type { OnboardingBasicInfo, FormValidationErrors } from '../../types/onboarding'
 import { evaluatePasswordStrength } from '../../lib/onboardingValidation'
 import { Badge } from '../common/Badge'
-import { GoogleSignInModal } from '../auth/GoogleSignInModal'
-import type { AuthUser } from '../../types/auth'
 
 interface Step1BasicInfoProps {
   data: OnboardingBasicInfo
   errors: FormValidationErrors
   onChange: (field: keyof OnboardingBasicInfo, value: string | boolean) => void
-  onGoogleSuccess?: (user: AuthUser) => void
 }
 
 const AVATAR_PRESETS = [
@@ -146,15 +143,15 @@ const PERSONAL_EMAIL_DOMAINS = [
   'zoho.com',
 ]
 
-// Check if email ends with .edu or .ac.in
-function checkIsEduEmail(emailStr: string): boolean {
+// Detect a common academic email format only; this does not verify a student.
+function hasAcademicEmailFormat(emailStr: string): boolean {
   const trimmed = emailStr.trim().toLowerCase()
   if (!trimmed.includes('@')) return false
   const parts = trimmed.split('@')
   if (parts.length !== 2 || !parts[1]) return false
   const domain = parts[1]
 
-  // Personal emails cannot have the verified student tick
+  // Exclude common personal email domains from the format hint.
   if (PERSONAL_EMAIL_DOMAINS.some((d) => domain === d || domain.endsWith('.' + d))) {
     return false
   }
@@ -170,8 +167,7 @@ function checkIsEduEmail(emailStr: string): boolean {
   )
 }
 
-export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step1BasicInfoProps) {
-  const [googleModalOpen, setGoogleModalOpen] = useState(false)
+export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [avatarTab, setAvatarTab] = useState<'upload' | 'builder'>('upload')
@@ -195,14 +191,12 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
 
   const passwordStrength = evaluatePasswordStrength(data.password)
 
-  // Check if current email has verified .edu / .ac.in domain
-  const isEduVerified = checkIsEduEmail(data.email)
+  // This is only a format hint, not an identity or enrollment check.
+  const hasAcademicFormat = hasAcademicEmailFormat(data.email)
 
-  // When email changes, automatically sync verified status
+  // Email text alone never marks a profile as verified.
   const handleEmailChange = (val: string) => {
     onChange('email', val)
-    const isEdu = checkIsEduEmail(val)
-    onChange('isEmailVerified', isEdu)
   }
 
   // Phone number handler: limit strictly to 10 digits
@@ -343,82 +337,6 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
           Completing this step creates your PeerConnect profile. You can complete the remaining details now or skip to your dashboard anytime.
         </p>
       </div>
-
-      {/* Google Fast-Track Sign Up */}
-      <div className="rounded-3xl border-2 border-[#08A876]/30 bg-gradient-to-r from-[#E3F4EB]/90 via-white to-[#E3F4EB]/90 p-4 sm:p-5 shadow-sm transition-all hover:shadow-md">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white border border-[#CBD5E1] shadow-2xs">
-              <svg className="h-6 w-6" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-black text-[#171916]">
-                Fast-track registration with Google
-              </p>
-              <p className="text-xs text-[#525A55]">
-                {data.email
-                  ? `Connected: ${data.email} — credentials and avatar pre-filled`
-                  : 'Pre-fills your name, email, and photo in one click.'}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setGoogleModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-[#CBD5E1] px-4 py-2.5 text-xs font-bold text-[#171916] shadow-2xs hover:bg-[#FAF8F5] hover:border-[#94A3B8] transition-all hover:scale-[1.02] shrink-0"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-            {data.email ? 'Switch Google account' : 'Sign up with Google'}
-          </button>
-        </div>
-      </div>
-
-      {/* Google Sign In Modal */}
-      <GoogleSignInModal
-        isOpen={googleModalOpen}
-        onClose={() => setGoogleModalOpen(false)}
-        onSuccess={(_role, user) => {
-          setGoogleModalOpen(false)
-          if (user && onGoogleSuccess) {
-            onGoogleSuccess(user)
-          }
-        }}
-        defaultRole="student"
-      />
 
       {/* Profile Picture & Custom Avatar Card (Enhanced) */}
       <div className="rounded-3xl border border-[#E7E8E1] bg-white p-5 shadow-sm space-y-4">
@@ -832,33 +750,32 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
             <p className="mt-1 text-xs text-red-600 font-medium">{errors.phone}</p>
           ) : (
             <p className="mt-1 text-[11px] text-[#777A72]">
-              Strictly 10-digit Indian mobile number. Kept private by default.
+              Enter a 10-digit Indian mobile number. This demo has no connected privacy controls.
             </p>
           )}
         </div>
       </div>
 
-      {/* Institutional Email Address Verification */}
+      {/* Institutional email format hint; no verification is performed. */}
       <div className="rounded-2xl border border-[#E7E8E1] bg-white p-5 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
           <div>
             <label htmlFor="reg-email" className="block text-xs font-bold text-[#171916]">
-              Institutional College Email (.edu / .ac.in) *
+              College Email Address *
             </label>
             <p className="text-[11px] text-[#777A72]">
-              Ending with .edu or .ac.in instantly earns the verified student checkmark
+              A college-style domain can be recognized as a format hint. It does not verify enrollment.
             </p>
           </div>
 
-          {/* Green Tick verified badge if .edu / .ac.in */}
-          {isEduVerified ? (
+          {hasAcademicFormat ? (
             <span className="flex items-center gap-1.5 rounded-full bg-[#E3F4EB] px-3 py-1 text-xs font-bold text-[#08A876] border border-[#08C58A]/40 shrink-0">
               <CheckCircle2 className="h-4 w-4 text-[#08C58A]" />
-              ✓ Verified Institutional Email
+              College-style format
             </span>
           ) : (
             <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200 shrink-0">
-              Not verified (Needs .edu / .ac.in)
+              Format not recognized
             </span>
           )}
         </div>
@@ -873,9 +790,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
             value={data.email}
             onChange={(e) => handleEmailChange(e.target.value)}
             className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-24 text-xs text-[#171916] outline-none transition focus:ring-2 sm:text-sm ${
-              errors.email
-                ? 'border-red-500 bg-red-50/20 text-[#171916] focus:border-red-500 focus:ring-red-100'
-                : isEduVerified
+              hasAcademicFormat
                 ? 'border-[#08C58A] bg-[#E3F4EB]/20 text-[#123D30] font-medium'
                 : data.email.length > 5
                 ? 'border-amber-300 focus:border-amber-500 focus:ring-amber-100'
@@ -884,9 +799,9 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
           />
 
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            {isEduVerified ? (
+            {hasAcademicFormat ? (
               <Badge variant="green" size="sm" className="font-bold flex items-center gap-1">
-                <Check className="h-3 w-3 text-[#08A876]" /> Verified
+                <Check className="h-3 w-3 text-[#08A876]" /> Format match
               </Badge>
             ) : (
               <span className="text-[11px] text-[#777A72] font-mono">
@@ -896,33 +811,26 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
           </div>
         </div>
 
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-600 font-medium flex items-center gap-1">
-            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-            {errors.email}
-          </p>
-        )}
-
         {/* Dynamic status feedback */}
-        {isEduVerified ? (
+        {hasAcademicFormat ? (
           <div className="flex items-center gap-2 rounded-xl bg-[#E3F4EB] p-2.5 text-xs font-bold text-[#123D30] border border-[#08C58A]/30">
             <CheckCircle2 className="h-4 w-4 text-[#08A876] shrink-0" />
             <span>
-              Official educational domain detected ({data.email}) — your student badge is verified!
+              Academic-style email domain detected. No student identity or enrollment check happens in this demo.
             </span>
           </div>
         ) : data.email.length > 4 ? (
           <div className="flex items-start gap-1.5 pt-0.5 text-xs text-amber-700">
             <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600" />
             <span>
-              Personal email providers (e.g. @gmail.com) do not qualify for the verified student tick. Enter an email ending in <strong>.edu</strong> or <strong>.ac.in</strong> to show as verified.
+              Use your college address for this demo form. Email domains are not checked against a school and do not verify enrollment.
             </span>
           </div>
         ) : null}
 
         <p className="text-[11px] text-[#777A72] flex items-center gap-1">
           <ShieldCheck className="h-3.5 w-3.5 text-[#08A876]" />
-          Institutional email is private by default and used only for campus discovery.
+          Email privacy controls are not connected in this demo; do not enter sensitive personal details.
         </p>
       </div>
 

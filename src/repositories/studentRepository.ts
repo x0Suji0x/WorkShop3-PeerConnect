@@ -14,41 +14,29 @@ export type StudentUpdate = Partial<Omit<Student, 'id'>>
 
 const cloneStudent = (student: Student): Student => structuredClone(student)
 
-const STORAGE_KEY = 'peerconnect_student_profile_'
-
 /**
- * Persistent local student repository using browser storage.
+ * Session-only mock repository. It intentionally does not write to localStorage
+ * or an external service, so demo changes reset when the page is reloaded.
  */
-class LocalStudentRepository implements StudentRepository {
+class MockStudentRepository implements StudentRepository {
   private students = new Map<string, Student>([[demoStudent.id, cloneStudent(demoStudent)]])
 
   async getById(studentId: string) {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY + studentId)
-      if (saved) return JSON.parse(saved) as Student
-    } catch {
-      // ignore
-    }
     const student = this.students.get(studentId)
     return student ? cloneStudent(student) : null
   }
 
   async update(studentId: string, changes: StudentUpdate) {
-    let currentStudent = await this.getById(studentId)
+    const currentStudent = this.students.get(studentId)
 
     if (!currentStudent) {
-      currentStudent = { ...cloneStudent(demoStudent), id: studentId }
+      throw new Error(`Student profile "${studentId}" was not found.`)
     }
 
     const updatedStudent = { ...currentStudent, ...changes }
     this.students.set(studentId, cloneStudent(updatedStudent))
-    try {
-      localStorage.setItem(STORAGE_KEY + studentId, JSON.stringify(updatedStudent))
-    } catch {
-      // ignore
-    }
     return cloneStudent(updatedStudent)
   }
 }
 
-export const studentRepository: StudentRepository = new LocalStudentRepository()
+export const studentRepository: StudentRepository = new MockStudentRepository()

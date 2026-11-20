@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   Building2,
   DollarSign,
-  GraduationCap,
   Sparkles,
   Star,
   ExternalLink,
@@ -18,28 +17,16 @@ import {
 import { Button } from '../common/Button'
 import { Badge } from '../common/Badge'
 import { PageHeading } from '../common/PageHeading'
+import { DemoNotice } from '../common/DemoNotice'
+import { DEMO_COPY } from '../../config/demoCopy'
 import { mockProjects } from '../../data/mockData'
 import type { ProjectOpportunity } from '../../types'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../../lib/auth/AuthProvider'
 import {
   getStoredApplications,
-  syncApplicationsWithBackend,
   updateApplicationStatus,
   type ExtendedApplication,
 } from '../../lib/applicationStorage'
-
-interface ClientAuthData {
-  name?: string
-  company?: string
-  email?: string
-  role?: string
-  isVerifiedEmployer?: boolean
-}
-
-interface ClientDashboardViewProps {
-  onSwitchToStudent: () => void
-  canSwitchRole?: boolean
-}
 
 interface ApplicantItem {
   id: string
@@ -126,26 +113,10 @@ function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
   return [...dynamicItems, ...remainingInitial]
 }
 
-export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }: ClientDashboardViewProps) {
-  const { user, token } = useAuth()
-  // Load saved client auth
-  const [clientData] = useState<ClientAuthData>(() => {
-    try {
-      const stored = localStorage.getItem('peerconnect_client_auth')
-      return stored ? (JSON.parse(stored) as ClientAuthData) : {}
-    } catch {
-      return {}
-    }
-  })
-
-  const clientName =
-    user?.role === 'client'
-      ? user.contactName || user.fullName
-      : clientData.name || 'Vikram Sen'
-  const companyName =
-    user?.role === 'client'
-      ? user.companyName || 'Apex Studio & Labs'
-      : clientData.company || 'Apex Studio & Labs'
+export function ClientDashboardView() {
+  const { profile } = useAuth()
+  const clientName = profile?.full_name || 'Client'
+  const companyName = profile?.company_name || 'Your company'
 
   const [projects, setProjects] = useState<ProjectOpportunity[]>(mockProjects)
   const [applicants, setApplicants] = useState<ApplicantItem[]>(() =>
@@ -155,119 +126,47 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    // 1. Sync backend applications
-    void syncApplicationsWithBackend().then((apps) => {
-      setApplicants(buildApplicantsList(apps))
-    })
-
-    // 2. Fetch live projects from SQLite backend
-    fetch('/api/projects')
-      .then(async (res) => {
-        if (!res.ok) return
-        const data = (await res.json()) as { projects: ProjectOpportunity[] }
-        if (Array.isArray(data.projects)) {
-          const liveProjects: ProjectOpportunity[] = data.projects.map((p) => ({
-            id: p.id,
-            title: p.title,
-            clientName: p.clientName || companyName,
-            clientType: p.clientType || 'Verified Employer Scope',
-            clientLocation: p.clientLocation || 'Remote Scope',
-            budget: Number(p.budget) || 5000,
-            budgetType: p.budgetType || 'Milestone Escrow',
-            duration: p.duration || '3 Weeks',
-            hoursPerWeek: p.hoursPerWeek || '15-20 hrs/wk',
-            description: p.description || '',
-            skillsRequired: Array.isArray(p.skillsRequired) ? p.skillsRequired : [],
-            badge: p.badge || 'New',
-            applicantsCount: p.applicantsCount || 0,
-            postedTimeAgo: p.postedTimeAgo || 'Just now',
-          }))
-          const liveIds = new Set(liveProjects.map((p) => p.id))
-          const remaining = mockProjects.filter((p) => !liveIds.has(p.id))
-          setProjects([...liveProjects, ...remaining])
-        }
-      })
-      .catch((err) => {
-        console.warn('[ClientDashboardView] Projects fetch fallback:', err)
-      })
-
     const handleUpdate = () => {
       setApplicants(buildApplicantsList(getStoredApplications()))
     }
     window.addEventListener('peerconnect_applications_updated', handleUpdate)
     return () => window.removeEventListener('peerconnect_applications_updated', handleUpdate)
-  }, [companyName])
+  }, [])
 
   // New Project Form State
   const [newTitle, setNewTitle] = useState('')
   const [newBudget, setNewBudgetType] = useState('4500')
-  const [newType, setNewType] = useState<'Fixed Escrow' | 'Milestone Escrow'>('Milestone Escrow')
+  const [newType, setNewType] = useState<'Fixed-price' | 'Milestone-based'>('Milestone-based')
   const [newDuration, setNewDuration] = useState('3 Weeks')
   const [newSkills, setNewSkills] = useState('React, TypeScript, Tailwind CSS')
   const [newDescription, setNewDescription] = useState('')
 
-  const handlePostBrief = async (e: React.FormEvent) => {
+  const handlePostBrief = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTitle.trim() || !newBudget) return
 
-    if (user?.role !== 'client' || !token) {
-      setToastMessage('Sign in with an employer account to publish a project.')
-      return
+    const createdProject: ProjectOpportunity = {
+      id: `client-proj-${Date.now()}`,
+      title: newTitle.trim(),
+      clientName: companyName,
+      clientType: 'Project owner',
+      clientLocation: 'Remote Scope',
+      budget: Number(newBudget) || 4000,
+      budgetType: newType,
+      duration: newDuration,
+      hoursPerWeek: '15-20 hrs/wk',
+      description: newDescription.trim() || 'Custom project brief.',
+      skillsRequired: newSkills.split(',').map((s) => s.trim()).filter(Boolean),
+      badge: 'New',
+      applicantsCount: 0,
+      postedTimeAgo: 'Just now',
     }
 
-    const skillsList = newSkills.split(',').map((s) => s.trim()).filter(Boolean)
-    const budgetNum = Number(newBudget) || 4000
-
-    try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          title: newTitle.trim(),
-          clientLocation: 'Remote Scope',
-          budget: budgetNum,
-          budgetType: newType,
-          duration: newDuration,
-          hoursPerWeek: '15-20 hrs/wk',
-          description: newDescription.trim() || 'Custom brief posted by verified employer.',
-          skillsRequired: skillsList,
-          badge: 'New',
-        }),
-      })
-
-      const data = (await res.json()) as { error?: string; project?: ProjectOpportunity }
-      if (!res.ok || !data.project) {
-        throw new Error(data.error || 'Could not publish this project.')
-      }
-
-      if (data.project) {
-          const created: ProjectOpportunity = {
-            id: data.project.id,
-            title: data.project.title,
-            clientName: data.project.clientName || companyName,
-            clientType: data.project.clientType || 'Verified Employer Scope',
-            clientLocation: data.project.clientLocation || 'Remote Scope',
-            budget: Number(data.project.budget) || budgetNum,
-            budgetType: newType,
-            duration: newDuration,
-            hoursPerWeek: '15-20 hrs/wk',
-            description: newDescription.trim() || 'Custom brief posted by verified employer.',
-            skillsRequired: skillsList,
-            badge: 'New',
-            applicantsCount: 0,
-            postedTimeAgo: 'Just now',
-          }
-          setProjects((prev) => [created, ...prev.filter((p) => p.id !== created.id)])
-      }
-    } catch (err) {
-      setToastMessage(err instanceof Error ? err.message : 'Could not publish this project.')
-      return
-    }
-
+    setProjects([createdProject, ...projects])
     setIsModalOpen(false)
     setNewTitle('')
     setNewDescription('')
-    setToastMessage('Your new project brief is now live! Student talent will be notified.')
+    setToastMessage('Demo brief added to this dashboard. It resets on reload; no students are notified.')
     setTimeout(() => setToastMessage(null), 5000)
   }
 
@@ -286,8 +185,8 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
 
     setToastMessage(
       nextState
-        ? `Shortlisted candidate ${target?.name || ''}! Student status updated.`
-        : `Removed candidate ${target?.name || ''} from shortlist.`
+        ? `Shortlisted candidate ${target?.name || ''} on this device.`
+        : `Removed candidate ${target?.name || ''} from the local shortlist.`
     )
     setTimeout(() => setToastMessage(null), 4000)
   }
@@ -307,21 +206,13 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
         <div className="flex flex-wrap items-center justify-between gap-3 peer-divider-fade pb-4">
           <div className="flex items-center gap-2">
             <Badge variant="green" size="md" className="font-bold flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5" /> Employer Workspace
+              <Building2 className="h-3.5 w-3.5" /> Client Workspace
             </Badge>
             <span className="text-xs text-[#777A72]">
               Signed in as <strong className="text-[#171916]">{clientName}</strong> ({companyName})
             </span>
           </div>
 
-          {canSwitchRole && <button
-            type="button"
-            onClick={onSwitchToStudent}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#123D30] shadow-2xs hover:bg-[#FAF8F5] transition-all"
-          >
-            <GraduationCap className="h-3.5 w-3.5 text-[#08C58A]" />
-            Switch to Student View
-          </button>}
         </div>
 
         {/* Success Toast */}
@@ -343,9 +234,9 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
 
         {/* Page Heading */}
         <PageHeading
-          eyebrow="Employer & Recruiter Portal"
+          eyebrow="Client & Hiring Dashboard"
           title={`Welcome back, ${clientName.split(' ')[0]}.`}
-          description={`Manage your active project briefs for ${companyName}, review student proposals, and scout verified talent.`}
+          description={`Manage your demo project briefs for ${companyName}, review sample proposals, and browse student talent.`}
           actions={
             <div className="flex items-center gap-2">
               <Button size="sm" variant="primary" onClick={() => setIsModalOpen(true)}>
@@ -359,6 +250,7 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
             </div>
           }
         />
+        <DemoNotice><strong>Applicant review and shortlists.</strong> {DEMO_COPY.device}</DemoNotice>
 
         {/* Overview Cards with signature tones */}
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">
@@ -386,7 +278,7 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{shortlistedCount}</p>
             <p className="mt-1 text-sm font-bold text-[#171916]">Shortlisted Candidates</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Ready for interviews / escrow</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Applicants to review</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-mint p-5 hover:-translate-y-1 transition-all duration-200">
@@ -394,8 +286,8 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
               <DollarSign className="h-4.5 w-4.5" />
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">₹1,85,000</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Escrow Protected</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Milestone guarantee active</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Sample budgets</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Example amounts only</p>
           </div>
         </section>
 
@@ -468,12 +360,12 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
           </div>
         </section>
 
-        {/* Right Column: Recent Verified Applicants */}
+        {/* Right Column: Recent Applicants */}
         <section className="space-y-4 lg:col-span-5">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-black text-[#171916]">Student Proposals</h2>
-              <p className="text-xs text-[#777A72]">Pre-vetted students from top colleges</p>
+              <p className="text-xs text-[#777A72]">Sample student profiles from the demo directory</p>
             </div>
             <span className="text-xs font-semibold text-[#08A876] bg-[#E3F4EB] px-2.5 py-1 rounded-full">
               {shortlistedCount} shortlisted
@@ -574,6 +466,7 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
               </button>
             </div>
 
+            <DemoNotice>{DEMO_COPY.session} This brief is only a local preview and will not be published or notify students.</DemoNotice>
             <form onSubmit={handlePostBrief} className="space-y-4 text-xs">
               <div>
                 <label className="block font-bold text-[#171916]">Project Title</label>
@@ -599,14 +492,14 @@ export function ClientDashboardView({ onSwitchToStudent, canSwitchRole = false }
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-[#171916]">Escrow Model</label>
+                  <label className="block font-bold text-[#171916]">Budget structure</label>
                   <select
                     value={newType}
-                    onChange={(e) => setNewType(e.target.value as 'Fixed Escrow' | 'Milestone Escrow')}
+                    onChange={(e) => setNewType(e.target.value as 'Fixed-price' | 'Milestone-based')}
                     className="mt-1.5 w-full rounded-xl border border-[#E7E8E1] py-2.5 px-3 text-xs outline-none focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20"
                   >
-                    <option value="Milestone Escrow">Milestone Escrow</option>
-                    <option value="Fixed Escrow">Fixed Escrow</option>
+                    <option value="Milestone-based">Milestone-based</option>
+                    <option value="Fixed-price">Fixed-price</option>
                   </select>
                 </div>
               </div>

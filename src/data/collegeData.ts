@@ -1141,7 +1141,7 @@ export const mockEvents: Event[] = [
 ]
 
 // ----------------------------------------------------------------
-// 5. COLLEGE STUDENT DIRECTORY (Verified Student Profiles)
+// 5. COLLEGE STUDENT DIRECTORY (Sample Student Profiles)
 // ----------------------------------------------------------------
 export const mockCollegeStudents: CollegeStudent[] = [
   {
