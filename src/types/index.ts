@@ -195,7 +195,7 @@ export interface Application {
   projectId: string
   studentId: string
   coverLetter: string
-  status: 'draft' | 'submitted' | 'shortlisted' | 'rejected' | 'accepted'
+  status: 'submitted' | 'shortlisted' | 'accepted' | 'rejected' | 'withdrawn'
   createdAt: string
   updatedAt?: string
   projectTitle?: string

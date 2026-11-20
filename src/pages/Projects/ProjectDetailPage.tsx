@@ -6,11 +6,12 @@ import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { EmptyState } from '../../components/common/EmptyState'
-import { DemoNotice } from '../../components/common/DemoNotice'
 import { MarketplaceTabs } from '../../components/marketplace/MarketplaceTabs'
 import { marketplaceProjects } from '../../data/projectMarketplaceMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
-import { getStoredApplications, saveApplication } from '../../lib/applicationStorage'
+import { useAuth } from '../../lib/auth/AuthProvider'
+import { supabaseApplicationRepository } from '../../repositories/supabaseApplicationRepository'
+import type { AccountApplication } from '../../repositories/applicationRepository'
 import type { ProjectOpportunity } from '../../types'
 import { supabaseProjectRepository } from '../../repositories/supabaseProjectRepository'
 
@@ -22,13 +23,18 @@ const formatBudget = (budget: number) =>
 export function ProjectDetailPage() {
   const { projectId } = useParams()
   const { student } = useStudentProfile()
+  const auth = useAuth()
   const sampleProject = marketplaceProjects.find((item) => item.id === projectId) ?? null
   const [project, setProject] = useState<ProjectOpportunity | null>(sampleProject)
   const [isLoading, setIsLoading] = useState(!sampleProject)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [retryKey, setRetryKey] = useState(0)
   const [isApplying, setIsApplying] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [application, setApplication] = useState<AccountApplication | null>(null)
+  const [isCheckingApplication, setIsCheckingApplication] = useState(false)
+  const [applicationError, setApplicationError] = useState<string | null>(null)
+  const [applicationRetryKey, setApplicationRetryKey] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     const sample = marketplaceProjects.find((item) => item.id === projectId)
@@ -56,6 +62,29 @@ export function ProjectDetailPage() {
     return () => { active = false }
   }, [projectId, retryKey])
 
+  useEffect(() => {
+    if (
+      !project || project.source !== 'account' || auth.status !== 'signedIn'
+      || auth.profile?.role !== 'student' || !auth.user?.id
+    ) {
+      setApplication(null)
+      setIsCheckingApplication(false)
+      setApplicationError(null)
+      return
+    }
+
+    let active = true
+    setIsCheckingApplication(true)
+    setApplicationError(null)
+    void supabaseApplicationRepository.getMineForProject(auth.user.id, project.id)
+      .then((current) => { if (active) setApplication(current) })
+      .catch((error: unknown) => {
+        if (active) setApplicationError(error instanceof Error ? error.message : 'Could not check your application.')
+      })
+      .finally(() => { if (active) setIsCheckingApplication(false) })
+    return () => { active = false }
+  }, [project?.id, project?.source, auth.status, auth.profile?.role, auth.user?.id, applicationRetryKey])
+
   if (isLoading) {
     return <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" role="status">Loading project…</div>
   }
@@ -76,28 +105,19 @@ export function ProjectDetailPage() {
     )
   }
 
-  const existingApp = getStoredApplications().find((a) => a.projectId === project.id)
-  const isAlreadySubmitted = Boolean(existingApp) || submitted
-
-  const handleApply = (note: string) => {
-    saveApplication({
-      projectId: project.id,
-      studentId: student.id,
-      coverLetter: note.trim(),
-      status: 'submitted',
-      createdAt: 'Just now',
-      updatedAt: 'Just now',
-      projectTitle: project.title,
-      clientName: project.clientName,
-      studentName: student.name,
-      studentCollege: student.college,
-      studentRole: student.headline,
-      studentAvatar: student.avatarUrl,
-      skills: student.skills.map((s) => s.name),
-    })
-
-    setSubmitted(true)
-    setIsApplying(false)
+  const handleApply = async (note: string) => {
+    if (!auth.user?.id || !project.id) return
+    setIsSubmitting(true)
+    setApplicationError(null)
+    try {
+      const submittedApplication = await supabaseApplicationRepository.submit(auth.user.id, project.id, note)
+      setApplication(submittedApplication)
+      setIsApplying(false)
+    } catch (error) {
+      setApplicationError(error instanceof Error ? error.message : 'Could not submit your application.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -176,14 +196,28 @@ export function ProjectDetailPage() {
             </dl>
 
             <div className="mt-6 peer-divider-fade-t pt-5">
-              {isAlreadySubmitted ? (
+              {applicationError && (
+                <div role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                  <p>{applicationError}</p>
+                  {!application && !isApplying && !isCheckingApplication && project.source === 'account' && auth.profile?.role === 'student' && (
+                    <button type="button" onClick={() => setApplicationRetryKey((value) => value + 1)} className="mt-1 font-bold underline">Retry check</button>
+                  )}
+                </div>
+              )}
+              {project.source === 'sample' ? (
+                <div className="rounded-2xl border border-[#E7E8E1] bg-[#FAF8F5] p-4 text-xs text-[#525A55]">
+                  This is a sample listing. Applications are available on published projects posted by client accounts.
+                </div>
+              ) : isCheckingApplication && auth.status === 'signedIn' && auth.profile?.role === 'student' ? (
+                <p role="status" className="text-xs text-[#777A72]">Checking your application…</p>
+              ) : application ? (
                 <div className="rounded-2xl border border-[#08C58A]/30 bg-[#E3F4EB] p-4 text-xs font-semibold text-[#123D30] space-y-2">
                   <div className="flex items-center gap-1.5 font-bold">
                     <CheckCircle2 className="h-4 w-4 text-[#08A876]" />
-                    <span>Proposal Submitted!</span>
+                    <span>Application {application.status === 'submitted' ? 'submitted' : `is ${application.status}`}</span>
                   </div>
                   <p className="text-[#525A55]">
-                    Your application is visible in the client demo dashboard on this device.
+                    Your proposal is saved to your account. The project owner can review it and update its status.
                   </p>
                   <Link
                     to={routes.applications}
@@ -197,15 +231,21 @@ export function ProjectDetailPage() {
                   studentName={student.name}
                   onCancel={() => setIsApplying(false)}
                   onSubmit={handleApply}
+                  isSubmitting={isSubmitting}
                 />
-              ) : (
+              ) : auth.status === 'signedIn' && auth.profile?.role === 'student' ? (
                 <Button className="w-full" onClick={() => setIsApplying(true)}>
                   <Send className="h-4 w-4 mr-1.5" /> Apply to project
                 </Button>
+              ) : auth.status === 'signedOut' ? (
+                <Link to="/signin"><Button className="w-full">Sign in as a student to apply</Button></Link>
+              ) : auth.status === 'signedIn' && auth.profile?.role !== 'student' ? (
+                <p className="rounded-xl bg-[#FAF8F5] p-3 text-xs text-[#525A55]">Only student accounts can apply to projects.</p>
+              ) : auth.status === 'unconfigured' ? (
+                <p role="alert" className="rounded-xl bg-[#FAF8F5] p-3 text-xs text-[#525A55]">Sign-in isn’t configured, so you can’t submit an application right now.</p>
+              ) : (
+                <p role="status" className="text-xs text-[#777A72]">Checking your account…</p>
               )}
-              <div className="mt-4">
-                <DemoNotice>Applications are stored only in this browser/device. They are not sent to a real client account.</DemoNotice>
-              </div>
             </div>
           </Card>
         </aside>
@@ -219,10 +259,12 @@ function ApplicationComposer({
   studentName,
   onCancel,
   onSubmit,
+  isSubmitting,
 }: {
   studentName: string
   onCancel: () => void
-  onSubmit: (note: string) => void
+  onSubmit: (note: string) => Promise<void>
+  isSubmitting: boolean
 }) {
   const [note, setNote] = useState(
     `Hi, I'm ${studentName}. I have hands-on experience building projects in this domain and would love to collaborate on this scope.`
@@ -242,10 +284,10 @@ function ApplicationComposer({
         placeholder="Share a short note explaining your relevant experience..."
       />
       <div className="flex gap-2">
-        <Button size="sm" onClick={() => onSubmit(note)} disabled={!note.trim()} className="flex-1">
-          Send Proposal
+        <Button size="sm" onClick={() => void onSubmit(note)} disabled={!note.trim() || isSubmitting} className="flex-1">
+          {isSubmitting ? 'Sending…' : 'Send Proposal'}
         </Button>
-        <Button size="sm" variant="ghost" onClick={onCancel}>
+        <Button size="sm" variant="ghost" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
       </div>
