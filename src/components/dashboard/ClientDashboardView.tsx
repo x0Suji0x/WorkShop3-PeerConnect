@@ -9,108 +9,33 @@ import {
   Building2,
   DollarSign,
   Sparkles,
-  Star,
   ExternalLink,
   X,
 } from 'lucide-react'
 import { Button } from '../common/Button'
 import { Badge } from '../common/Badge'
 import { PageHeading } from '../common/PageHeading'
-import { DemoNotice } from '../common/DemoNotice'
-import { DEMO_COPY } from '../../config/demoCopy'
 import { projectRoute } from '../../app/routes'
 import type { AccountProject, ProjectCreateInput } from '../../repositories/projectRepository'
 import { supabaseProjectRepository } from '../../repositories/supabaseProjectRepository'
+import { supabaseApplicationRepository } from '../../repositories/supabaseApplicationRepository'
+import type { AccountApplication, ClientApplicationStatus } from '../../repositories/applicationRepository'
 import { useAuth } from '../../lib/auth/AuthProvider'
-import {
-  getStoredApplications,
-  updateApplicationStatus,
-  type ExtendedApplication,
-} from '../../lib/applicationStorage'
 
-interface ApplicantItem {
-  id: string
-  name: string
-  college: string
-  role: string
-  avatar: string
-  projectApplied: string
-  pitch: string
-  skills: string[]
-  isShortlisted?: boolean
-  isSample: boolean
+const applicantStatusLabel: Record<AccountApplication['status'], string> = {
+  submitted: 'Submitted',
+  shortlisted: 'Shortlisted',
+  accepted: 'Accepted',
+  rejected: 'Not selected',
+  withdrawn: 'Withdrawn',
 }
 
-const INITIAL_APPLICANTS: ApplicantItem[] = [
-  {
-    id: 'app-1',
-    name: 'Sofia Rodriguez',
-    college: 'National Institute of Design (NID)',
-    role: 'UI/UX & Product Designer',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    isSample: true,
-    projectApplied: 'Interactive 3D Web Landing Experience',
-    pitch: 'Proficient in Three.js, GSAP, and interactive micro-animations. Built portfolio projects for 2 client demos with high engagement.',
-    skills: ['Three.js', 'GSAP', 'React', 'Figma'],
-    isShortlisted: true,
-  },
-  {
-    id: 'app-2',
-    name: 'Aarav Patel',
-    college: 'IIT Bombay',
-    role: 'Full-Stack Software Engineer',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    isSample: true,
-    projectApplied: 'Full-Stack Analytics Dashboard for Supply Chain Data',
-    pitch: 'Built scalable dashboards with TanStack Table, React 19, and PostgreSQL. Solved real-time dispatch filters with sub-50ms query times.',
-    skills: ['React 19', 'TypeScript', 'Tailwind CSS', 'PostgreSQL'],
-    isShortlisted: false,
-  },
-  {
-    id: 'app-3',
-    name: 'Ananya Sharma',
-    college: 'IIIT Hyderabad',
-    role: 'AI / ML Engineer',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    isSample: true,
-    projectApplied: 'Document Intelligence Pipeline & Query API',
-    pitch: 'Specializing in LangChain and pgvector pipelines. Extracted tables from 500+ complex technical documents with 96% OCR accuracy.',
-    skills: ['Python', 'FastAPI', 'LangChain', 'pgvector'],
-    isShortlisted: true,
-  },
-  {
-    id: 'app-4',
-    name: 'Rohan Verma',
-    college: 'BITS Pilani',
-    role: 'Mobile / React Native Developer',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-    isSample: true,
-    projectApplied: 'Cross-Platform Wellness Tracking Application',
-    pitch: 'Shipped 2 React Native apps to Google Play Store with Supabase auth and offline SQLite caching.',
-    skills: ['React Native', 'Expo', 'TypeScript', 'Supabase'],
-    isShortlisted: false,
-  },
-]
-
-function buildApplicantsList(stored: ExtendedApplication[]): ApplicantItem[] {
-  const dynamicItems: ApplicantItem[] = stored.map((app) => ({
-    id: app.id,
-    name: app.studentName || 'Student Applicant',
-    college: app.studentCollege || 'National Institute of Design (NID)',
-    role: app.studentRole || 'Design Engineer & Frontend Architect',
-    avatar:
-      app.studentAvatar ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    isSample: false,
-    projectApplied: app.projectTitle || 'Web & Mobile Project',
-    pitch: app.coverLetter || 'Enthusiastic to deliver this project with milestone deliverables.',
-    skills: app.skills && app.skills.length > 0 ? app.skills : ['React', 'TypeScript', 'Tailwind CSS'],
-    isShortlisted: app.status === 'shortlisted',
-  }))
-
-  const storedIds = new Set(dynamicItems.map((a) => a.id))
-  const remainingInitial = INITIAL_APPLICANTS.filter((a) => !storedIds.has(a.id))
-  return [...dynamicItems, ...remainingInitial]
+const applicantStatusVariant: Record<AccountApplication['status'], 'green' | 'peach' | 'neutral'> = {
+  submitted: 'peach',
+  shortlisted: 'green',
+  accepted: 'green',
+  rejected: 'neutral',
+  withdrawn: 'neutral',
 }
 
 export function ClientDashboardView() {
@@ -122,20 +47,14 @@ export function ClientDashboardView() {
   const [projectsLoading, setProjectsLoading] = useState(true)
   const [projectsError, setProjectsError] = useState<string | null>(null)
   const [projectsRetryKey, setProjectsRetryKey] = useState(0)
-  const [applicants, setApplicants] = useState<ApplicantItem[]>(() =>
-    buildApplicantsList(getStoredApplications())
-  )
+  const [applicants, setApplicants] = useState<AccountApplication[]>([])
+  const [applicantsLoading, setApplicantsLoading] = useState(false)
+  const [applicantsError, setApplicantsError] = useState<string | null>(null)
+  const [applicantsRetryKey, setApplicantsRetryKey] = useState(0)
+  const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isPosting, setIsPosting] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      setApplicants(buildApplicantsList(getStoredApplications()))
-    }
-    window.addEventListener('peerconnect_applications_updated', handleUpdate)
-    return () => window.removeEventListener('peerconnect_applications_updated', handleUpdate)
-  }, [])
 
   useEffect(() => {
     if (!user?.id) {
@@ -162,6 +81,27 @@ export function ClientDashboardView() {
 
     return () => { active = false }
   }, [user?.id, projectsRetryKey])
+
+  useEffect(() => {
+    if (!user?.id || projects.length === 0) {
+      setApplicants([])
+      setApplicantsLoading(false)
+      setApplicantsError(null)
+      return
+    }
+
+    let active = true
+    setApplicants([])
+    setApplicantsLoading(true)
+    setApplicantsError(null)
+    void supabaseApplicationRepository.listForOwnerProjects(projects)
+      .then((rows) => { if (active) setApplicants(rows) })
+      .catch((error: unknown) => {
+        if (active) setApplicantsError(error instanceof Error ? error.message : 'Could not load applicants.')
+      })
+      .finally(() => { if (active) setApplicantsLoading(false) })
+    return () => { active = false }
+  }, [user?.id, projects, applicantsRetryKey])
 
   // New Project Form State
   const [newTitle, setNewTitle] = useState('')
@@ -218,28 +158,25 @@ export function ClientDashboardView() {
     }
   }
 
-  const toggleShortlist = (appId: string) => {
-    const target = applicants.find((app) => app.id === appId)
-    const nextState = !target?.isShortlisted
-
-    // Update persistent application status if stored
-    updateApplicationStatus(appId, nextState ? 'shortlisted' : 'submitted')
-
-    setApplicants((prev) =>
-      prev.map((app) =>
-        app.id === appId ? { ...app, isShortlisted: nextState } : app
-      )
-    )
-
-    setToastMessage(
-      nextState
-        ? `Shortlisted candidate ${target?.name || ''} on this device.`
-        : `Removed candidate ${target?.name || ''} from the local shortlist.`
-    )
-    window.setTimeout(() => setToastMessage(null), 4000)
+  const updateApplicationStatus = async (applicationId: string, status: ClientApplicationStatus) => {
+    setUpdatingApplicationId(applicationId)
+    setApplicantsError(null)
+    try {
+      await supabaseApplicationRepository.setClientStatus(applicationId, status)
+      const target = applicants.find((application) => application.id === applicationId)
+      setApplicants((current) => current.map((application) =>
+        application.id === applicationId ? { ...application, status } : application,
+      ))
+      setToastMessage(`${applicantStatusLabel[status]} ${target?.applicantProfile?.name ?? 'application'}.`)
+      window.setTimeout(() => setToastMessage(null), 4000)
+    } catch (error) {
+      setApplicantsError(error instanceof Error ? error.message : 'Could not update this application.')
+    } finally {
+      setUpdatingApplicationId(null)
+    }
   }
 
-  const shortlistedCount = applicants.filter((a) => a.isShortlisted).length
+  const shortlistedCount = applicants.filter((application) => application.status === 'shortlisted').length
   const publishedProjectCount = projects.filter((project) => project.status === 'published').length
 
   return (
@@ -285,7 +222,7 @@ export function ClientDashboardView() {
         <PageHeading
           eyebrow="Client & Hiring Dashboard"
           title={`Welcome back, ${clientName.split(' ')[0]}.`}
-          description={`Manage project briefs for ${companyName}, review sample proposal examples, and browse student talent.`}
+          description={`Manage project briefs for ${companyName}, review applications from students, and browse student talent.`}
           actions={
             <div className="flex items-center gap-2">
               <Button size="sm" variant="primary" onClick={() => setIsModalOpen(true)}>
@@ -299,8 +236,6 @@ export function ClientDashboardView() {
             </div>
           }
         />
-        <DemoNotice><strong>Applicant review and shortlists.</strong> {DEMO_COPY.device}</DemoNotice>
-
         {/* Overview Cards with signature tones */}
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">
           <div className="peer-card-glass peer-card-glow-mint p-5 hover:-translate-y-1 transition-all duration-200">
@@ -317,17 +252,17 @@ export function ClientDashboardView() {
               <Users className="h-4.5 w-4.5" />
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{applicants.length}</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Proposal Examples</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Includes sample and local entries</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Applications received</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Across your project briefs</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-rose p-5 hover:-translate-y-1 transition-all duration-200">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F7E9EB] text-[#9D5C6C] border border-black/5">
-              <Star className="h-4.5 w-4.5" />
+              <CheckCircle2 className="h-4.5 w-4.5" />
             </div>
             <p className="mt-4 font-mono text-2xl font-black text-[#171916]">{shortlistedCount}</p>
-            <p className="mt-1 text-sm font-bold text-[#171916]">Shortlisted Examples</p>
-            <p className="mt-0.5 text-xs text-[#777A72]">Sample and local-device state</p>
+            <p className="mt-1 text-sm font-bold text-[#171916]">Shortlisted students</p>
+            <p className="mt-0.5 text-xs text-[#777A72]">Saved to your account</p>
           </div>
 
           <div className="peer-card-glass peer-card-glow-mint p-5 hover:-translate-y-1 transition-all duration-200">
@@ -419,63 +354,62 @@ export function ClientDashboardView() {
         <section className="space-y-4 lg:col-span-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-black text-[#171916]">Proposal Examples</h2>
-              <p className="text-xs text-[#777A72]">Illustrative applicants plus this-device submissions</p>
+              <h2 className="text-lg font-black text-[#171916]">Project applicants</h2>
+              <p className="text-xs text-[#777A72]">Review and update applications for your projects</p>
             </div>
             <span className="text-xs font-semibold text-[#08A876] bg-[#E3F4EB] px-2.5 py-1 rounded-full">
               {shortlistedCount} shortlisted
             </span>
           </div>
 
+          {applicantsError && (
+            <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <span>{applicantsError}</span>
+              <button type="button" className="font-bold underline" onClick={() => setApplicantsRetryKey((value) => value + 1)}>Retry</button>
+            </div>
+          )}
           <div className="space-y-3">
-            {applicants.map((app) => (
+            {applicantsLoading ? (
+              <p role="status" className="text-sm text-[#777A72]">Loading applications…</p>
+            ) : applicants.length ? applicants.map((app) => {
+              const publicProfile = app.applicantProfile
+              const canReview = app.status === 'submitted' || app.status === 'shortlisted'
+              const isUpdating = updatingApplicationId === app.id
+              return (
               <div
                 key={app.id}
                 className="peer-card-glass p-5 space-y-3 hover:-translate-y-0.5 transition-all duration-200"
               >
                 <div className="flex items-start justify-between gap-3 relative z-10">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={app.avatar}
-                      alt={app.name}
-                      className="h-10 w-10 rounded-full object-cover border border-[#CBD5E1]"
-                    />
+                    {publicProfile?.avatarUrl ? (
+                      <img src={publicProfile.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover border border-[#CBD5E1]" />
+                    ) : (
+                      <div aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-full border border-[#CBD5E1] bg-[#E8F3EA] text-xs font-bold text-[#176B4C]">
+                        {publicProfile?.name?.slice(0, 1) || 'S'}
+                      </div>
+                    )}
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <h4 className="text-sm font-bold text-[#171916]">{app.name}</h4>
-                        <Badge variant="neutral" size="sm">{app.isSample ? 'Sample' : 'This device'}</Badge>
+                        <h4 className="text-sm font-bold text-[#171916]">{publicProfile?.name ?? 'Student applicant'}</h4>
+                        <Badge variant={applicantStatusVariant[app.status]} size="sm">{applicantStatusLabel[app.status]}</Badge>
                       </div>
-                      <p className="text-xs text-[#525A55]">{app.role}</p>
-                      <p className="text-[11px] text-[#777A72]">{app.college}</p>
+                      <p className="text-xs text-[#525A55]">{publicProfile?.headline || (publicProfile ? 'Student profile' : 'Profile not public')}</p>
+                      {publicProfile?.college && <p className="text-[11px] text-[#777A72]">{publicProfile.college}</p>}
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => toggleShortlist(app.id)}
-                      className={`p-1.5 rounded-lg transition-colors ${
-                        app.isShortlisted
-                          ? 'text-amber-500 bg-amber-50'
-                          : 'text-[#CBD5E1] hover:text-amber-500'
-                      }`}
-                      title={app.isShortlisted ? 'Shortlisted' : 'Shortlist student'}
-                    >
-                      <Star className={`h-4 w-4 ${app.isShortlisted ? 'fill-current' : ''}`} />
-                    </button>
                   </div>
                 </div>
 
                 <div className="rounded-xl bg-[#FAF8F5]/80 p-2.5 text-xs text-[#525A55] border border-[#E7E8E1] relative z-10">
                   <p className="font-semibold text-[#171916] text-[11px] mb-0.5">
-                    Proposal for: {app.projectApplied}
+                    Proposal for: {app.projectTitle}
                   </p>
-                  <p className="italic">"{app.pitch}"</p>
+                  <p className="italic">“{app.coverLetter}”</p>
                 </div>
 
                 <div className="flex items-center justify-between pt-1 relative z-10">
                   <div className="flex flex-wrap gap-1">
-                    {app.skills.slice(0, 3).map((skill) => (
+                    {(publicProfile?.skills ?? []).slice(0, 3).map((skill) => (
                       <span
                         key={skill}
                         className="rounded-md bg-white px-2 py-0.5 text-[10px] font-semibold text-[#525A55] border border-[#E7E8E1]"
@@ -486,16 +420,31 @@ export function ClientDashboardView() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Link
-                      to={`/profiles/${app.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#123D30] hover:text-[#08A876]"
-                    >
-                      Portfolio <ExternalLink className="h-3 w-3" />
-                    </Link>
+                    {publicProfile && (
+                      <Link to={`/profiles/${publicProfile.userId}`} className="inline-flex items-center gap-1 text-xs font-bold text-[#123D30] hover:text-[#08A876]">
+                        Public profile <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
                   </div>
                 </div>
+
+                {canReview && (
+                  <div className="flex flex-wrap justify-end gap-2 border-t border-[#E7E8E1] pt-3">
+                    {app.status === 'submitted' && (
+                      <Button size="sm" variant="secondary" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'shortlisted')}>
+                        {isUpdating ? 'Saving…' : 'Shortlist'}
+                      </Button>
+                    )}
+                    <Button size="sm" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'accepted')}>
+                      Accept
+                    </Button>
+                    <Button size="sm" variant="ghost" disabled={isUpdating} onClick={() => void updateApplicationStatus(app.id, 'rejected')}>
+                      Decline
+                    </Button>
+                  </div>
+                )}
               </div>
-            ))}
+            )}) : <p className="rounded-2xl border border-dashed border-[#CBD5C1] p-6 text-sm text-[#777A72]">No applications yet. New student proposals for your projects will appear here.</p>}
           </div>
         </section>
       </div>
