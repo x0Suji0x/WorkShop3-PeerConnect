@@ -35,6 +35,7 @@ export const demoStudent: Student = {
   interests: ['Inclusive design', 'Creative technology', 'Campus communities'],
   featuredWork: 'Interactive 3D Web Experience & Design System',
   bio: 'Design student blending visual craft with front-end implementation precision.',
+  source: 'sample',
   about: 'I am a design engineer who enjoys translating thoughtful product ideas into clear, useful interfaces. I work at the intersection of interaction design and front-end development, with a particular interest in systems that make ambitious student teams easier to build.',
   profileCompletion: 78,
   experiences: [
@@ -136,6 +137,7 @@ export const demoStudent: Student = {
     },
   ],
   isPlusMember: false,
+  isPublic: false,
 }
 
 export const dashboardNotifications = [

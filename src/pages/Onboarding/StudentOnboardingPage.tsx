@@ -25,12 +25,13 @@ import { Step6ReviewSubmit } from '../../components/onboarding/Step6ReviewSubmit
 import { Button } from '../../components/common/Button'
 import { LoadingState } from '../../components/common/LoadingState'
 import { useAuth } from '../../lib/auth/AuthProvider'
-import type { Student, Verification } from '../../types'
+import type { Student } from '../../types'
+import { buildOnboardingStudentUpdate } from '../../lib/onboardingStudentUpdate'
 
 export function StudentOnboardingPage() {
   const navigate = useNavigate()
   const auth = useAuth()
-  const { student, updateStudent } = useStudentProfile()
+  const { student, updateStudent, isLoadingProfile, profileError: studentProfileError, refreshStudentProfile } = useStudentProfile()
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(1)
   const [highestStepVisited, setHighestStepVisited] = useState<number>(1)
@@ -221,29 +222,11 @@ export function StudentOnboardingPage() {
 
     if (currentStep === 1) {
       // Step 1 completed: Immediately create the initial student profile in store!
-      const initialVerifications: Verification[] = [
-        {
-          id: 'ver-college',
-          type: 'college_identity',
-          status: 'unverified',
-          label: 'Institutional enrollment',
-          description: 'No identity or enrollment checks have been performed.',
-        },
-        {
-          id: 'ver-phone',
-          type: 'phone_number',
-          status: 'unverified',
-          label: 'Mobile phone',
-          description: 'Phone number provided; no phone verification happens in this demo.',
-        },
-      ]
-
       try {
         await updateStudent({
           name: formData.basicInfo.fullName || student.name,
           headline: formData.basicInfo.headline || student.headline,
           avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
-          verifications: initialVerifications,
           profileCompletion: formData.basicInfo.fullName ? 30 : 20,
         })
         if (formData.basicInfo.fullName.trim()) {
@@ -265,19 +248,7 @@ export function StudentOnboardingPage() {
 
   const handleSkipToDashboard = async () => {
     try {
-      await updateStudent({
-        name: formData.basicInfo.fullName || student.name,
-        headline: formData.basicInfo.headline || student.headline,
-        avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
-        college: formData.college.collegeName || student.college,
-        university: formData.college.collegeName || student.university,
-        degree: formData.college.degree || student.degree,
-        fieldOfStudy: formData.college.fieldOfStudy || student.fieldOfStudy,
-        graduationYear: formData.college.graduationYear || student.graduationYear,
-        skills: formData.skillsInterests.skills.length > 0 ? formData.skillsInterests.skills : student.skills,
-        interests: formData.skillsInterests.interests.length > 0 ? formData.skillsInterests.interests : student.interests,
-        profileCompletion: estimatedCompletion,
-      })
+      await updateStudent(buildOnboardingStudentUpdate(formData, student, estimatedCompletion))
       if (formData.basicInfo.fullName.trim()) {
         await auth.updateProfileName(formData.basicInfo.fullName.trim())
       }
@@ -316,119 +287,8 @@ export function StudentOnboardingPage() {
 
     setIsSubmitting(true)
 
-    // Build the updated verifications list
-    const updatedVerifications: Verification[] = [
-      {
-        id: 'ver-college',
-        type: 'college_identity',
-        status: 'unverified',
-        label: 'College enrollment',
-        description: formData.college.idCardFileName
-          ? `File selected (${formData.college.idCardFileName}); it is not uploaded or reviewed.`
-          : 'No identity or enrollment checks have been performed.',
-      },
-      {
-        id: 'ver-phone',
-        type: 'phone_number',
-        status: 'unverified',
-        label: 'Phone number',
-        description: 'Phone number provided; no phone verification happens in this demo.',
-      },
-      {
-        id: 'ver-exp',
-        type: 'experience',
-        status: 'unverified',
-        label: 'Experience & roles',
-        description: formData.portfolio.organization
-          ? `Self-reported role at ${formData.portfolio.organization}. This demo does not verify it.`
-          : 'Experience review is not available in this demo.',
-      },
-      {
-        id: 'ver-skills',
-        type: 'skills',
-        status: 'unverified',
-        label: 'Skill assessments',
-        description: 'Skill checks are not available in this demo.',
-      },
-      {
-        id: 'ver-portfolio',
-        type: 'portfolio_ownership',
-        status: 'unverified',
-        label: 'Portfolio ownership',
-        description: formData.portfolio.githubUrl
-          ? 'GitHub profile link provided; repository ownership is not checked in this demo.'
-          : 'Link your public GitHub or Behance to verify authorship.',
-      },
-    ]
-
-    // Construct the updated student profile object
-    const updatedStudentData: Partial<Student> = {
-      name: formData.basicInfo.fullName || student.name,
-      headline: formData.basicInfo.headline || `${formData.college.degree} Student`,
-      avatarUrl: formData.basicInfo.avatarUrl || student.avatarUrl,
-      college: formData.college.collegeName || student.college,
-      university: formData.college.collegeName || student.university,
-      degree: formData.college.degree || student.degree,
-      fieldOfStudy: formData.college.fieldOfStudy || student.fieldOfStudy,
-      graduationYear: formData.college.graduationYear || student.graduationYear,
-      skills: formData.skillsInterests.skills,
-      interests: formData.skillsInterests.interests,
-      availability: formData.goals.availability,
-      availabilityPreferences: {
-        paidProjects: formData.goals.lookingFor.paidProjects,
-        collaborators: formData.goals.lookingFor.collaborators,
-        internships: formData.goals.lookingFor.internships,
-        events: formData.goals.lookingFor.events,
-      },
-      about: formData.portfolio.aboutBio || student.about,
-      bio: formData.portfolio.aboutBio || student.bio,
-      socialLinks: {
-        github: formData.portfolio.githubUrl || student.socialLinks.github,
-        linkedin: formData.portfolio.linkedinUrl || student.socialLinks.linkedin,
-        behance: formData.portfolio.behanceUrl || student.socialLinks.behance,
-        portfolio: formData.portfolio.portfolioUrl || student.socialLinks.portfolio,
-      },
-      portfolioProjects: [
-        ...(formData.portfolio.projects || []),
-        ...(formData.portfolio.featuredProjectName
-          ? [
-              {
-                id: `proj-${Date.now()}`,
-                name: formData.portfolio.featuredProjectName,
-                description: formData.portfolio.featuredProjectDesc || 'Student showcase project',
-                skills: formData.skillsInterests.skills.map((s) => s.name).slice(0, 3),
-                url: formData.portfolio.featuredProjectUrl,
-              },
-            ]
-          : []),
-        ...student.portfolioProjects,
-      ],
-      experiences: [
-        ...(formData.portfolio.experiences || []),
-        ...(formData.portfolio.organization
-          ? [
-              {
-                id: `exp-${Date.now()}`,
-                organization: formData.portfolio.organization,
-                role: formData.portfolio.role || 'Contributor',
-                type: formData.portfolio.experienceType,
-                startDate: 'Recent',
-                description: formData.portfolio.experienceDesc || 'Added during onboarding',
-              },
-            ]
-          : []),
-        ...student.experiences,
-      ],
-      certifications: [
-        ...(formData.portfolio.certifications || []),
-        ...student.certifications,
-      ],
-      verifications: updatedVerifications,
-      profileCompletion: estimatedCompletion,
-    }
-
     try {
-      await updateStudent(updatedStudentData)
+      await updateStudent(buildOnboardingStudentUpdate(formData, student, estimatedCompletion))
       // Navigate to onboarding completion welcome screen with summary
       navigate('/signup/student/complete', {
         state: {
@@ -438,13 +298,19 @@ export function StudentOnboardingPage() {
           skillsCount: formData.skillsInterests.skills.length,
         },
       })
+    } catch (caught) {
+      setProfileSaveError(caught instanceof Error ? caught.message : 'Could not save your student profile.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  if (auth.status === 'loading') {
+  if (auth.status === 'loading' || isLoadingProfile) {
     return <LoadingState label="Checking your student account…" />
+  }
+
+  if (auth.status === 'signedIn' && studentProfileError) {
+    return <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12"><section className="peer-card-glass w-full max-w-lg p-8 text-center"><h1 className="text-2xl font-bold">We couldn’t load your profile</h1><p role="alert" className="mt-3 text-sm text-[#525A55]">{studentProfileError}</p><button type="button" onClick={() => void refreshStudentProfile()} className="mt-5 rounded-full bg-[#123D30] px-5 py-2.5 font-semibold text-white">Retry</button></section></main>
   }
 
   if (auth.status === 'profileError') {
@@ -538,7 +404,7 @@ export function StudentOnboardingPage() {
               <div>
                 <p className="font-bold">Student Profile Created!</p>
                 <p className="text-[11px] text-[#525A55]">
-                  Your account name is saved. Continue adding education and portfolio details; those details reset on reload for now.
+                  Your student profile is saved to your PeerConnect account as you continue.
                 </p>
               </div>
             </div>
@@ -554,11 +420,6 @@ export function StudentOnboardingPage() {
 
         {/* Wizard Form Container */}
         <div className="peer-card-glass peer-card-glow-mint p-6 shadow-xl sm:p-10">
-          {currentStep === 6 && (
-            <p className="mb-6 rounded-xl border border-[#D8DDD7] bg-white/70 p-4 text-sm leading-relaxed text-[#525A55]">
-              Only your full name is saved to your account profile. Other onboarding details, including documents and verification selections, are temporary and reset on reload.
-            </p>
-          )}
           {currentStep === 1 && (
             <Step1BasicInfo
               data={formData.basicInfo}
@@ -800,7 +661,7 @@ function StudentAccountStep() {
         )}
 
         <p className="text-center text-xs leading-relaxed text-[#777A72]">
-          Only your full name is saved to your account profile. Education, skills, and portfolio details are temporary and reset on reload.
+          Finish onboarding to save your student profile to your account. Verification is a separate review process.
         </p>
         <p className="text-center text-sm text-[#525A55]">
           Already have an account? <Link to="/signin" className="font-bold text-[#087a59]">Sign in</Link>

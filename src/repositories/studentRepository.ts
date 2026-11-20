@@ -2,12 +2,13 @@ import { demoStudent } from '../data/studentMockData'
 import type { Student } from '../types'
 
 /**
- * Contract used by student-facing UI. Replace the mock implementation with an
- * API-backed repository later; pages should not need to change.
+ * Storage contract used by student-facing UI. Demo browsing uses the mock;
+ * account profiles use the Supabase implementation behind the same boundary.
  */
 export interface StudentRepository {
   getById: (studentId: string) => Promise<Student | null>
   update: (studentId: string, changes: StudentUpdate) => Promise<Student>
+  getPublicProfiles: () => Promise<Student[]>
 }
 
 export type StudentUpdate = Partial<Omit<Student, 'id'>>
@@ -36,6 +37,10 @@ class MockStudentRepository implements StudentRepository {
     const updatedStudent = { ...currentStudent, ...changes }
     this.students.set(studentId, cloneStudent(updatedStudent))
     return cloneStudent(updatedStudent)
+  }
+
+  async getPublicProfiles() {
+    return []
   }
 }
 
