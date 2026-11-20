@@ -2,18 +2,20 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { demoStudent } from '../../data/studentMockData'
 import { useAuth } from '../../lib/auth/AuthProvider'
 import { studentRepository, type StudentUpdate } from '../../repositories/studentRepository'
+import { supabaseStudentRepository } from '../../repositories/supabaseStudentRepository'
 import type { Student } from '../../types'
 import { StudentProfileContext } from './studentProfileContext'
 
 function createAccountStudentDraft(id: string, fullName: string | null): Student {
   return {
     id,
-    name: fullName?.trim() || 'Your profile',
+    name: fullName?.trim() || '',
     headline: '',
     university: '',
     college: '',
     degree: '',
     fieldOfStudy: '',
+    academicYear: '',
     graduationYear: '',
     avatarUrl: '',
     coverImageUrl: '',
@@ -30,6 +32,10 @@ function createAccountStudentDraft(id: string, fullName: string | null): Student
       collaborators: false,
       internships: false,
       events: false,
+      hackathons: false,
+      startups: false,
+      volunteering: false,
+      clubs: false,
     },
     skills: [],
     interests: [],
@@ -42,44 +48,10 @@ function createAccountStudentDraft(id: string, fullName: string | null): Student
     portfolioProjects: [],
     certifications: [],
     socialLinks: {},
-    verifications: [
-      {
-        id: 'verification-college',
-        type: 'college_identity',
-        status: 'unverified',
-        label: 'Institutional enrollment',
-        description: 'No identity or enrollment checks have been performed.',
-      },
-      {
-        id: 'verification-phone',
-        type: 'phone_number',
-        status: 'unverified',
-        label: 'Phone number',
-        description: 'No phone verification has been performed.',
-      },
-      {
-        id: 'verification-experience',
-        type: 'experience',
-        status: 'unverified',
-        label: 'Experience',
-        description: 'Experience details have not been reviewed.',
-      },
-      {
-        id: 'verification-skills',
-        type: 'skills',
-        status: 'unverified',
-        label: 'Skills',
-        description: 'No skill assessment has been performed.',
-      },
-      {
-        id: 'verification-portfolio',
-        type: 'portfolio_ownership',
-        status: 'unverified',
-        label: 'Portfolio ownership',
-        description: 'Portfolio ownership has not been checked.',
-      },
-    ],
+    verifications: [],
     isPlusMember: false,
+    isPublic: false,
+    source: 'account',
   }
 }
 
@@ -88,62 +60,106 @@ export function StudentProfileProvider({ children }: { children: ReactNode }) {
   const [student, setStudent] = useState<Student>(demoStudent)
   const [profileMode, setProfileMode] = useState<'demo' | 'account'>('demo')
   const [isSaving, setIsSaving] = useState(false)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const [profileError, setProfileError] = useState<string | null>(null)
+  const [hasLoadedStudentProfile, setHasLoadedStudentProfile] = useState(false)
+
+  const userId = auth.user?.id
+  const authRole = auth.profile?.role
+  const fullName = auth.profile?.full_name ?? null
+  const isStudentAccount = auth.status === 'signedIn' && Boolean(userId) && authRole === 'student'
 
   useEffect(() => {
-    const hasAccount = Boolean(auth.user?.id)
-    const shouldUseAccountDraft = hasAccount && (
-      auth.status === 'loading' ||
-      auth.status === 'profileError' ||
-      (auth.status === 'signedIn' && auth.profile?.role !== 'client')
-    )
-
-    if (shouldUseAccountDraft && auth.user) {
-      const userId = auth.user.id
-      const fullName = auth.profile?.id === userId ? auth.profile.full_name : null
+    if (isStudentAccount && userId) {
+      let active = true
+      const fallback = createAccountStudentDraft(userId, fullName)
       setProfileMode('account')
-      setStudent((current) => (
-        current.id === userId
-          ? { ...current, name: fullName?.trim() || current.name || 'Your profile' }
-          : createAccountStudentDraft(userId, fullName)
-      ))
-      return
+      setIsLoadingProfile(true)
+      setProfileError(null)
+      setHasLoadedStudentProfile(false)
+      setStudent((current) => current.id === userId ? current : fallback)
+
+      void supabaseStudentRepository.getById(userId)
+        .then((storedStudent) => {
+          if (!active) return
+          setStudent(storedStudent ?? fallback)
+          setHasLoadedStudentProfile(true)
+        })
+        .catch((error: unknown) => {
+          if (!active) return
+          setProfileError(error instanceof Error ? error.message : 'Could not load your profile.')
+        })
+        .finally(() => {
+          if (active) setIsLoadingProfile(false)
+        })
+
+      return () => { active = false }
     }
 
-    if (auth.status === 'signedOut' || auth.status === 'unconfigured' || auth.profile?.role === 'client') {
-      setProfileMode('demo')
-      setStudent(demoStudent)
+    if (auth.status === 'signedOut' || auth.status === 'unconfigured' || authRole === 'client') {
       let active = true
+      setProfileMode('demo')
+      setIsLoadingProfile(false)
+      setProfileError(null)
+      setHasLoadedStudentProfile(true)
+      setStudent(demoStudent)
       void studentRepository.getById(demoStudent.id).then((storedStudent) => {
         if (active && storedStudent) setStudent(storedStudent)
       })
-      return () => {
-        active = false
-      }
+      return () => { active = false }
     }
-  }, [auth.status, auth.user, auth.profile?.id, auth.profile?.full_name, auth.profile?.role])
+  }, [auth.status, authRole, userId, isStudentAccount])
+
+  const refreshStudentProfile = useCallback(async () => {
+    if (profileMode !== 'account' || !userId) return
+    if (!hasLoadedStudentProfile) setIsLoadingProfile(true)
+    setProfileError(null)
+    try {
+      const storedStudent = await supabaseStudentRepository.getById(userId)
+      setStudent(storedStudent ?? createAccountStudentDraft(userId, fullName))
+      setHasLoadedStudentProfile(true)
+    } catch (error) {
+      setProfileError(error instanceof Error ? error.message : 'Could not load your profile.')
+    } finally {
+      setIsLoadingProfile(false)
+    }
+  }, [profileMode, userId, hasLoadedStudentProfile, fullName])
 
   const updateStudent = useCallback(async (changes: StudentUpdate) => {
     setIsSaving(true)
+    setProfileError(null)
     try {
       if (profileMode === 'account') {
-        setStudent((current) => ({ ...current, ...changes }))
+        if (isLoadingProfile || profileError) {
+          throw new Error('Your profile is not ready yet. Retry loading it, then save again.')
+        }
+        const updatedStudent = await supabaseStudentRepository.update(student.id, changes)
+        setStudent(updatedStudent)
+        setHasLoadedStudentProfile(true)
         return
       }
 
       const updatedStudent = await studentRepository.update(student.id, changes)
       setStudent(updatedStudent)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not save your profile.'
+      setProfileError(message)
+      throw error
     } finally {
       setIsSaving(false)
     }
-  }, [profileMode, student.id])
+  }, [profileMode, isLoadingProfile, profileError, student.id])
 
   const value = useMemo(() => ({
     student,
     isSaving,
+    isLoadingProfile,
+    profileError,
     profileMode,
     needsProfileCompletion: profileMode === 'account' && student.profileCompletion === 0,
     updateStudent,
-  }), [student, isSaving, profileMode, updateStudent])
+    refreshStudentProfile,
+  }), [student, isSaving, isLoadingProfile, profileError, profileMode, updateStudent, refreshStudentProfile])
 
   return <StudentProfileContext.Provider value={value}>{children}</StudentProfileContext.Provider>
 }

@@ -18,6 +18,7 @@ import { calculateProfileCompletion } from '../../lib/profileCompletion'
 import { dashboardNotifications, recommendedProjects } from '../../data/studentMockData'
 import { ClientDashboardView } from '../../components/dashboard/ClientDashboardView'
 import { useAuth } from '../../lib/auth/AuthProvider'
+import { LoadingState } from '../../components/common/LoadingState'
 
 export function StudentDashboardPage() {
   const { profile } = useAuth()
@@ -33,7 +34,10 @@ export function StudentDashboardPage() {
 }
 
 function StudentDashboardContent() {
-  const { student, needsProfileCompletion } = useStudentProfile()
+  const { student, needsProfileCompletion, isLoadingProfile, profileError, refreshStudentProfile } = useStudentProfile()
+
+  if (isLoadingProfile) return <LoadingState label="Loading your student profile…" />
+  if (profileError) return <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12"><section className="peer-card-glass w-full max-w-lg p-8 text-center"><h1 className="text-2xl font-bold">We couldn’t load your profile</h1><p role="alert" className="mt-3 text-sm text-[#525A55]">{profileError}</p><button type="button" onClick={() => void refreshStudentProfile()} className="mt-5 rounded-full bg-[#123D30] px-5 py-2.5 font-semibold text-white">Retry</button></section></main>
 
   if (needsProfileCompletion) {
     return (
@@ -50,9 +54,6 @@ function StudentDashboardContent() {
           <Link to="/signup/student" className="mt-6 inline-flex rounded-full bg-[#123D30] px-6 py-3 text-sm font-bold text-white">
             Complete your profile <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
-          <p className="mt-5 text-xs text-[#777A72]">
-            Only your account name is saved to your profile. Other onboarding details are temporary and reset on reload.
-          </p>
         </section>
       </main>
     )

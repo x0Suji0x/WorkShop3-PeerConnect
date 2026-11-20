@@ -1,5 +1,5 @@
 export const DEMO_COPY = {
-  banner: 'Account sign-in is provided by Supabase. Projects, profile details beyond your name, applications, shortlists, and verification are still prototype features and may reset on reload.',
+  banner: 'Account sign-in and student profiles are saved with Supabase. Projects, marketplace applications, shortlists, and verification are still prototype features.',
   session: 'These changes are held in memory and reset when you reload this page.',
   device: 'Applications and shortlists are saved only in this browser on this device. They are not synced to an account or server.',
   verification:

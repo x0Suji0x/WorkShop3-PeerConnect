@@ -5,8 +5,8 @@ PeerConnect is a React + TypeScript student talent and project collaboration pro
 ## Current implementation boundary
 
 - **Authentication is real Supabase Auth.** Email/password and Google OAuth use Supabase. The account role is `student` or `client` and comes from the Supabase profile, not a URL or browser setting.
-- **Only the basic account profile is persisted to Supabase:** role, full name, company name, and avatar URL. Student onboarding information beyond the full name is held in memory and resets on reload.
-- **The rest of the product is prototype/browser-only:** projects and drafts, applications, shortlists, verification, and payments are not connected to production data services. Applications and shortlists use this browser/device; other edits may reset on reload.
+- **Student profiles are persisted to Supabase.** Onboarding and profile edits save to `public.student_profiles`. Profiles are private by default; students can opt into public discovery. The public profile fields contain no email or phone number.
+- **Projects and marketplace applications/shortlists are still prototype features.** Project drafts are not persisted, and marketplace applications and shortlists are saved only in this browser/device. The separate college event and volunteer applications also remain browser-only.
 - **Verification is not implemented.** Email confirmation and Google sign-in do not establish student enrollment, company identity, skills, or portfolio ownership. Sample talent profiles, ratings, and reviews are illustrative content.
 
 The shared demo notice describes these limits in the app. Avoid entering sensitive personal information in prototype features.
@@ -28,7 +28,7 @@ Useful routes:
 
 - `/` — public landing page
 - `/get-started` — browse-first student/client chooser
-- `/profiles` — sample talent directory
+- `/profiles` — public student profiles and clearly labeled sample profiles
 - `/projects` — prototype project browser
 - `/signup/student` — student account and onboarding flow
 - `/signin` — sign in or register a client account

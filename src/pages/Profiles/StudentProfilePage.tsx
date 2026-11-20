@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Award, BriefcaseBusiness, Check, ExternalLink, GraduationCap, Landmark, Pencil, Plus, ShieldAlert, Sparkles, Trash2 } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { routes } from '../../app/routes'
@@ -6,10 +6,13 @@ import { Badge } from '../../components/common/Badge'
 import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { Input } from '../../components/common/Input'
-import { DemoNotice } from '../../components/common/DemoNotice'
-import { DEMO_COPY } from '../../config/demoCopy'
+import { LoadingState } from '../../components/common/LoadingState'
+import { StudentProfilePublishToggle } from '../../components/profile/StudentProfilePublishToggle'
+import { demoStudent } from '../../data/studentMockData'
+import { getTalentSampleAsStudent } from '../../data/talentDirectoryMockData'
 import { useStudentProfile } from '../../hooks/useStudentProfile'
-import type { AvailabilityPreferences, Experience } from '../../types'
+import { supabaseStudentRepository } from '../../repositories/supabaseStudentRepository'
+import type { AvailabilityPreferences, Experience, Student } from '../../types'
 
 const availabilityLabels: { key: keyof AvailabilityPreferences; label: string; description: string }[] = [
   { key: 'paidProjects', label: 'Paid projects', description: 'Show me paid collaboration opportunities' },
@@ -20,36 +23,142 @@ const availabilityLabels: { key: keyof AvailabilityPreferences; label: string; d
 
 export function StudentProfilePage() {
   const { profileId } = useParams()
-  const { student, isSaving, updateStudent, profileMode, needsProfileCompletion } = useStudentProfile()
+  const {
+    student: accountStudent,
+    isSaving,
+    updateStudent,
+    profileMode,
+    needsProfileCompletion,
+    isLoadingProfile,
+    profileError,
+    refreshStudentProfile,
+  } = useStudentProfile()
+  const isOwnAccountProfile = profileMode === 'account' && profileId === accountStudent.id
+  const [requestedStudent, setRequestedStudent] = useState<Student | null>(null)
+  const [isLoadingRequestedProfile, setIsLoadingRequestedProfile] = useState(false)
+  const [requestedProfileError, setRequestedProfileError] = useState('')
+  const [hasResolvedRequestedProfile, setHasResolvedRequestedProfile] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [draftStudent, setDraftStudent] = useState<Student | null>(null)
   const [newSkill, setNewSkill] = useState('')
   const [newExperience, setNewExperience] = useState({ role: '', organization: '' })
+  const sampleRouteStudent = profileId ? getTalentSampleAsStudent(profileId) : null
+  const sourceStudent = isOwnAccountProfile
+    ? accountStudent
+    : requestedStudent ?? sampleRouteStudent ?? demoStudent
+  const student = isEditing && draftStudent ? draftStudent : sourceStudent
+  const canEditProfile = isOwnAccountProfile
+
+  useEffect(() => {
+    if (!profileId || isOwnAccountProfile) {
+      setRequestedStudent(null)
+      setRequestedProfileError('')
+      setIsLoadingRequestedProfile(false)
+      setHasResolvedRequestedProfile(true)
+      return
+    }
+
+    if (profileId === demoStudent.id) {
+      setRequestedStudent(demoStudent)
+      setRequestedProfileError('')
+      setIsLoadingRequestedProfile(false)
+      setHasResolvedRequestedProfile(true)
+      return
+    }
+
+    const sample = getTalentSampleAsStudent(profileId)
+    if (sample) {
+      setRequestedStudent(sample)
+      setRequestedProfileError('')
+      setIsLoadingRequestedProfile(false)
+      setHasResolvedRequestedProfile(true)
+      return
+    }
+
+    let active = true
+    setIsLoadingRequestedProfile(true)
+    setRequestedProfileError('')
+    setHasResolvedRequestedProfile(false)
+    void supabaseStudentRepository.getById(profileId)
+      .then((profile) => {
+        if (!active) return
+        if (profile?.isPublic) setRequestedStudent(profile)
+        else setRequestedStudent(null)
+        setHasResolvedRequestedProfile(true)
+      })
+      .catch(() => {
+        if (active) {
+          setRequestedProfileError('This public student profile could not be loaded.')
+          setHasResolvedRequestedProfile(true)
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoadingRequestedProfile(false)
+      })
+    return () => { active = false }
+  }, [profileId, isOwnAccountProfile])
+
+  const updateDraft = (changes: Partial<Student>) => {
+    setDraftStudent((current) => ({ ...(current ?? sourceStudent), ...changes }))
+  }
+
+  const saveProfileEdits = async () => {
+    if (!draftStudent) return
+    try {
+      await updateStudent({
+        headline: draftStudent.headline,
+        bio: draftStudent.bio,
+        about: draftStudent.about,
+        skills: draftStudent.skills,
+        experiences: draftStudent.experiences,
+        availabilityPreferences: draftStudent.availabilityPreferences,
+      })
+      setDraftStudent(null)
+      setIsEditing(false)
+    } catch {
+      // updateStudent exposes the save error in the profile UI.
+    }
+  }
 
   const updateAvailability = (key: keyof AvailabilityPreferences) => {
-    void updateStudent({ availabilityPreferences: { ...student.availabilityPreferences, [key]: !student.availabilityPreferences[key] } })
+    updateDraft({ availabilityPreferences: { ...student.availabilityPreferences, [key]: !student.availabilityPreferences[key] } })
   }
 
   const addSkill = () => {
     const skill = newSkill.trim()
     if (!skill || student.skills.some((item) => item.name.toLowerCase() === skill.toLowerCase())) return
-    void updateStudent({ skills: [...student.skills, { name: skill, category: 'other' }] })
+    updateDraft({ skills: [...student.skills, { name: skill, category: 'other' }] })
     setNewSkill('')
   }
 
-  const removeSkill = (skillName: string) => void updateStudent({ skills: student.skills.filter((skill) => skill.name !== skillName) })
+  const removeSkill = (skillName: string) => updateDraft({ skills: student.skills.filter((skill) => skill.name !== skillName) })
 
   const addExperience = () => {
     if (!newExperience.role.trim() || !newExperience.organization.trim()) return
-    const experience: Experience = { id: `exp-${Date.now()}`, role: newExperience.role.trim(), organization: newExperience.organization.trim(), type: 'work', startDate: 'Present', description: 'New experience — add more detail when your profile service is connected.' }
-    void updateStudent({ experiences: [experience, ...student.experiences] })
+    const experience: Experience = { id: `exp-${Date.now()}`, role: newExperience.role.trim(), organization: newExperience.organization.trim(), type: 'work', startDate: 'Present', description: 'Added to your profile.' }
+    updateDraft({ experiences: [experience, ...student.experiences] })
     setNewExperience({ role: '', organization: '' })
   }
 
-  const removeExperience = (experienceId: string) => void updateStudent({ experiences: student.experiences.filter((experience) => experience.id !== experienceId) })
+  const removeExperience = (experienceId: string) => updateDraft({ experiences: student.experiences.filter((experience) => experience.id !== experienceId) })
 
-  const pendingCount = student.verifications.filter((verification) => verification.status !== 'verified').length
+  if (isOwnAccountProfile && isLoadingProfile) return <LoadingState label="Loading your student profile…" />
 
-  if (profileMode === 'account' && profileId === student.id && needsProfileCompletion) {
+  if (isOwnAccountProfile && profileError) {
+    return <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12"><section className="peer-card-glass w-full max-w-lg p-8 text-center"><h1 className="text-2xl font-bold">We couldn’t load your profile</h1><p role="alert" className="mt-3 text-sm text-[#525A55]">{profileError}</p><button type="button" onClick={() => void refreshStudentProfile()} className="mt-5 rounded-full bg-[#123D30] px-5 py-2.5 font-semibold text-white">Retry</button></section></main>
+  }
+
+  if (isLoadingRequestedProfile) return <LoadingState label="Loading student profile…" />
+
+  if (profileId && requestedStudent === null && !isOwnAccountProfile && requestedProfileError) {
+    return <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12"><section className="peer-card-glass w-full max-w-lg p-8 text-center"><h1 className="text-2xl font-bold">Profile unavailable</h1><p role="alert" className="mt-3 text-sm text-[#525A55]">{requestedProfileError}</p><Link to={routes.profiles} className="mt-5 inline-block font-semibold text-[#087a59]">Back to student profiles</Link></section></main>
+  }
+
+  if (profileId && hasResolvedRequestedProfile && requestedStudent === null && !isOwnAccountProfile && profileId !== demoStudent.id && !sampleRouteStudent) {
+    return <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12"><section className="peer-card-glass w-full max-w-lg p-8 text-center"><h1 className="text-2xl font-bold">This profile is private or unavailable</h1><p className="mt-3 text-sm text-[#525A55]">Only students who publish their profile appear in the directory.</p><Link to={routes.profiles} className="mt-5 inline-block font-semibold text-[#087a59]">Back to student profiles</Link></section></main>
+  }
+
+  if (isOwnAccountProfile && needsProfileCompletion) {
     return (
       <main className="peer-page-surface flex min-h-[calc(100vh-80px)] items-center justify-center px-4 py-12">
         <section className="peer-card-glass w-full max-w-2xl p-8 text-center sm:p-12">
@@ -60,9 +169,6 @@ export function StudentProfilePage() {
           <Link to="/signup/student" className="mt-6 inline-flex rounded-full bg-[#123D30] px-6 py-3 text-sm font-bold text-white">
             Continue profile setup
           </Link>
-          <p className="mt-5 text-xs text-[#777A72]">
-            Only your account name is saved. Profile details entered here are temporary and reset on reload.
-          </p>
         </section>
       </main>
     )
@@ -102,7 +208,7 @@ export function StudentProfilePage() {
               {isEditing ? (
                 <Input
                   value={student.headline}
-                  onChange={(event) => void updateStudent({ headline: event.target.value })}
+                  onChange={(event) => updateDraft({ headline: event.target.value })}
                   aria-label="Professional headline"
                   className="mt-2 max-w-xl"
                 />
@@ -117,32 +223,32 @@ export function StudentProfilePage() {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2 sm:mt-0 sm:pt-4 shrink-0">
-            <Link to={routes.dashboard}>
+            {isOwnAccountProfile && <StudentProfilePublishToggle />}
+            {isOwnAccountProfile && <Link to={routes.dashboard}>
               <Button variant="secondary" size="sm">Dashboard</Button>
-            </Link>
-            <Button size="sm" onClick={() => setIsEditing((value) => !value)}>
-              {isEditing ? (
-                <>
+            </Link>}
+            {canEditProfile && (isEditing ? (
+              <>
+                <Button variant="secondary" size="sm" disabled={isSaving} onClick={() => { setDraftStudent(null); setIsEditing(false) }}>Cancel</Button>
+                <Button size="sm" disabled={isSaving} onClick={() => void saveProfileEdits()}>
                   <Check className="h-3.5 w-3.5" />
-                  {isSaving ? 'Saving…' : 'Done editing'}
-                </>
-              ) : (
-                <>
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit profile
-                </>
-              )}
-            </Button>
+                  {isSaving ? 'Saving…' : 'Save profile'}
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" onClick={() => { setDraftStudent(sourceStudent); setIsEditing(true) }}>
+                <Pencil className="h-3.5 w-3.5" />
+                Edit profile
+              </Button>
+            ))}
           </div>
         </div>
 
-        {isEditing && <div className="mt-4"><DemoNotice>{DEMO_COPY.session}</DemoNotice></div>}
-
-        {profileId !== student.id && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">Showing a local demo profile while profile data is not connected. Requested profile: {profileId}</p>}
+        {profileError && canEditProfile && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">{profileError}</p>}
 
         <div className="mt-7 grid grid-cols-1 gap-6 lg:grid-cols-12">
           <main className="space-y-6 lg:col-span-8">
-            <Card><SectionTitle title="About" icon={Sparkles} />{isEditing ? <textarea value={student.about} onChange={(event) => void updateStudent({ about: event.target.value })} className="mt-4 min-h-32 w-full resize-y rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-3 text-sm leading-7 text-[#525A55] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20" aria-label="About you" /> : <p className="mt-4 text-sm leading-7 text-[#525A55]">{student.about}</p>}</Card>
+            <Card><SectionTitle title="About" icon={Sparkles} />{isEditing ? <textarea value={student.about} onChange={(event) => updateDraft({ about: event.target.value, bio: event.target.value })} className="mt-4 min-h-32 w-full resize-y rounded-xl border border-[#E7E8E1] bg-white px-3.5 py-3 text-sm leading-7 text-[#525A55] outline-none transition focus:border-[#08C58A] focus:ring-2 focus:ring-[#08C58A]/20" aria-label="About you" /> : <p className="mt-4 text-sm leading-7 text-[#525A55]">{student.about}</p>}</Card>
             <Card>
               <SectionTitle title="Skills & interests" icon={Sparkles} />
               <div className="mt-4 flex flex-wrap gap-2">{student.skills.map((skill) => <span key={skill.name} className="inline-flex items-center gap-1 rounded-lg border border-[#E7E8E1] bg-[#F7F6F0] px-3 py-1.5 text-xs font-semibold text-[#171916]">{skill.name}{isEditing && <button type="button" onClick={() => removeSkill(skill.name)} className="ml-1 rounded text-[#777A72] hover:text-red-600" aria-label={`Remove ${skill.name}`}><Trash2 className="h-3 w-3" /></button>}</span>)}</div>
@@ -160,8 +266,8 @@ export function StudentProfilePage() {
           </main>
 
           <aside className="space-y-6 lg:col-span-4">
-            <Card><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Availability</p><h2 className="mt-2 text-lg font-black text-[#171916]">How you want to participate</h2><div className="mt-4 space-y-3">{availabilityLabels.map((item) => <button type="button" key={item.key} onClick={() => updateAvailability(item.key)} aria-pressed={student.availabilityPreferences[item.key]} className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#E7E8E1] p-3 text-left transition hover:border-[#08C58A]/50"><span><span className="block text-sm font-bold text-[#171916]">{item.label}</span><span className="mt-0.5 block text-xs leading-relaxed text-[#777A72]">{item.description}</span></span><span aria-hidden="true" className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition ${student.availabilityPreferences[item.key] ? 'bg-[#08C58A] justify-end' : 'bg-[#D8D6CE] justify-start'}`}><span className="h-5 w-5 rounded-full bg-white shadow-sm" /></span></button>)}</div></Card>
-            <Card><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Trust signals</p><h2 className="mt-2 text-lg font-black text-[#171916]">Verification</h2></div><ShieldAlert className="h-5 w-5 text-amber-500" /></div><p className="mt-2 text-sm leading-relaxed text-[#777A72]">{pendingCount} of {student.verifications.length} verification areas are demo states or awaiting review.</p><Link to={routes.verification} className="mt-4 inline-flex text-sm font-bold text-[#123D30] hover:text-[#08A876]">Review verification <ExternalLink className="ml-1 h-3.5 w-3.5" /></Link></Card>
+            <Card><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Availability</p><h2 className="mt-2 text-lg font-black text-[#171916]">How you want to participate</h2><div className="mt-4 space-y-3">{availabilityLabels.map((item) => <button type="button" key={item.key} onClick={() => updateAvailability(item.key)} disabled={!canEditProfile || !isEditing || isSaving} aria-pressed={student.availabilityPreferences[item.key]} className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#E7E8E1] p-3 text-left transition hover:border-[#08C58A]/50 disabled:cursor-default disabled:hover:border-[#E7E8E1]"><span><span className="block text-sm font-bold text-[#171916]">{item.label}</span><span className="mt-0.5 block text-xs leading-relaxed text-[#777A72]">{item.description}</span></span><span aria-hidden="true" className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition ${student.availabilityPreferences[item.key] ? 'bg-[#08C58A] justify-end' : 'bg-[#D8D6CE] justify-start'}`}><span className="h-5 w-5 rounded-full bg-white shadow-sm" /></span></button>)}</div></Card>
+            <Card><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[0.14em] text-[#08A876]">Trust signals</p><h2 className="mt-2 text-lg font-black text-[#171916]">Verification</h2></div><ShieldAlert className="h-5 w-5 text-amber-500" /></div><p className="mt-2 text-sm leading-relaxed text-[#777A72]">Verification is not available yet. Profile details are self-reported and are not independently verified.</p><Link to={routes.verification} className="mt-4 inline-flex text-sm font-bold text-[#123D30] hover:text-[#08A876]">Learn about verification <ExternalLink className="ml-1 h-3.5 w-3.5" /></Link></Card>
           </aside>
         </div>
       </div>

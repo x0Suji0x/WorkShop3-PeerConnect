@@ -1,4 +1,4 @@
-import type { StudentProfile } from '../types'
+import type { Student, StudentProfile } from '../types'
 
 type TalentSample = Omit<StudentProfile, 'avatarUrl' | 'hourlyRate' | 'projectsCompleted' | 'availability' | 'graduationYear' | 'featuredWork' | 'bio' | 'skills'> & {
   category: 'design' | 'dev' | 'ai' | 'other'
@@ -51,7 +51,42 @@ export const talentDirectoryStudents: StudentProfile[] = samples.map((sample, in
     projectsCompleted: 0,
     availability: index % 3 === 0 ? 'Available now' : index % 3 === 1 ? 'Available soon' : 'Limited hours',
     skills: profile.headline.split(/\s+&\s+|\s+and\s+|,\s*/i).map((name) => ({ name, category })),
+    interests: [],
     featuredWork: sampleWork,
     bio: `Sample ${profile.headline.toLowerCase()} profile. Ratings and review text are illustrative demo content.`,
+    source: 'sample',
   }
 })
+
+export function getTalentSampleAsStudent(studentId: string): Student | null {
+  const profile = talentDirectoryStudents.find((student) => student.id === studentId)
+  if (!profile) return null
+  return {
+    ...profile,
+    coverImageUrl: '',
+    college: profile.university,
+    degree: '',
+    fieldOfStudy: '',
+    interests: [],
+    profileCompletion: 0,
+    profileViews: 0,
+    activeProjects: 0,
+    applicationsSent: 0,
+    about: profile.bio,
+    availabilityPreferences: { paidProjects: false, collaborators: false, internships: false, events: false },
+    experiences: [],
+    education: [],
+    portfolioProjects: profile.featuredWork ? [{
+      id: `${profile.id}-sample-work`,
+      name: profile.featuredWork,
+      description: 'Illustrative work listed on this sample profile.',
+      skills: profile.skills.map((skill) => skill.name),
+    }] : [],
+    certifications: [],
+    socialLinks: {},
+    verifications: [],
+    isPlusMember: false,
+    isPublic: false,
+    source: 'sample',
+  }
+}

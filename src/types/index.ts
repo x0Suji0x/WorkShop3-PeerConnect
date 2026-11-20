@@ -14,6 +14,8 @@ export interface StudentProfile {
   skills: { name: string; category: 'design' | 'dev' | 'ai' | 'other' }[]
   featuredWork: string
   bio: string
+  /** Identifies illustrative directory rows separately from real student accounts. */
+  source?: 'sample' | 'account'
 }
 
 export type VerificationStatus = 'unverified' | 'pending' | 'verified'
@@ -38,6 +40,10 @@ export interface AvailabilityPreferences {
   collaborators: boolean
   internships: boolean
   events: boolean
+  hackathons?: boolean
+  startups?: boolean
+  volunteering?: boolean
+  clubs?: boolean
 }
 
 export interface Experience {
@@ -90,6 +96,7 @@ export interface Student extends StudentProfile {
   college: string
   degree: string
   fieldOfStudy: string
+  academicYear?: string
   profileCompletion: number
   profileViews: number
   activeProjects: number
@@ -104,6 +111,7 @@ export interface Student extends StudentProfile {
   socialLinks: SocialLinks
   verifications: Verification[]
   isPlusMember: boolean
+  isPublic?: boolean
 }
 
 export type PaymentMethod = 'upi' | 'card'

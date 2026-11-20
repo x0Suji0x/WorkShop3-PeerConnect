@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Search,
@@ -11,6 +11,8 @@ import { PageHeading } from '../../components/common/PageHeading'
 import { Button } from '../../components/common/Button'
 import { talentDirectoryStudents } from '../../data/talentDirectoryMockData'
 import { DemoNotice } from '../../components/common/DemoNotice'
+import { supabaseStudentRepository } from '../../repositories/supabaseStudentRepository'
+import type { StudentProfile } from '../../types'
 import type { SkillCategory } from '../../types'
 
 const CATEGORY_TABS: { id: SkillCategory | 'all'; label: string }[] = [
@@ -26,8 +28,22 @@ export function TalentDirectoryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [availableOnly, setAvailableOnly] = useState(false)
   const [collegeFilter, setCollegeFilter] = useState('All')
+  const [accountStudents, setAccountStudents] = useState<StudentProfile[]>([])
+  const [publicProfilesError, setPublicProfilesError] = useState('')
 
-  const allStudents = talentDirectoryStudents
+  useEffect(() => {
+    let active = true
+    void supabaseStudentRepository.getPublicProfiles()
+      .then((profiles) => {
+        if (active) setAccountStudents(profiles.map((profile) => ({ ...profile, source: 'account' })))
+      })
+      .catch(() => {
+        if (active) setPublicProfilesError('Public student profiles could not be loaded. Sample profiles are still shown.')
+      })
+    return () => { active = false }
+  }, [])
+
+  const allStudents = useMemo(() => [...accountStudents, ...talentDirectoryStudents], [accountStudents])
 
   const filteredStudents = useMemo(() => {
     return allStudents.filter((student) => {
@@ -82,7 +98,7 @@ export function TalentDirectoryPage() {
         <PageHeading
           eyebrow="Student Talent Directory"
           title="Discover student builders."
-          description="Explore sample student talent across engineering, design, media, content, and marketing. Ratings and reviews are illustrative demo content."
+          description="Explore public student profiles alongside clearly labeled samples across engineering, design, media, content, and marketing."
           actions={
             <div className="flex items-center gap-2">
               <Link to="/signup/student">
@@ -177,7 +193,8 @@ export function TalentDirectoryPage() {
           Showing <strong className="text-[#171916]">{filteredStudents.length}</strong> student builder profiles
         </span>
       </div>
-      <div className="mt-3"><DemoNotice>Demo profiles only. Ratings and reviews are sample content; student identity, enrollment, skills, and work history have not been independently checked.</DemoNotice></div>
+      <div className="mt-3"><DemoNotice>Student profile details are self-reported and are not independently verified. Sample cards, ratings, and reviews are illustrative content.</DemoNotice></div>
+      {publicProfilesError && <p className="text-sm text-amber-800" role="status">{publicProfilesError}</p>}
 
       {/* Student Cards Grid */}
       {filteredStudents.length > 0 ? (
@@ -203,6 +220,7 @@ export function TalentDirectoryPage() {
                       <h3 className="truncate text-base font-black text-[#171916] group-hover:text-[#08A876] transition-colors">
                         {student.name}
                       </h3>
+                      {student.source === 'sample' && <span className="mt-1 inline-flex rounded-full bg-[#FBF0DC] px-2 py-0.5 text-[10px] font-bold text-[#765820]">Sample</span>}
                       <span className="rounded-md bg-[#E3F4EB] px-1.5 py-0.5 text-[10px] font-bold text-[#08A876]">
                         {student.availability}
                       </span>
@@ -234,7 +252,7 @@ export function TalentDirectoryPage() {
                   <div className="rounded-xl bg-[#FAF8F5] border border-[#E7E8E1] p-2.5 text-[11px] text-[#525A55]">
                     <div className="flex items-center gap-1 font-bold text-[#171916] mb-0.5">
                       <FolderGit2 className="h-3 w-3 text-[#08C58A]" />
-                      <span>Sample Work</span>
+                      <span>{student.source === 'sample' ? 'Sample Work' : 'Portfolio'}</span>
                     </div>
                     <span className="italic">{student.featuredWork}</span>
                   </div>
@@ -260,11 +278,13 @@ export function TalentDirectoryPage() {
 
               {/* Card Footer: Metrics & Action */}
               <div className="mt-5 peer-divider-fade-t pt-3 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1 text-[#777A72]">
-                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  <span className="font-bold text-[#171916]">{student.rating.toFixed(1)}/5</span>
-                  <span>({student.reviewsCount} reviews)</span>
-                </div>
+                {student.source === 'sample' ? (
+                  <div className="flex items-center gap-1 text-[#777A72]">
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    <span className="font-bold text-[#171916]">{student.rating.toFixed(1)}/5</span>
+                    <span>({student.reviewsCount} sample reviews)</span>
+                  </div>
+                ) : <span className="text-[#777A72]">No ratings yet</span>}
 
                 <Link
                   to={`/profiles/${student.id}`}
