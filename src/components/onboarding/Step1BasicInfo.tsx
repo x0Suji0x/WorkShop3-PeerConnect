@@ -16,9 +16,9 @@ import {
   ShieldCheck,
   AlertCircle,
   Camera,
-  Image as ImageIcon,
 } from 'lucide-react'
 import type { OnboardingBasicInfo, FormValidationErrors } from '../../types/onboarding'
+import { AVATAR_PRESETS, DEFAULT_AVATAR_URL, type AvatarStudioConfig } from '../../lib/avatarPresets'
 import { evaluatePasswordStrength } from '../../lib/onboardingValidation'
 import { Badge } from '../common/Badge'
 
@@ -27,15 +27,6 @@ interface Step1BasicInfoProps {
   errors: FormValidationErrors
   onChange: (field: keyof OnboardingBasicInfo, value: string | boolean) => void
 }
-
-const AVATAR_PRESETS = [
-  { id: 'av-1', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80', label: 'Sofia' },
-  { id: 'av-2', url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80', label: 'Marcus' },
-  { id: 'av-3', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80', label: 'Liam' },
-  { id: 'av-4', url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80', label: 'Ananya' },
-  { id: 'av-5', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80', label: 'Devon' },
-  { id: 'av-6', url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80', label: 'Elena' },
-]
 
 // Avatar Builder options
 const SKIN_TONES = [
@@ -47,7 +38,7 @@ const SKIN_TONES = [
   { label: 'Deep Espresso', color: '#543224' },
 ]
 
-const HAIR_STYLES = [
+const HAIR_STYLES: Array<{ id: AvatarStudioConfig['hairStyle']; label: string }> = [
   { id: 'short', label: 'Crew Cut' },
   { id: 'curly', label: 'Curly Volume' },
   { id: 'waves', label: 'Long Waves' },
@@ -82,7 +73,7 @@ const BG_COLORS = [
   { label: 'Sage Tint', color: '#ECFDF5' },
 ]
 
-const ACCESSORIES = [
+const ACCESSORIES: Array<{ id: AvatarStudioConfig['accessory']; label: string }> = [
   { id: 'none', label: 'None' },
   { id: 'glasses', label: 'Eyeglasses' },
   { id: 'sunglasses', label: 'Sunglasses' },
@@ -174,19 +165,18 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
   const [zoomLevel, setZoomLevel] = useState(1)
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const refFileInputRef = useRef<HTMLInputElement>(null)
 
   // Suggestion rotation index
   const [suggestionBatch, setSuggestionBatch] = useState(0)
 
   // Avatar Builder state
-  const [avatarConfig, setAvatarConfig] = useState({
+  const [avatarConfig, setAvatarConfig] = useState<AvatarStudioConfig>({
     skinTone: SKIN_TONES[1].color,
-    hairStyle: HAIR_STYLES[0].id,
+    hairStyle: 'short',
     hairColor: HAIR_COLORS[0].color,
     outfitColor: OUTFIT_COLORS[0].color,
     bgColor: BG_COLORS[1].color,
-    accessory: ACCESSORIES[0].id,
+    accessory: 'none',
   })
 
   const passwordStrength = evaluatePasswordStrength(data.password)
@@ -313,6 +303,8 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
     onChange('avatarUrl', url)
   }
 
+  const activePfp = AVATAR_PRESETS.find((preset) => preset.url === data.avatarUrl)
+
   // Display 3 headlines at a time
   const displayedHeadlines = [
     HEADLINE_SUGGESTIONS[(suggestionBatch * 3) % HEADLINE_SUGGESTIONS.length],
@@ -347,7 +339,7 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
               <h3 className="text-sm font-bold text-[#171916]">Profile Photo & Avatar</h3>
             </div>
             <p className="mt-0.5 text-xs text-[#777A72]">
-              Upload a picture from your device or design a custom personal avatar
+              Upload your own photo or create an illustrated identity in Avatar Studio.
             </p>
           </div>
 
@@ -359,7 +351,7 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                 avatarTab === 'upload' ? 'bg-[#123D30] text-white shadow-xs' : 'text-[#777A72] hover:text-[#171916]'
               }`}
             >
-              Upload Photo from Device
+              Pick / Upload PFP
             </button>
             <button
               type="button"
@@ -368,13 +360,13 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                 avatarTab === 'builder' ? 'bg-[#123D30] text-white shadow-xs' : 'text-[#777A72] hover:text-[#171916]'
               }`}
             >
-              Build Custom Avatar
+              Avatar Studio
             </button>
           </div>
         </div>
 
         {avatarTab === 'upload' ? (
-          /* TAB 1: DEVICE UPLOAD DROPZONE & PRESETS */
+          /* TAB 1: DEVICE UPLOAD ONLY */
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Main Avatar Preview (Large & Clear) */}
@@ -382,7 +374,7 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                 <div className="relative group">
                   <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-[#F7F6F0] shadow-lg ring-2 ring-[#08C58A]/40">
                     <img
-                      src={data.avatarUrl || AVATAR_PRESETS[0].url}
+                      src={data.avatarUrl || DEFAULT_AVATAR_URL}
                       alt="Profile preview"
                       className="h-full w-full object-cover transition-transform duration-150"
                       style={{ transform: `scale(${zoomLevel})` }}
@@ -410,7 +402,7 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                   <span className="text-[#777A72]">•</span>
                   <button
                     type="button"
-                    onClick={() => onChange('avatarUrl', AVATAR_PRESETS[0].url)}
+                    onClick={() => onChange('avatarUrl', DEFAULT_AVATAR_URL)}
                     className="text-xs text-red-600 hover:underline flex items-center gap-0.5"
                   >
                     <Trash2 className="h-3 w-3" /> Reset
@@ -476,35 +468,49 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
               </div>
             </div>
 
-            {/* Presets Gallery */}
-            <div className="border-t border-[#F2F1EA] pt-3">
-              <span className="block text-xs font-bold text-[#171916] mb-2">
-                Or select from diverse student portraits:
-              </span>
-              <div className="flex flex-wrap gap-2.5">
+          </div>
+        ) : (
+          /* TAB 2: AVATAR STUDIO */
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-[#D9E9E1] bg-[#F7FCF9] p-3.5">
+              <div className="mb-3 flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span className="block text-xs font-bold text-[#171916]">
+                    Start with an illustrated PFP
+                  </span>
+                  <p className="mt-0.5 text-[11px] text-[#777A72]">
+                    Community-avatar styles — colourful, expressive, and never stock-photo looking.
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#08A876]">
+                  8 vibes
+                </span>
+              </div>
+              <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-8">
                 {AVATAR_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
                     type="button"
                     onClick={() => {
                       onChange('avatarUrl', preset.url)
+                      setAvatarConfig(preset.studioConfig)
                       setZoomLevel(1)
                     }}
-                    className={`h-11 w-11 rounded-full overflow-hidden border-2 transition ${
+                    aria-label={`${preset.label}: ${preset.description}`}
+                    title={`${preset.label} — ${preset.description}`}
+                    className={`relative aspect-square overflow-hidden rounded-2xl border-2 transition ${
                       data.avatarUrl === preset.url
-                        ? 'border-[#08C58A] scale-110 ring-2 ring-[#08C58A]/30 shadow-xs'
-                        : 'border-transparent opacity-70 hover:opacity-100 hover:scale-105'
+                        ? 'border-[#08C58A] scale-105 ring-2 ring-[#08C58A]/30 shadow-sm'
+                        : 'border-transparent opacity-85 hover:opacity-100 hover:scale-105 hover:border-[#123D30]/20'
                     }`}
                   >
                     <img src={preset.url} alt={preset.label} className="h-full w-full object-cover" />
+                    <span className="sr-only">{preset.label}</span>
                   </button>
                 ))}
               </div>
             </div>
-          </div>
-        ) : (
-          /* TAB 2: CUSTOM SVG AVATAR BUILDER */
-          <div className="space-y-4">
+
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Live SVG Avatar Preview */}
               <div className="flex flex-col items-center shrink-0">
@@ -519,12 +525,16 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                   />
                 </div>
 
+                <p className="mt-2 max-w-36 text-center text-[11px] font-medium leading-4 text-[#525A55]">
+                  {activePfp ? `Editing ${activePfp.label}` : 'Your custom avatar'}
+                </p>
+
                 <button
                   type="button"
                   onClick={handleApplyCustomAvatar}
                   className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#08C58A] px-4 py-1.5 text-xs font-bold text-[#123D30] hover:bg-[#07B07B] transition shadow-xs"
                 >
-                  <Check className="h-3.5 w-3.5" /> Apply This Avatar
+                  <Check className="h-3.5 w-3.5" /> Save avatar edits
                 </button>
               </div>
 
@@ -644,27 +654,6 @@ export function Step1BasicInfo({ data, errors, onChange }: Step1BasicInfoProps) 
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Upload picture as reference button */}
-                <div className="pt-1">
-                  <input
-                    ref={refFileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleFileChosen(file)
-                    }}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => refFileInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 text-xs text-[#08A876] font-bold hover:underline"
-                  >
-                    <ImageIcon className="h-3.5 w-3.5" /> Or upload a photo reference from your device
-                  </button>
                 </div>
               </div>
             </div>
