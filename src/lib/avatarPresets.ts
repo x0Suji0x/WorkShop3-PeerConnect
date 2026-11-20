@@ -3,16 +3,22 @@ export interface AvatarPreset {
   label: string
   description: string
   url: string
+  studioConfig: AvatarStudioConfig
 }
 
-interface AvatarArtwork {
+export interface AvatarStudioConfig {
+  skinTone: string
+  hairStyle: 'short' | 'curly' | 'waves' | 'bob' | 'bun' | 'afro'
+  hairColor: string
+  outfitColor: string
+  bgColor: string
+  accessory: 'none' | 'glasses' | 'sunglasses' | 'headphones'
+}
+
+interface AvatarArtwork extends Omit<AvatarStudioConfig, 'bgColor' | 'accessory'> {
   backgroundStart: string
   backgroundEnd: string
   accent: string
-  skinTone: string
-  hairColor: string
-  outfitColor: string
-  hairStyle: 'short' | 'curly' | 'waves' | 'bob' | 'bun' | 'afro'
   accessory?: 'glasses' | 'headphones' | 'earring'
 }
 
@@ -80,14 +86,14 @@ function makeAvatarArtwork(art: AvatarArtwork) {
 }
 
 const presetArtwork: Array<Omit<AvatarPreset, 'url'> & { artwork: AvatarArtwork }> = [
-  { id: 'mint-spark', label: 'Mint Spark', description: 'Fresh & optimistic', artwork: { backgroundStart: '#16C79A', backgroundEnd: '#8DE1CB', accent: '#FFFFFF', skinTone: '#D99B77', hairColor: '#301F1B', outfitColor: '#173F35', hairStyle: 'curly', accessory: 'earring' } },
-  { id: 'violet-signal', label: 'Violet Signal', description: 'Creative & bold', artwork: { backgroundStart: '#7157D9', backgroundEnd: '#C4B5FD', accent: '#F7CA4D', skinTone: '#8C5338', hairColor: '#1D1722', outfitColor: '#30245D', hairStyle: 'waves', accessory: 'glasses' } },
-  { id: 'coral-kick', label: 'Coral Kick', description: 'Energetic & social', artwork: { backgroundStart: '#FA7657', backgroundEnd: '#FBC38C', accent: '#FFE0CF', skinTone: '#F3C7A5', hairColor: '#4B2A1E', outfitColor: '#A93638', hairStyle: 'bob', accessory: 'earring' } },
-  { id: 'blue-room', label: 'Blue Room', description: 'Calm & curious', artwork: { backgroundStart: '#4087D8', backgroundEnd: '#9CD8FA', accent: '#E6F6FF', skinTone: '#BA7854', hairColor: '#1B202B', outfitColor: '#19345E', hairStyle: 'short', accessory: 'headphones' } },
-  { id: 'solar-pop', label: 'Solar Pop', description: 'Warm & playful', artwork: { backgroundStart: '#F5B83B', backgroundEnd: '#FDE68A', accent: '#FFF7D6', skinTone: '#543224', hairColor: '#1F1512', outfitColor: '#A94C22', hairStyle: 'afro' } },
-  { id: 'berry-wave', label: 'Berry Wave', description: 'Expressive & kind', artwork: { backgroundStart: '#D3538B', backgroundEnd: '#F2A4C5', accent: '#FFE4F0', skinTone: '#FDDFCC', hairColor: '#563442', outfitColor: '#6B2258', hairStyle: 'bun', accessory: 'glasses' } },
-  { id: 'forest-mode', label: 'Forest Mode', description: 'Grounded & focused', artwork: { backgroundStart: '#235E4B', backgroundEnd: '#8DBD9E', accent: '#D9F7E7', skinTone: '#BA7854', hairColor: '#171916', outfitColor: '#14352D', hairStyle: 'short', accessory: 'headphones' } },
-  { id: 'rose-glow', label: 'Rose Glow', description: 'Bright & thoughtful', artwork: { backgroundStart: '#E6789D', backgroundEnd: '#F7C4D4', accent: '#FFF4FA', skinTone: '#D99B77', hairColor: '#2D1B21', outfitColor: '#8B3155', hairStyle: 'curly', accessory: 'earring' } },
+  { id: 'mint-spark', label: 'Mint Spark', description: 'Fresh & optimistic', studioConfig: { skinTone: '#D99B77', hairStyle: 'curly', hairColor: '#301F1B', outfitColor: '#173F35', bgColor: '#E3F4EB', accessory: 'none' }, artwork: { backgroundStart: '#16C79A', backgroundEnd: '#8DE1CB', accent: '#FFFFFF', skinTone: '#D99B77', hairColor: '#301F1B', outfitColor: '#173F35', hairStyle: 'curly', accessory: 'earring' } },
+  { id: 'violet-signal', label: 'Violet Signal', description: 'Creative & bold', studioConfig: { skinTone: '#8C5338', hairStyle: 'waves', hairColor: '#1D1722', outfitColor: '#30245D', bgColor: '#EDE9FE', accessory: 'glasses' }, artwork: { backgroundStart: '#7157D9', backgroundEnd: '#C4B5FD', accent: '#F7CA4D', skinTone: '#8C5338', hairColor: '#1D1722', outfitColor: '#30245D', hairStyle: 'waves', accessory: 'glasses' } },
+  { id: 'coral-kick', label: 'Coral Kick', description: 'Energetic & social', studioConfig: { skinTone: '#F3C7A5', hairStyle: 'bob', hairColor: '#4B2A1E', outfitColor: '#A93638', bgColor: '#FFEDD5', accessory: 'none' }, artwork: { backgroundStart: '#FA7657', backgroundEnd: '#FBC38C', accent: '#FFE0CF', skinTone: '#F3C7A5', hairColor: '#4B2A1E', outfitColor: '#A93638', hairStyle: 'bob', accessory: 'earring' } },
+  { id: 'blue-room', label: 'Blue Room', description: 'Calm & curious', studioConfig: { skinTone: '#BA7854', hairStyle: 'short', hairColor: '#1B202B', outfitColor: '#1E3A8A', bgColor: '#E0F2FE', accessory: 'headphones' }, artwork: { backgroundStart: '#4087D8', backgroundEnd: '#9CD8FA', accent: '#E6F6FF', skinTone: '#BA7854', hairColor: '#1B202B', outfitColor: '#19345E', hairStyle: 'short', accessory: 'headphones' } },
+  { id: 'solar-pop', label: 'Solar Pop', description: 'Warm & playful', studioConfig: { skinTone: '#543224', hairStyle: 'afro', hairColor: '#1F1512', outfitColor: '#A94C22', bgColor: '#FEF3C7', accessory: 'none' }, artwork: { backgroundStart: '#F5B83B', backgroundEnd: '#FDE68A', accent: '#FFF7D6', skinTone: '#543224', hairColor: '#1F1512', outfitColor: '#A94C22', hairStyle: 'afro' } },
+  { id: 'berry-wave', label: 'Berry Wave', description: 'Expressive & kind', studioConfig: { skinTone: '#FDDFCC', hairStyle: 'bun', hairColor: '#563442', outfitColor: '#6B2258', bgColor: '#FCE7F3', accessory: 'glasses' }, artwork: { backgroundStart: '#D3538B', backgroundEnd: '#F2A4C5', accent: '#FFE4F0', skinTone: '#FDDFCC', hairColor: '#563442', outfitColor: '#6B2258', hairStyle: 'bun', accessory: 'glasses' } },
+  { id: 'forest-mode', label: 'Forest Mode', description: 'Grounded & focused', studioConfig: { skinTone: '#BA7854', hairStyle: 'short', hairColor: '#171916', outfitColor: '#14352D', bgColor: '#ECFDF5', accessory: 'headphones' }, artwork: { backgroundStart: '#235E4B', backgroundEnd: '#8DBD9E', accent: '#D9F7E7', skinTone: '#BA7854', hairColor: '#171916', outfitColor: '#14352D', hairStyle: 'short', accessory: 'headphones' } },
+  { id: 'rose-glow', label: 'Rose Glow', description: 'Bright & thoughtful', studioConfig: { skinTone: '#D99B77', hairStyle: 'curly', hairColor: '#2D1B21', outfitColor: '#8B3155', bgColor: '#FCE7F3', accessory: 'none' }, artwork: { backgroundStart: '#E6789D', backgroundEnd: '#F7C4D4', accent: '#FFF4FA', skinTone: '#D99B77', hairColor: '#2D1B21', outfitColor: '#8B3155', hairStyle: 'curly', accessory: 'earring' } },
 ]
 
 export const AVATAR_PRESETS: AvatarPreset[] = presetArtwork.map(({ artwork, ...preset }) => ({

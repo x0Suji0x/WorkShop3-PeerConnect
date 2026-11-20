@@ -18,7 +18,7 @@ import {
   Camera,
 } from 'lucide-react'
 import type { OnboardingBasicInfo, FormValidationErrors } from '../../types/onboarding'
-import { AVATAR_PRESETS, DEFAULT_AVATAR_URL } from '../../lib/avatarPresets'
+import { AVATAR_PRESETS, DEFAULT_AVATAR_URL, type AvatarStudioConfig } from '../../lib/avatarPresets'
 import { evaluatePasswordStrength } from '../../lib/onboardingValidation'
 import { Badge } from '../common/Badge'
 import { GoogleSignInModal } from '../auth/GoogleSignInModal'
@@ -41,7 +41,7 @@ const SKIN_TONES = [
   { label: 'Deep Espresso', color: '#543224' },
 ]
 
-const HAIR_STYLES = [
+const HAIR_STYLES: Array<{ id: AvatarStudioConfig['hairStyle']; label: string }> = [
   { id: 'short', label: 'Crew Cut' },
   { id: 'curly', label: 'Curly Volume' },
   { id: 'waves', label: 'Long Waves' },
@@ -76,7 +76,7 @@ const BG_COLORS = [
   { label: 'Sage Tint', color: '#ECFDF5' },
 ]
 
-const ACCESSORIES = [
+const ACCESSORIES: Array<{ id: AvatarStudioConfig['accessory']; label: string }> = [
   { id: 'none', label: 'None' },
   { id: 'glasses', label: 'Eyeglasses' },
   { id: 'sunglasses', label: 'Sunglasses' },
@@ -174,13 +174,13 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
   const [suggestionBatch, setSuggestionBatch] = useState(0)
 
   // Avatar Builder state
-  const [avatarConfig, setAvatarConfig] = useState({
+  const [avatarConfig, setAvatarConfig] = useState<AvatarStudioConfig>({
     skinTone: SKIN_TONES[1].color,
-    hairStyle: HAIR_STYLES[0].id,
+    hairStyle: 'short',
     hairColor: HAIR_COLORS[0].color,
     outfitColor: OUTFIT_COLORS[0].color,
     bgColor: BG_COLORS[1].color,
-    accessory: ACCESSORIES[0].id,
+    accessory: 'none',
   })
 
   const passwordStrength = evaluatePasswordStrength(data.password)
@@ -308,6 +308,8 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
     const url = generateSvgAvatarUrl()
     onChange('avatarUrl', url)
   }
+
+  const activePfp = AVATAR_PRESETS.find((preset) => preset.url === data.avatarUrl)
 
   // Display 3 headlines at a time
   const displayedHeadlines = [
@@ -573,6 +575,7 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                     type="button"
                     onClick={() => {
                       onChange('avatarUrl', preset.url)
+                      setAvatarConfig(preset.studioConfig)
                       setZoomLevel(1)
                     }}
                     aria-label={`${preset.label}: ${preset.description}`}
@@ -604,12 +607,16 @@ export function Step1BasicInfo({ data, errors, onChange, onGoogleSuccess }: Step
                   />
                 </div>
 
+                <p className="mt-2 max-w-36 text-center text-[11px] font-medium leading-4 text-[#525A55]">
+                  {activePfp ? `Editing ${activePfp.label}` : 'Your custom avatar'}
+                </p>
+
                 <button
                   type="button"
                   onClick={handleApplyCustomAvatar}
                   className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#08C58A] px-4 py-1.5 text-xs font-bold text-[#123D30] hover:bg-[#07B07B] transition shadow-xs"
                 >
-                  <Check className="h-3.5 w-3.5" /> Apply This Avatar
+                  <Check className="h-3.5 w-3.5" /> Save avatar edits
                 </button>
               </div>
 
