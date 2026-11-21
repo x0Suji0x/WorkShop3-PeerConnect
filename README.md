@@ -1,15 +1,17 @@
 # PeerConnect
 
-PeerConnect is a React + TypeScript student talent and project collaboration prototype, built with Vite, React Router, Tailwind CSS, and Supabase Auth.
+[Open PeerConnect on Vercel](https://work-shop3-peer-connect.vercel.app/)
 
-## Current implementation boundary
+PeerConnect helps students showcase their work and apply to projects. Clients can publish project briefs and review applicants. The app uses React, TypeScript, Vite, React Router, Tailwind CSS, and Supabase.
 
-- **Authentication is real Supabase Auth.** Email/password and Google OAuth use Supabase. The account role is `student` or `client` and comes from the Supabase profile, not a URL or browser setting.
+## How data is stored
+
+- **Authentication is real Supabase Auth.** Email/password and Google OAuth use Supabase. Signup creates a base account record in `public.profiles`. Its `student` or `client` role determines the dashboard.
 - **Student profiles are persisted to Supabase.** Onboarding and profile edits save to `public.student_profiles`. Profiles are private by default; students can opt into public discovery. The public profile fields contain no email or phone number.
 - **Projects are persisted to Supabase.** Client-owned drafts remain private until published; published account projects appear alongside clearly labeled sample listings. Editing and closing a project are not available yet.
-- **Marketplace applications and shortlists are persisted to Supabase.** Students can track application status, and project owners can review applicants and shortlist them. College event, volunteer, and club applications remain saved only in the current browser/device.
-- **Verification requests are persisted to Supabase and reviewed manually.** Only an admin-approved request produces a verified badge. Email confirmation and Google sign-in do not establish student enrollment or company identity. There is no admin review screen or document upload yet; admins are configured and review requests through the documented SQL workflow.
-- **Sample content remains illustrative.** Marketplace listings, sample talent profiles, ratings, and reviews are not real user submissions or evidence of verified work.
+- **Marketplace applications and shortlists are persisted to Supabase.** Project owners can shortlist, accept, or reject applicants. Students can withdraw a submitted or shortlisted application. Accepted, rejected, and withdrawn applications are final. College event, volunteer, and club applications remain saved only in the current browser/device.
+- **Verification requests are persisted to Supabase and reviewed manually.** Only an admin-approved request produces a verified badge. Email confirmation and Google sign-in do not establish student enrollment or company identity. There is no admin review screen or document upload yet; admins are configured and review requests through the [verification admin guide](docs/verification-admin.md).
+- **Sample content remains illustrative.** The directory and project browser include labeled sample entries alongside account data. Sample ratings and reviews are illustrative, and Student Plus checkout is a demo.
 
 The shared demo notice describes these limits in the app. Verification notes are visible to the account owner and verification admins; avoid entering sensitive identity numbers or other unnecessary personal information.
 
@@ -36,6 +38,10 @@ Useful routes:
 - `/signin` — sign in or register a client account
 - `/dashboard` — authenticated student or client dashboard
 - `/terms` and `/privacy` — draft policies pending legal review
+
+## Vercel deployment
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project’s Production environment and redeploy so Vite includes them in the build. The SPA rewrite in [vercel.json](vercel.json) serves the app when someone opens a deep link such as `/auth/callback`. Configure the production origin and allowed auth redirects using the [Supabase setup guide](docs/supabase-setup.md).
 
 ## Checks
 
